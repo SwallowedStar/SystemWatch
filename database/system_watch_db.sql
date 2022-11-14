@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : lun. 14 nov. 2022 à 13:31
+-- Généré le : lun. 14 nov. 2022 à 13:51
 -- Version du serveur : 5.7.36
 -- Version de PHP : 7.4.26
 
@@ -29,6 +29,10 @@ USE `system_watch_db`;
 --
 -- Structure de la table `computer`
 --
+-- Création : lun. 14 nov. 2022 à 13:18
+-- Dernière modification : lun. 14 nov. 2022 à 13:18
+-- Dernière vérification : lun. 14 nov. 2022 à 13:18
+--
 
 DROP TABLE IF EXISTS `computer`;
 CREATE TABLE IF NOT EXISTS `computer` (
@@ -47,6 +51,10 @@ CREATE TABLE IF NOT EXISTS `computer` (
 --
 -- Structure de la table `core`
 --
+-- Création : lun. 14 nov. 2022 à 13:22
+-- Dernière modification : lun. 14 nov. 2022 à 13:22
+-- Dernière vérification : lun. 14 nov. 2022 à 13:22
+--
 
 DROP TABLE IF EXISTS `core`;
 CREATE TABLE IF NOT EXISTS `core` (
@@ -60,6 +68,10 @@ CREATE TABLE IF NOT EXISTS `core` (
 
 --
 -- Structure de la table `corestatus`
+--
+-- Création : lun. 14 nov. 2022 à 13:29
+-- Dernière modification : lun. 14 nov. 2022 à 13:29
+-- Dernière vérification : lun. 14 nov. 2022 à 13:29
 --
 
 DROP TABLE IF EXISTS `corestatus`;
@@ -79,6 +91,9 @@ CREATE TABLE IF NOT EXISTS `corestatus` (
 --
 -- Structure de la table `cpu`
 --
+-- Création : lun. 14 nov. 2022 à 13:05
+-- Dernière modification : lun. 14 nov. 2022 à 13:05
+--
 
 DROP TABLE IF EXISTS `cpu`;
 CREATE TABLE IF NOT EXISTS `cpu` (
@@ -92,6 +107,10 @@ CREATE TABLE IF NOT EXISTS `cpu` (
 --
 -- Structure de la table `inputtime`
 --
+-- Création : lun. 14 nov. 2022 à 13:46
+-- Dernière modification : lun. 14 nov. 2022 à 13:46
+-- Dernière vérification : lun. 14 nov. 2022 à 13:46
+--
 
 DROP TABLE IF EXISTS `inputtime`;
 CREATE TABLE IF NOT EXISTS `inputtime` (
@@ -103,6 +122,7 @@ CREATE TABLE IF NOT EXISTS `inputtime` (
   `GPUtemp` int(11) NOT NULL,
   `CPUfreq` int(11) NOT NULL,
   `VRAMusage` int(11) NOT NULL,
+  `fanSpeed` int(11) NOT NULL,
   PRIMARY KEY (`time`,`computerID`),
   KEY `fk_inputtime_computer_computerid` (`computerID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
