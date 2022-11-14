@@ -7,7 +7,9 @@ import os
 import psutil
 from psutil import *
 import GPUtil
-import wmi
+import socket
+import cpuinfo
+
 """
 # Compliqué a expliquer mais pas tres utile ?
 print("CPU_TIME")
@@ -60,44 +62,73 @@ print(gpu.temperature)
 print(GPUtil.showUtilization())
 print(GPUtil.getAvailable())
 """
+
+
 def calc_generale(incr):
-    if(incr==0):
+    if (incr == 0):
         nb_thread = 0
         nb_proc = 0
         for x in psutil.process_iter(attrs=None, ad_value=None):
             nb_thread += x.num_threads()
             nb_proc += 1
-        return [nb_thread,nb_proc]
-    elif(incr==1):
-        #GET infos for computer table
-        computer_name=os.environ['COMPUTERNAME']
-        gpu = GPUtil.getGPUs()[0]
-        cpu_name=platform.processor()
-        gpu_name=gpu.name
-        name_os=platform.system()
-        core_number=multiprocessing.cpu_count()
-        memoire=psutil.virtual_memory()
-        quantity_ram=memoire.total
-        quantity_vram=gpu.memoryTotal
+        return [nb_thread, nb_proc]
+    elif (incr == 1):
+        # GET infos for computer table
+        computer_name = socket.gethostname()
+        gpu = GPUtil.getGPUs()
+        if (gpu == []):
+            cpu_name = cpuinfo.get_cpu_info()['brand_raw']
 
-        return [computer_name,cpu_name,gpu_name,name_os,core_number,quantity_ram,quantity_vram]
+            name_os = platform.system()
+            core_number = multiprocessing.cpu_count()
+            memoire = psutil.virtual_memory()
+            quantity_ram = memoire.total
 
-    elif(incr==2):
-        """memoire=psutil.virtual_memory()
-        ram_usage=memoire.used
-        gpu = GPUtil.getGPUs()[0]
-        gpu_temp=gpu.temperature
-        gpu_usage=gpu.load
-        #Only on Linux
-        freq_cpu=cpu_freq()
-        vram_usage=gpu.memoryUsed
-        fan_sensor=sensors_fans()"""
+            return [computer_name, cpu_name, 0, name_os, core_number, quantity_ram, 0]
 
-        return [1,1,1,1,1,1,1]
-        #return [ram_usage,gpu_temp,gpu_usage,freq_cpu,vram_usage,fan_sensor]
-    elif(incr==3):
+        else:
 
-        return [0,0,0]
+            cpu_name = cpuinfo.get_cpu_info()['brand_raw']
+            gpu_name = gpu.name
+            name_os = platform.system()
+            core_number = multiprocessing.cpu_count()
+            memoire = psutil.virtual_memory()
+            quantity_ram = memoire.total
+            quantity_vram = gpu.memoryTotal
+
+            return [computer_name, cpu_name, gpu_name, name_os, core_number, quantity_ram, quantity_vram]
+
+    elif (incr == 2):
+        memoire = psutil.virtual_memory()
+        ram_usage = memoire.used
+        gpu = GPUtil.getGPUs()
+        if (gpu == []):
+            freq_cpu = cpu_freq()
+            # rajouter min max freq
+            fan_sensor = sensors_fans()
+            return [ram_usage, 0, 0, freq_cpu.current, 0, fan_sensor]
+        else:
+            gpu = GPUtil.getGPUs()[0]
+            gpu_temp = gpu.temperature
+            gpu_usage = gpu.load
+            # Only on Linux
+            freq_cpu = cpu_freq()
+            freq_cpu = freq_cpu.current
+            vram_usage = gpu.memoryUsed
+            fan_sensor = sensors_fans()
+            return [ram_usage, gpu_temp, gpu_usage, freq_cpu, vram_usage, fan_sensor]
+    elif (incr == 3):
+        all_coeur = sensors_temperatures()
+        all_freq = cpu_freq(percpu=True)
+        tab_temp = []
+        tab_usage = []
+        for element in all_coeur["coretemp"]:
+            if ("Core" in element.label):
+                tab_temp.append(element.current)
+        for element in all_freq:
+            tab_usage.append(element.current)
+
+        return [tab_temp, tab_usage]
 
 
 def res_func(res):
@@ -105,15 +136,15 @@ def res_func(res):
 
 
 if __name__ == "__main__":
-    res_l=[]
+    res_l = []
     ctx = multiprocessing.get_context("spawn")
     nb_proc = 4
     incr = 0
     res = []
     with ctx.Pool(processes=nb_proc) as p:
-        date_deb=datetime.datetime.now()
+        date_deb = datetime.datetime.now()
         for x in range(0, nb_proc):
-            p.apply_async(calc_generale, [incr],callback=res_func)
+            p.apply_async(calc_generale, [incr], callback=res_func)
             incr += 1
 
         """test2 = p.apply_async(calc_2, [beforeArray, halfBlob,newImage,afterArray,blobSize])
@@ -123,22 +154,8 @@ if __name__ == "__main__":
         p.join()
 
         print(res_l)
-        print(datetime.datetime.now()-date_deb)
+        print(datetime.datetime.now() - date_deb)
         p.terminate()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # Fonctionne mais necessite de run en admin
 """import clr # the pythonnet module.
