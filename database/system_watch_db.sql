@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : lun. 14 nov. 2022 à 16:45
+-- Généré le : mar. 15 nov. 2022 à 18:48
 -- Version du serveur : 5.7.36
 -- Version de PHP : 7.4.26
 
@@ -35,12 +35,25 @@ CREATE TABLE IF NOT EXISTS `computer` (
   `computerID` int(11) NOT NULL AUTO_INCREMENT,
   `computerName` varchar(100) NOT NULL,
   `GPUname` varchar(100) NOT NULL,
-  `amountRAM` int(11) NOT NULL,
-  `amountVRAM` int(11) NOT NULL,
+  `amountRAM` bigint(11) UNSIGNED NOT NULL,
+  `amountVRAM` bigint(11) UNSIGNED NOT NULL,
   `CPUid` int(11) NOT NULL,
   PRIMARY KEY (`computerID`),
   KEY `fk_computer_cpu_CPUid` (`CPUid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+
+--
+-- Déchargement des données de la table `computer`
+--
+
+INSERT INTO `computer` (`computerID`, `computerName`, `GPUname`, `amountRAM`, `amountVRAM`, `CPUid`) VALUES
+(1, 'Hp Envy', 'AMD Radeon', 16000000000, 6000000000, 1),
+(2, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
+(11, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
+(12, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
+(13, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
+(14, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
+(17, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1);
 
 -- --------------------------------------------------------
 
@@ -54,7 +67,19 @@ CREATE TABLE IF NOT EXISTS `core` (
   `computerID` int(11) NOT NULL,
   PRIMARY KEY (`idCore`),
   KEY `fk_core_computer_computerID` (`computerID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+
+--
+-- Déchargement des données de la table `core`
+--
+
+INSERT INTO `core` (`idCore`, `computerID`) VALUES
+(1, 1),
+(2, 1),
+(3, 1),
+(4, 1),
+(5, 1),
+(6, 1);
 
 -- --------------------------------------------------------
 
@@ -69,10 +94,10 @@ CREATE TABLE IF NOT EXISTS `corestatus` (
   `idCore` int(11) NOT NULL,
   `coreFrequency` float NOT NULL,
   `coreTemp` float NOT NULL,
-  KEY `fk_corestatus_monitor_time_` (`time`),
-  KEY `fk_corestatus_monitor_computerID` (`computerID`),
+  PRIMARY KEY (`time`,`idCore`,`computerID`),
+  KEY `fk_corestatus_inputtime_computerID` (`computerID`),
   KEY `fk_corestatus_core` (`idCore`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -85,10 +110,17 @@ CREATE TABLE IF NOT EXISTS `cpu` (
   `CPUid` int(11) NOT NULL AUTO_INCREMENT,
   `CPUname` varchar(100) NOT NULL,
   `coreNumber` int(11) NOT NULL,
-  `minFrequency` float NOT NULL,
-  `maxFrenquency` float NOT NULL,
+  `minFrequency` double UNSIGNED NOT NULL,
+  `maxFrequency` double UNSIGNED NOT NULL,
   PRIMARY KEY (`CPUid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Déchargement des données de la table `cpu`
+--
+
+INSERT INTO `cpu` (`CPUid`, `CPUname`, `coreNumber`, `minFrequency`, `maxFrequency`) VALUES
+(1, 'AMD Ryzen 5 4500U', 6, 0, 2380);
 
 -- --------------------------------------------------------
 
@@ -100,16 +132,46 @@ DROP TABLE IF EXISTS `monitor`;
 CREATE TABLE IF NOT EXISTS `monitor` (
   `time` datetime NOT NULL,
   `computerID` int(11) NOT NULL,
-  `RAMusage` float NOT NULL,
+  `RAMusage` double UNSIGNED NOT NULL,
   `nbThreads` int(11) NOT NULL,
   `nbProcesses` int(11) NOT NULL,
   `GPUtemp` int(11) NOT NULL,
-  `GPUfreq` float NOT NULL,
-  `VRAMusage` float NOT NULL,
+  `CPUfreq` double UNSIGNED NOT NULL,
+  `VRAMusage` double UNSIGNED NOT NULL,
   `fanSpeed` int(11) NOT NULL,
   PRIMARY KEY (`time`,`computerID`),
   KEY `fk_monitor_computer_computerid` (`computerID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Contraintes pour les tables déchargées
+--
+
+--
+-- Contraintes pour la table `computer`
+--
+ALTER TABLE `computer`
+  ADD CONSTRAINT `fk_computer_cpu_CPUid` FOREIGN KEY (`CPUid`) REFERENCES `cpu` (`CPUid`);
+
+--
+-- Contraintes pour la table `core`
+--
+ALTER TABLE `core`
+  ADD CONSTRAINT `fk_core_computer_computerID` FOREIGN KEY (`computerID`) REFERENCES `computer` (`computerID`);
+
+--
+-- Contraintes pour la table `corestatus`
+--
+ALTER TABLE `corestatus`
+  ADD CONSTRAINT `fk_corestatus_core` FOREIGN KEY (`idCore`) REFERENCES `core` (`idCore`),
+  ADD CONSTRAINT `fk_corestatus_inputtime_computerID` FOREIGN KEY (`computerID`) REFERENCES `monitor` (`computerID`),
+  ADD CONSTRAINT `fk_corestatus_inputtime_time_computerID` FOREIGN KEY (`time`) REFERENCES `monitor` (`time`);
+
+--
+-- Contraintes pour la table `monitor`
+--
+ALTER TABLE `monitor`
+  ADD CONSTRAINT `fk_inputtime_computer_computerid` FOREIGN KEY (`computerID`) REFERENCES `computer` (`computerID`);
 SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
 
