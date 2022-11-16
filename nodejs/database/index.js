@@ -8,16 +8,15 @@ let dbConnection = mysql2.createConnection({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD, 
     database: process.env.DB_NAME,
-    
 })
+
 
 dbConnection.connect(function(err){
     if(!err){
         console.log("Database is connected")
-        connected = true
     } else {
         console.log("Error connecting to databse ...", err)
-        throw err
+        //throw err
     }
 })
 
@@ -31,9 +30,6 @@ const pool = mysql2.createPool({
 }).promise()
 
 
-
-
-
 module.exports = {
-    pool: pool
+    pool: pool,
 }

@@ -1,4 +1,5 @@
-class Computer{
+
+class Computer {
     constructor(computerID, computerName, GPUname, amountRAM, amountVRAM, CPUid){
         this.computerID = computerID,
         this.computerName = computerName
@@ -12,7 +13,14 @@ class Computer{
     }
 
     static load(computer){
-        return new Computer(computer.computerID, computer.computerName, computer.GPUname, computer.amountRAM, computer.amountVRAM, computer.CPUid)
+        return new Computer(
+            computer.computerID,
+            computer.computerName,
+            computer.GPUname,
+            computer.amountRAM,
+            computer.amountVRAM,
+            computer.CPUid
+        )
     }
 
     setCPU(cpu){
@@ -24,7 +32,7 @@ class Computer{
     } 
 }
 
-class CPU{
+class CPU {
     constructor(CPUid, CPUname, coreNumber, minFrequency, maxFrequency){
         this.CPUid = CPUid
         this.CPUname = CPUname
@@ -33,8 +41,14 @@ class CPU{
         this.maxFrequency = maxFrequency
     }
 
-    static load(cpu) {
-        return new CPU(cpu.CPUid, cpu.CPUname, cpu.coreNumber, cpu.minFrequency, cpu.maxFrequency)
+    static load(cpu){
+        return new CPU(
+            cpu.CPUid,
+            cpu.CPUname,
+            cpu.coreNumber,
+            cpu.minFrequency,
+            cpu.maxFrequency
+        )
     }
 }
 
@@ -43,34 +57,32 @@ class Core{
         this.idCore = idCore
         this.computerID = computerID
     }
-
     static load(core){
-        return new Core(core.idCore, core.computerID)
+        return new Core(
+            core.idCore,
+            core.computerID
+        )
     }
 }
 
 class Monitor{
-    constructor(time, computerID, RAMusage, nbThreads, nbProcesses, GPUtemp, GPUfreq, VRAMusage, fanSpeed){
+    constructor(time, computerID, RAMusage, nbThreads, nbProcesses, GPUtemp, CPUfreq, VRAMusage, fanSpeed){
         this.time = time
         this.computerID = computerID
         this.RAMusage = RAMusage
         this.nbThreads = nbThreads
         this.nbProcesses = nbProcesses
         this.GPUtemp = GPUtemp
-        this.CPUfreq = GPUfreq
+        this.CPUfreq = CPUfreq
         this.VRAMusage = VRAMusage
         this.fanSpeed = fanSpeed
 
         this.coresStatus = []
     }
 
-    addCoreStatus(coreStatus){
-        this.coresStatus.push(coreStatus)
-    }
-
     static load(monitor){
         return new Monitor(
-            monitor.time, 
+            monitor.time,
             monitor.computerID,
             monitor.RAMusage,
             monitor.nbThreads,
@@ -81,9 +93,13 @@ class Monitor{
             monitor.fanSpeed
         )
     }
+
+    addCoreStatus(coreStatus){
+        this.coresStatus.push(coreStatus)
+    }
 }
 
-class CoreStatus{
+class CoreStatus {
     constructor(time, computerID, idCore, coreFrequency, coreTemp){
         this.time = time
         this.computerID = computerID
@@ -91,14 +107,13 @@ class CoreStatus{
         this.coreFrequency = coreFrequency,
         this.coreTemp = coreTemp
     }
-
-    static load(corestatus){
+    static load (coreStatus){
         return new CoreStatus(
-            corestatus.time,
-            corestatus.computerID, 
-            corestatus.idCore,
-            corestatus.coreFrequency,
-            corestatus.coreTemp
+            coreStatus.time,
+            coreStatus.computerID,
+            coreStatus.idCore,
+            coreStatus.coreFrequency,
+            coreStatus.coreTemp,
         )
     }
 }
