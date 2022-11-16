@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : mar. 15 nov. 2022 à 18:48
+-- Généré le : mer. 16 nov. 2022 à 23:14
 -- Version du serveur : 5.7.36
 -- Version de PHP : 7.4.26
 
@@ -40,20 +40,14 @@ CREATE TABLE IF NOT EXISTS `computer` (
   `CPUid` int(11) NOT NULL,
   PRIMARY KEY (`computerID`),
   KEY `fk_computer_cpu_CPUid` (`CPUid`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `computer`
 --
 
 INSERT INTO `computer` (`computerID`, `computerName`, `GPUname`, `amountRAM`, `amountVRAM`, `CPUid`) VALUES
-(1, 'Hp Envy', 'AMD Radeon', 16000000000, 6000000000, 1),
-(2, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
-(11, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
-(12, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
-(13, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
-(14, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1),
-(17, 'Testputer', 'TestGPU', 16000000000, 6000000000, 1);
+(1, 'Hp envy', 'AMD Radeon', 12000000000, 6000000000, 1);
 
 -- --------------------------------------------------------
 
@@ -67,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `core` (
   `computerID` int(11) NOT NULL,
   PRIMARY KEY (`idCore`),
   KEY `fk_core_computer_computerID` (`computerID`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=839 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `core`
@@ -95,8 +89,8 @@ CREATE TABLE IF NOT EXISTS `corestatus` (
   `coreFrequency` float NOT NULL,
   `coreTemp` float NOT NULL,
   PRIMARY KEY (`time`,`idCore`,`computerID`),
-  KEY `fk_corestatus_inputtime_computerID` (`computerID`),
-  KEY `fk_corestatus_core` (`idCore`)
+  KEY `fk_corestatus_core` (`idCore`),
+  KEY `fk_corestatus_monitor_computerID` (`computerID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -113,14 +107,15 @@ CREATE TABLE IF NOT EXISTS `cpu` (
   `minFrequency` double UNSIGNED NOT NULL,
   `maxFrequency` double UNSIGNED NOT NULL,
   PRIMARY KEY (`CPUid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `cpu`
 --
 
 INSERT INTO `cpu` (`CPUid`, `CPUname`, `coreNumber`, `minFrequency`, `maxFrequency`) VALUES
-(1, 'AMD Ryzen 5 4500U', 6, 0, 2380);
+(1, 'AMD Ryzen 5 4500U', 6, 0, 2380),
+(10, 'Intel i5-3 @ 3.800GHz', 4, 0, 3400000000);
 
 -- --------------------------------------------------------
 
@@ -135,10 +130,10 @@ CREATE TABLE IF NOT EXISTS `monitor` (
   `RAMusage` double UNSIGNED NOT NULL,
   `nbThreads` int(11) NOT NULL,
   `nbProcesses` int(11) NOT NULL,
-  `GPUtemp` int(11) NOT NULL,
+  `GPUtemp` double NOT NULL,
   `CPUfreq` double UNSIGNED NOT NULL,
   `VRAMusage` double UNSIGNED NOT NULL,
-  `fanSpeed` int(11) NOT NULL,
+  `fanSpeed` double NOT NULL,
   PRIMARY KEY (`time`,`computerID`),
   KEY `fk_monitor_computer_computerid` (`computerID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -157,21 +152,21 @@ ALTER TABLE `computer`
 -- Contraintes pour la table `core`
 --
 ALTER TABLE `core`
-  ADD CONSTRAINT `fk_core_computer_computerID` FOREIGN KEY (`computerID`) REFERENCES `computer` (`computerID`);
+  ADD CONSTRAINT `fk_core_computer_computerID` FOREIGN KEY (`computerID`) REFERENCES `computer` (`computerID`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `corestatus`
 --
 ALTER TABLE `corestatus`
-  ADD CONSTRAINT `fk_corestatus_core` FOREIGN KEY (`idCore`) REFERENCES `core` (`idCore`),
-  ADD CONSTRAINT `fk_corestatus_inputtime_computerID` FOREIGN KEY (`computerID`) REFERENCES `monitor` (`computerID`),
-  ADD CONSTRAINT `fk_corestatus_inputtime_time_computerID` FOREIGN KEY (`time`) REFERENCES `monitor` (`time`);
+  ADD CONSTRAINT `fk_corestatus_core` FOREIGN KEY (`idCore`) REFERENCES `core` (`idCore`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_corestatus_monitor_computerID` FOREIGN KEY (`computerID`) REFERENCES `monitor` (`computerID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_corestatus_monitor_time` FOREIGN KEY (`time`) REFERENCES `monitor` (`time`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `monitor`
 --
 ALTER TABLE `monitor`
-  ADD CONSTRAINT `fk_inputtime_computer_computerid` FOREIGN KEY (`computerID`) REFERENCES `computer` (`computerID`);
+  ADD CONSTRAINT `fk_monitor_computer_computerid` FOREIGN KEY (`computerID`) REFERENCES `computer` (`computerID`) ON DELETE CASCADE;
 SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
 
