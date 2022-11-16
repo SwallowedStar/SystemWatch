@@ -16,7 +16,6 @@ dbConnection.connect(function(err){
         console.log("Database is connected")
     } else {
         console.log("Error connecting to databse ...", err)
-        //throw err
     }
 })
 
