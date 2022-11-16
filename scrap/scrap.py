@@ -65,6 +65,7 @@ print(GPUtil.getAvailable())
 
 
 def calc_generale(incr):
+    os_name = platform.system()
     if (incr == 0):
         nb_thread = 0
         nb_proc = 0
@@ -87,7 +88,7 @@ def calc_generale(incr):
             return [computer_name, cpu_name, 0, name_os, core_number, quantity_ram, 0]
 
         else:
-
+            gpu = GPUtil.getGPUs()[0]
             cpu_name = cpuinfo.get_cpu_info()['brand_raw']
             gpu_name = gpu.name
             name_os = platform.system()
@@ -98,37 +99,95 @@ def calc_generale(incr):
 
             return [computer_name, cpu_name, gpu_name, name_os, core_number, quantity_ram, quantity_vram]
 
+
     elif (incr == 2):
         memoire = psutil.virtual_memory()
         ram_usage = memoire.used
-        gpu = GPUtil.getGPUs()
-        if (gpu == []):
-            freq_cpu = cpu_freq()
-            # rajouter min max freq
-            fan_sensor = sensors_fans()
-            return [ram_usage, 0, 0, freq_cpu.current, 0, fan_sensor]
-        else:
-            gpu = GPUtil.getGPUs()[0]
-            gpu_temp = gpu.temperature
-            gpu_usage = gpu.load
-            # Only on Linux
-            freq_cpu = cpu_freq()
-            freq_cpu = freq_cpu.current
-            vram_usage = gpu.memoryUsed
-            fan_sensor = sensors_fans()
-            return [ram_usage, gpu_temp, gpu_usage, freq_cpu, vram_usage, fan_sensor]
-    elif (incr == 3):
-        all_coeur = sensors_temperatures()
-        all_freq = cpu_freq(percpu=True)
-        tab_temp = []
-        tab_usage = []
-        for element in all_coeur["coretemp"]:
-            if ("Core" in element.label):
-                tab_temp.append(element.current)
-        for element in all_freq:
-            tab_usage.append(element.current)
+        gpu = GPUtil.getGPUs()    
+        if(os_name=="Windows"):
+            import clr as clllr
+            file = "OpenHardwareMonitorLib"
 
-        return [tab_temp, tab_usage]
+            clllr.AddReference(file)
+            from OpenHardwareMonitor import Hardware
+            handle = Hardware.Computer()
+            handle.CPUEnabled = True
+            handle.Open()
+            frequence_cpu=0
+            compt=0
+            for i in handle.Hardware:
+                i.Update()
+                for sensor in i.Sensors:
+                    if sensor.SensorType.ToString() == "Clock" and "Core" in sensor.Name:
+                        frequence_cpu += sensor.Value
+                        compt+=1
+
+            frequence_cpu=frequence_cpu/compt
+
+            if (gpu == []):
+                
+                # rajouter min max freq
+                
+                return [ram_usage, 0, 0, cpu_freq, 0, 0]
+            else:
+                gpu = GPUtil.getGPUs()[0]
+                gpu_temp = gpu.temperature
+                gpu_usage = gpu.load
+                vram_usage = gpu.memoryUsed
+               
+                return [ram_usage, gpu_temp, gpu_usage, freq_cpu, vram_usage, 0]
+        elif(os_name=="Linux"):
+            if (gpu == []):
+                freq_cpu = cpu_freq()
+                # rajouter min max freq
+                
+                return [ram_usage, 0, 0, freq_cpu.current, 0, 0]
+            else:
+                gpu = GPUtil.getGPUs()[0]
+                gpu_temp = gpu.temperature
+                gpu_usage = gpu.load
+                # Only on Linux
+                freq_cpu = cpu_freq()
+                freq_cpu = freq_cpu.current
+                vram_usage = gpu.memoryUsed
+                
+              
+                return [ram_usage, gpu_temp, gpu_usage, freq_cpu, vram_usage, 0]
+
+    elif (incr == 3):
+        if(os_name=="Windows"):
+            import clr as clllr
+            file = "OpenHardwareMonitorLib"
+
+            clllr.AddReference(file)
+            from OpenHardwareMonitor import Hardware
+            handle = Hardware.Computer()
+            handle.CPUEnabled = True
+            handle.Open()
+            frequence_cpu=[]
+            temperature_cpu=[]
+            for i in handle.Hardware:
+                i.Update()
+                for sensor in i.Sensors:
+                    if (sensor.SensorType.ToString() == "Clock" and "Core" in sensor.Name):
+                        frequence_cpu.append(sensor.Value)
+                    elif(sensor.SensorType.ToString()=="Temperature" and "Core" in sensor.Name):
+                        temperature_cpu.append(sensor.Value)
+
+            return [frequence_cpu,temperature_cpu]
+        elif(os_name=="Linux"):
+       
+            all_coeur = sensors_temperatures()
+            all_freq = cpu_freq(percpu=True)
+            tab_temp = []
+            tab_usage = []
+            for element in all_coeur["coretemp"]:
+                if ("Core" in element.label):
+                    tab_temp.append(element.current)
+            for element in all_freq:
+                tab_usage.append(element.current)
+
+            return [tab_temp, tab_usage]
 
 
 def res_func(res):
