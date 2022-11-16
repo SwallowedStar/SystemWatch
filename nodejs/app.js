@@ -3,7 +3,11 @@ const express = require("express")
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const http = require("http");
+
 require("dotenv").config()
+
+// create the app
+const app = express();
 
 // Configure server
 app.use(logger('dev'));
@@ -26,3 +30,4 @@ server.on('listening', function () {
 server.on('error', function (error) {
     console.error(error);
 });
+
