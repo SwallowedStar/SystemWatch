@@ -3,10 +3,11 @@ const express = require("express")
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const http = require("http");
+const apiRouter = require("./routes/api")
 
 require("dotenv").config()
 
-// create the app
+// Create the app
 const app = express();
 
 // Configure server
@@ -18,16 +19,15 @@ app.use(express.urlencoded({extended: false}));
 // Setup HTTP server
 const server = http.createServer(app);
 
-// Open port 3000
 server.listen(process.env.LISTEN_PORT);
 
-// Quand le serveur est allumé on le log
 server.on('listening', function () {
     console.log("Le serveur est allumé");
 });
 
-// Si il y a une erreur on la log
 server.on('error', function (error) {
     console.error(error);
 });
 
+// Setting up routes here
+app.use("/api", apiRouter)

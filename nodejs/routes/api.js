@@ -1,7 +1,72 @@
+const {ComputerController} = require("../controllers")
 const express = require("express")
-const router = express.Router()
+const { Computer } = require("../models")
+const { getMissingProperties } = require("../utils")
+
+const apiRouter = express.Router()
 
 // All routes will be here
+
+apiRouter.get("/ping", function(req, res){
+    res.json({
+        status: "OK",
+        timestamp: (new Date()).getTime()
+    })
+})
+
+apiRouter.post("/computer", async (req, res) => {
+    let missingProperties = getMissingProperties(Computer.dbProperties, req.body)
+    if(missingProperties.length == 0){
+        res.json(await ComputerController.create(req.body))
+    } else {
+        res.json({
+            "error" : `Folowing properties are missing: ${missingProperties.join()}`
+        })
+    }
+})
+
+apiRouter.get("/computer/:computerID", async (req, res) => {
+    const id = parseInt(req.params.computerID)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else {
+        res.json( await ComputerController.get(req.params))
+
+    }
+})
+
+apiRouter.get("/computer/find/:computerName", async (req, res) => {
+    res.json( await ComputerController.find(req.params.computerName) )
+})
+
+apiRouter.get("/computer/complete/:computerID", async (req, res) => {
+    const id = parseInt(req.params.computerID)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else {
+        res.json( await ComputerController.getComplete(req.params.computerID))
+    }
+})
+
+apiRouter.get("/computers", async (req, res) => {
+    res.json(await ComputerController.all())
+})
+
+apiRouter.delete("/computer/:computerID", async (req, res) => {
+    const id = parseInt(req.params.computerID)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else {
+        res.json( await ComputerController.delete(req.params))
+    }
+    
+})
 
 // post addComputer(computerName : str, GPUName : str, OSname: str, amountRAM: int, amountVRAM : int)
 // Adds a computer to the database and returns it's entry
@@ -40,3 +105,5 @@ const router = express.Router()
 
 // get getCPUs()
 // get gets all the cpus stored in the database
+
+module.exports = apiRouter
