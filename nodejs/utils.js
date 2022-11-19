@@ -10,6 +10,11 @@ function getMissingProperties(propertyList, object){
     return missingsProperties
 }
 
+function isValidDate(d) {
+    return d instanceof Date && !isNaN(d);
+}
+
 module.exports = {
-    getMissingProperties: getMissingProperties
+    getMissingProperties: getMissingProperties,
+    isValidDate: isValidDate
 }

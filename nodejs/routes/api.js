@@ -1,11 +1,21 @@
-const {ComputerController} = require("../controllers")
+const {ComputerController, CPUController, MonitorController, CoreStatusController} = require("../controllers")
 const express = require("express")
-const { Computer } = require("../models")
-const { getMissingProperties } = require("../utils")
+const { Computer, CPU, Monitor, Core, CoreStatus } = require("../models")
+const { getMissingProperties, isValidDate } = require("../utils")
 
 const apiRouter = express.Router()
 
-// All routes will be here
+async function createEntry(model, controller, req){
+    let missingProperties = getMissingProperties(model.dbProperties, req.body)
+    if(missingProperties.length == 0){
+        return await controller.create(req.body)
+    } else {
+        return {
+            "error" : `Folowing properties are missing: ${missingProperties.join()}`
+        }
+    }
+}
+
 
 apiRouter.get("/ping", function(req, res){
     res.json({
@@ -15,14 +25,7 @@ apiRouter.get("/ping", function(req, res){
 })
 
 apiRouter.post("/computer", async (req, res) => {
-    let missingProperties = getMissingProperties(Computer.dbProperties, req.body)
-    if(missingProperties.length == 0){
-        res.json(await ComputerController.create(req.body))
-    } else {
-        res.json({
-            "error" : `Folowing properties are missing: ${missingProperties.join()}`
-        })
-    }
+    res.json(await createEntry(Computer, ComputerController, req))
 })
 
 apiRouter.get("/computer/:computerID", async (req, res) => {
@@ -33,7 +36,6 @@ apiRouter.get("/computer/:computerID", async (req, res) => {
         })
     } else {
         res.json( await ComputerController.get(req.params))
-
     }
 })
 
@@ -65,45 +67,115 @@ apiRouter.delete("/computer/:computerID", async (req, res) => {
     } else {
         res.json( await ComputerController.delete(req.params))
     }
-    
 })
 
-// post addComputer(computerName : str, GPUName : str, OSname: str, amountRAM: int, amountVRAM : int)
-// Adds a computer to the database and returns it's entry
 
-// post addCPU( CPUName : str ) -> returns the newly created CPU
-// adds a new CPU model to the list and returns the entry
+apiRouter.post("/cpu", async (req, res) => {
+    res.json(await createEntry(CPU, CPUController, req))
+})
 
-// post addCore( computerID )
-// adds a new Core to a machine
+apiRouter.get("/cpus", async (req, res) => {
+    res.json(await CPUController.all())
+})
 
-// post addInputTime( time : datetime, computerID : int, RAMUsage : int, nbThreads : Int, nbProcesses, GPUTemp : float, GPUUsage : int, VRAMUsage: int, fanSpeed: int)
-// adds a new entry to the input time. It also sends the info to the socket
+apiRouter.get("/cpu/:CPUid", async (req, res) => {
+    const id = parseInt(req.params.CPUid)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else {
+        res.json( await CPUController.get(req.params))
+    }
+})
 
-// post addCoreStatus (time : datetime, computerID : int, idCore : int, coreFreq : float, coreTemp : int)
-// adds a new core status to the list. It also sends the info to the socket
-
-// get getComputer( computerName : str )
-// gets all the infos from the "Computer" table and returns it.
-// If the computer doesn't exist, an error with be thrown
-
-// get getCompleteComputer ( computerName : str )
-// this will get the "computer" table, but also the "CPU" and "CPUCore" attached to it
-// If the computer doesn't exist, an error with be thrown
-
-// get getComputerCores ( computerID : int )
-// gets the cores that are linked to the specific computerID
-
-// get getComputerCPU (computerID : int)
-// gets all the infos on the Computer CPU
-
-// get getTimeInterval(computerID, start: datetime, stop: datetime)
+apiRouter.delete("/cpu/:CPUid", async (req, res) => {
+    const id = parseInt(req.params.CPUid)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else {
+        res.json( await CPUController.delete(req.params))
+    }
+})
 
 
-// get getComputers()
-// gets all the computers stored into the database
+// apiRouter.post()
 
-// get getCPUs()
-// get gets all the cpus stored in the database
+apiRouter.post("/monitor", async (req, res) => {
+    res.json(await createEntry(Monitor, MonitorController, req))
+})
+
+apiRouter.get("/monitors", async (req, res) => {
+    res.json(await MonitorController.all())
+})
+
+apiRouter.post("/corestatus", async (req, res) => {
+    res.json(await createEntry(CoreStatus, CoreStatusController, req))
+})
+
+apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
+    const id = parseInt(req.params.computerID)
+    
+    const startString = req.params.startDate + " " + req.params.startTime
+    const finishString = req.params.finishDate + " " + req.params.finishTime
+
+    const start = new Date(startString)
+    const finish = new Date(finishString)
+    
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else if (!isValidDate(start) || start.toString() == "Invalid Date") {
+        res.json({
+            "error" : "the start date isn't in the right format : YYYY-MM-DD/hh:mm:ss.00"
+        })
+    } else if (!isValidDate(finish) || finish.toString() == "Invalid Date" ) {
+        res.json({
+            "error" : "the finish date isn't in the right format : YYYY-MM-DD hh:mm:ss.00"
+        })
+    }
+    else {
+        res.json( await MonitorController.getComputerActivityBetween(id, startString, finishString))
+    }
+})
+
+
+apiRouter.post("/corestatus", async (req, res) => {
+    res.json(await createEntry(CoreStatus, CoreStatusController, req))
+})
+
+apiRouter.get("/corestatus/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
+    const id = parseInt(req.params.computerID)
+    
+    const startString = req.params.startDate + " " + req.params.startTime
+    const finishString = req.params.finishDate + " " + req.params.finishTime
+
+    const start = new Date(startString)
+    const finish = new Date(finishString)
+    
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else if (!isValidDate(start) || start.toString() == "Invalid Date") {
+        res.json({
+            "error" : "the start date isn't in the right format : YYYY-MM-DD/hh:mm:ss.00"
+        })
+    } else if (!isValidDate(finish) || finish.toString() == "Invalid Date" ) {
+        res.json({
+            "error" : "the finish date isn't in the right format : YYYY-MM-DD hh:mm:ss.00"
+        })
+    }
+    else {
+        res.json( await CoreStatusController.getComputerActivityBetween(id, startString, finishString))
+    }
+})
+
+apiRouter.get('*', (req, res) => {
+    res.status(404).send('Non-existing route');
+});
 
 module.exports = apiRouter
