@@ -1,6 +1,11 @@
+const Model = require("./Model")
 
-class Computer {
+class Computer extends Model{
+    static dbProperties = ["computerName", "GPUname", "amountRAM", "amountVRAM", "CPUid"]
+    static autoCompleteProperty = "computerID"
+    static idProperties = ["computerID"]
     constructor(computerID, computerName, GPUname, amountRAM, amountVRAM, CPUid){
+        super(Computer)
         this.computerID = computerID,
         this.computerName = computerName
         this.GPUname = GPUname
@@ -11,18 +16,6 @@ class Computer {
         this.CPU = null
         this.cores = []
     }
-
-    static load(computer){
-        return new Computer(
-            computer.computerID,
-            computer.computerName,
-            computer.GPUname,
-            computer.amountRAM,
-            computer.amountVRAM,
-            computer.CPUid
-        )
-    }
-
     setCPU(cpu){
         this.CPU = cpu
     }
@@ -32,41 +25,36 @@ class Computer {
     } 
 }
 
-class CPU {
+class CPU extends Model{
+    static dbProperties = ["CPUname", "coreNumber", "minFrequency", "maxFrequency"]
+    static autoCompleteProperty = "CPUid"
+    static idProperties = ["CPUid"]
     constructor(CPUid, CPUname, coreNumber, minFrequency, maxFrequency){
+        super(CPU)
         this.CPUid = CPUid
         this.CPUname = CPUname
         this.coreNumber = coreNumber
         this.minFrequency = minFrequency 
         this.maxFrequency = maxFrequency
     }
-
-    static load(cpu){
-        return new CPU(
-            cpu.CPUid,
-            cpu.CPUname,
-            cpu.coreNumber,
-            cpu.minFrequency,
-            cpu.maxFrequency
-        )
-    }
 }
 
-class Core{
+class Core extends Model{
+    static dbProperties = ["computerID"]
+    static autoCompleteProperty = "idCore"
+    static idProperties = ["idCore"]
     constructor(idCore, computerID){
+        super(Core)
         this.idCore = idCore
         this.computerID = computerID
     }
-    static load(core){
-        return new Core(
-            core.idCore,
-            core.computerID
-        )
-    }
 }
 
-class Monitor{
+class Monitor extends Model{
+    static dbProperties = ["time", "computerID", "RAMusage", "nbThreads", "nbProcesses", "GPUtemp", "CPUfreq", "VRAMusage", "fanSpeed"]
+    static idProperties = ["time", "computerID"]
     constructor(time, computerID, RAMusage, nbThreads, nbProcesses, GPUtemp, CPUfreq, VRAMusage, fanSpeed){
+        super(Monitor)
         this.time = time
         this.computerID = computerID
         this.RAMusage = RAMusage
@@ -80,41 +68,22 @@ class Monitor{
         this.coresStatus = []
     }
 
-    static load(monitor){
-        return new Monitor(
-            monitor.time,
-            monitor.computerID,
-            monitor.RAMusage,
-            monitor.nbThreads,
-            monitor.nbProcesses,
-            monitor.GPUtemp,
-            monitor.CPUfreq,
-            monitor.VRAMusage,
-            monitor.fanSpeed
-        )
-    }
-
     addCoreStatus(coreStatus){
         this.coresStatus.push(coreStatus)
     }
+
 }
 
-class CoreStatus {
+class CoreStatus extends Model{
+    static dbProperties = ["time", "computerID", "idCore", "coreFrequency", "coreTemp"] 
+    static idProperties = ["time", "computerID", "computerID"]
     constructor(time, computerID, idCore, coreFrequency, coreTemp){
+        super(CoreStatus)
         this.time = time
         this.computerID = computerID
         this.idCore = idCore
         this.coreFrequency = coreFrequency,
         this.coreTemp = coreTemp
-    }
-    static load (coreStatus){
-        return new CoreStatus(
-            coreStatus.time,
-            coreStatus.computerID,
-            coreStatus.idCore,
-            coreStatus.coreFrequency,
-            coreStatus.coreTemp,
-        )
     }
 }
 

@@ -29,16 +29,21 @@ function deepEqual(object1, object2) {
 async function testCoreController() {
     const computerID = 1
     const results = {}
-
+    const coreObj = new Core( undefined, computerID)
     console.log("======== STARTING TESTS FOR CORE CONTROLLER ========")
 
     console.log("==== CoreController.create")
-    const createResponse = await CoreController.create(1)
+    const createResponse = await CoreController.create(coreObj)
     console.log(createResponse)
     results["CoreController.create"] = createResponse instanceof Core
 
+    console.log("==== CoreController.get")
+    const getResponse = await CoreController.get({"idCore": createResponse.idCore})
+    console.log(getResponse)
+    results["CoreController.get"] = deepEqual(getResponse, createResponse)
+
     console.log("==== CoreController.delete")
-    const deleted = await CoreController.delete(createResponse.idCore)
+    const deleted = await CoreController.delete(createResponse)
     console.log(deleted)
     results["CoreController.delete"] = deleted !== null && deleted[0].affectedRows == 1
 
@@ -55,20 +60,21 @@ async function testComputerController() {
     const amountRAM = 6000000000
     const amountVRAM = 6000000000
     const CPUid = 1
+    let computerToSend = new Computer(undefined, computerName, GPUname, amountRAM, amountVRAM, CPUid)
 
     console.log("==== ComputerController.create")
-    let computer = await ComputerController.create(computerName, GPUname, amountRAM, amountVRAM, CPUid)
+    let computer = await ComputerController.create(computerToSend)
     console.log(computer)
     results["ComputerController.create"] = computer instanceof Computer
 
-    let cpu = await CPUController.get(computer.CPUid)
+    let cpu = await CPUController.get({"CPUid": computer.CPUid})
     console.log(cpu)
     for (let i = 0; i < cpu.coreNumber; i++) {
-        await CoreController.create(computer.computerID)
+        await CoreController.create({ "computerID": computer.computerID})
     }
 
     console.log("==== ComputerController.get")
-    let computerGet = await ComputerController.get(computer.computerID)
+    let computerGet = await ComputerController.get({"computerID" : computer.computerID})
     results["ComputerController.get"] = deepEqual(computerGet, computer)
     console.log(computerGet)
 
@@ -77,9 +83,13 @@ async function testComputerController() {
     results["ComputerController.getComplete"] = computerComplete instanceof Computer && computerComplete.cores.length == cpu.coreNumber
     console.log("modelclass here", computerComplete)
 
+    console.log("==== ComputerController.all")
+    let allComputers = await ComputerController.all()
+    results["ComputerController.all"] = allComputers.length == 2
+    console.log(allComputers)
 
     console.log("==== ComputerController.delete")
-    let deleted = await ComputerController.delete(computer.computerID)
+    let deleted = await ComputerController.delete(computer)
     results["ComputerController.delete"] = deleted !== null && deleted[0].affectedRows == 1
     console.log(deleted)
 
@@ -95,29 +105,33 @@ async function testMonitorController() {
     const time2 = new Date('2018-09-22 16:00:00').toISOString().slice(0, 19).replace('T', ' ')
     const computerID = 1
 
+    const monitorToCreate1 = new Monitor(time, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
+    const monitorToCreate2 = new Monitor(time2, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
+
     console.log("==== MonitorController.create")
-    let res = await MonitorController.create(time, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
+    let res = await MonitorController.create(monitorToCreate1)
     console.log(res)
     results["MonitorController.create"] = res instanceof Monitor
 
     console.log("==== MonitorController.get")
-    let getResult = await MonitorController.get(time, computerID)
+    let getResult = await MonitorController.get({"time": time, "computerID": computerID})
     console.log(res)
     results["MonitorController.get"] = res instanceof Monitor && deepEqual(res, getResult)
 
     console.log("==== MonitorController.getComputerActivityBetween")
-    let secondRes = await MonitorController.create(time2, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
+    let secondRes = await MonitorController.create(monitorToCreate2)
 
     let activity = await MonitorController.getComputerActivityBetween(computerID, time, time2)
     console.log(activity)
     results["MonitorController.getComputerActivityBetween"] = activity.length > 1
 
     console.log("==== MonitorController.delete")
-    let deleted = await MonitorController.delete(res.time, res.computerID)
+    
+    let deleted = await MonitorController.delete(res)
     console.log(deleted)
     results["MonitorController.delete"] = deleted !== null && deleted[0].affectedRows == 1
 
-    let deleted2 = await MonitorController.delete(secondRes.time, secondRes.computerID)
+    let deleted2 = await MonitorController.delete(secondRes)
     console.log(deleted2)
 
     return results
@@ -129,22 +143,29 @@ async function testCPUController(){
     const minFrequency = 0
     const maxFrequency = 3400000000
 
+    const newCPU = {
+        "CPUname": CPUname,
+        "coreNumber" : coreNumber,
+        "minFrequency" : minFrequency,
+        "maxFrequency" : maxFrequency
+    }
+
     const results = {}
 
     console.log("======== STARTING TESTS FOR CPU CONTROLLER ========")
 
     console.log("==== CPUController.create")
-    const createResponse = await CPUController.create(CPUname, coreNumber, minFrequency, maxFrequency)
+    const createResponse = await CPUController.create(newCPU)
     console.log(createResponse)
     results["CPUController.create"] = createResponse instanceof CPU
 
     console.log("==== CPUController.get")
-    const getResponse = await CPUController.get(createResponse.CPUid)
+    const getResponse = await CPUController.get({"CPUid" : createResponse.CPUid})
     console.log(getResponse)
     results["CPUController.get"] = getResponse instanceof CPU && deepEqual(getResponse, createResponse)
     
     console.log("==== CPUController.delete")
-    const deleted = await CPUController.delete(createResponse.CPUid)
+    const deleted = await CPUController.delete(createResponse)
     console.log(deleted)
     results["CPUController.delete"] = deleted !== null && deleted[0].affectedRows == 1
 
@@ -159,32 +180,38 @@ async function testCoreStatusController(){
     const idCore = 1
     const coreFrequency = 2000000000
     const coreTemp = 32.1
+    
+    const coreStatus1 = new CoreStatus(time, computerID, idCore, coreFrequency, coreTemp)
+    const coreStatus2 = new CoreStatus(time2, computerID, idCore, coreFrequency, coreTemp)
+
+    const monitorController1 = new Monitor(time, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
+    const monitorController2 = new Monitor(time2, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
 
     const results = {}
 
     console.log("======== STARTING TESTS FOR CORESTATUS CONTROLLER ========")
 
-    await MonitorController.create(time, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
-    await MonitorController.create(time2, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
+    await MonitorController.create(monitorController1)
+    await MonitorController.create(monitorController2)
 
     console.log("==== CoreStatusController.create")
-    const createResponse = await CoreStatusController.create(time, computerID, idCore, coreFrequency, coreTemp)
+    const createResponse = await CoreStatusController.create(coreStatus1)
     console.log(createResponse)
     results["CoreStatusController.create"] = createResponse instanceof CoreStatus
 
     console.log("==== CoreStatusController.getComputerActivityBetween")
-    await CoreStatusController.create(time2, computerID, idCore, coreFrequency, coreTemp)
+    await CoreStatusController.create(coreStatus2)
     let secondRes = await CoreStatusController.getComputerActivityBetween(computerID, time, time2)
     console.log(secondRes)
 
     console.log("==== CoreStatusController.delete")
-    const deleted = await CoreStatusController.delete(createResponse.time, createResponse.computerID, createResponse.idCore)
+    const deleted = await CoreStatusController.delete(createResponse)
     console.log(deleted)
     results["CoreStatusController.delete"] = deleted !== null && deleted[0].affectedRows == 1
-    await MonitorController.delete(createResponse.time, createResponse.computerID)
+    await MonitorController.delete(createResponse)
 
-    await CoreStatusController.delete(time2, computerID, idCore)
-    await MonitorController.delete(time2, computerID)
+    await CoreStatusController.delete({"time":time2, "computerID":computerID, "idCore":idCore})
+    await MonitorController.delete({"time":time2, "computerID":computerID})
 
     return results
 }
