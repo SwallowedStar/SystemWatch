@@ -25,14 +25,34 @@ We will be refering to different party by this vocabular :
 
 ### NodeServer Setup
 
+#### Mysql DB Installation 
+
+If you don't have mysql installed on your server, I'd advise you to install it using docker.
+
+To do so, download the image : 
+```
+docker pull mysql
+```
+
+Then create an instance and set the MYSQL_ROOT_PASSWORD:
+```
+sudo docker run --name <INSTANCE NAME> -e MYSQL_ROOT_PASSWORD=<MYSQL ROOT USER PASSWORD> -p <PORT>:<PORT> -d mysql:latest
+```
+
+Once you've done that, you can import the database into mysql.
+There is the SQL creation script in the `database/system_watch_database.sql` file.
+```
+sudo docker exec -i <INSTANCE NAME> mysql -uroot -<MYSQL ROOT USER PASSWORD> < database/system_watch_db.sql
+```
+
+
+#### Application Installation
+
 At first, you need to download all the dependencies to the node projet.
 ```
 cd nodejs
 npm install
 ```
-
-You will then need to install the system_watch_db database.
-To do so, just execute the "system_watch_db.sql" script that is present in the database folder.
 
 You'll then need to setup your environment variables.
 To do so, create a `.env` file in the nodejs folder with the folowing infos :
@@ -58,6 +78,8 @@ Once all of that is done, you should see if the build passes the tests :
 cd nodejs
 npm run test
 ```
+
+It passes only if all the tests at the end show `true`
 
 ### MonitorMachine Setup
 
