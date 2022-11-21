@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `monitor` (
   `GPUtemp` double NOT NULL,
   `CPUfreq` double UNSIGNED NOT NULL,
   `VRAMusage` double UNSIGNED NOT NULL,
-  `fanSpeed` double NOT NULL,
+  `electricalConsumption` double NOT NULL,
   PRIMARY KEY (`time`,`computerID`),
   KEY `fk_monitor_computer_computerid` (`computerID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

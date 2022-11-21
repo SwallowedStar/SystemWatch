@@ -51,9 +51,9 @@ class Core extends Model{
 }
 
 class Monitor extends Model{
-    static dbProperties = ["time", "computerID", "RAMusage", "nbThreads", "nbProcesses", "GPUtemp", "CPUfreq", "VRAMusage", "fanSpeed"]
+    static dbProperties = ["time", "computerID", "RAMusage", "nbThreads", "nbProcesses", "GPUtemp", "CPUfreq", "VRAMusage", "electricalConsumption"]
     static idProperties = ["time", "computerID"]
-    constructor(time, computerID, RAMusage, nbThreads, nbProcesses, GPUtemp, CPUfreq, VRAMusage, fanSpeed){
+    constructor(time, computerID, RAMusage, nbThreads, nbProcesses, GPUtemp, CPUfreq, VRAMusage, electricalConsumption){
         super(Monitor)
         this.time = time
         this.computerID = computerID
@@ -63,7 +63,7 @@ class Monitor extends Model{
         this.GPUtemp = GPUtemp
         this.CPUfreq = CPUfreq
         this.VRAMusage = VRAMusage
-        this.fanSpeed = fanSpeed
+        this.electricalConsumption = electricalConsumption
 
         this.coresStatus = []
     }
