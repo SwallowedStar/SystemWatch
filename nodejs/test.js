@@ -10,15 +10,14 @@ testMonitorController()
             .then(r4 => {
                 testCoreController()
                 .then(r5 => {
-                    console.log(r5)
-                    console.log(r4)
-                    console.log(r3)
-                    console.log(r2)
                     console.log(r1)
+                    console.log(r2)
+                    console.log(r3)
+                    console.log(r4)
+                    console.log(r5)
                 })
             })
             
-        })
-        
+        })  
     })
 })
