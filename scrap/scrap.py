@@ -155,7 +155,7 @@ def calc_generale(incr):
                 return [ram_usage, gpu_temp, gpu_usage, freq_cpu, vram_usage, 0]
 
     elif (incr == 3):
-        if(os_name=="Windows"):
+        if(os_name=="Linux"):
             import clr as clllr
             file = "OpenHardwareMonitorLib"
 
@@ -175,7 +175,7 @@ def calc_generale(incr):
                         temperature_cpu.append(sensor.Value)
 
             return [frequence_cpu,temperature_cpu]
-        elif(os_name=="Linux"):
+        elif(os_name=="Linurfzfex"):
        
             all_coeur = sensors_temperatures()
             all_freq = cpu_freq(percpu=True)

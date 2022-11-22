@@ -7,13 +7,16 @@ import os
 import psutil
 from psutil import *
 import GPUtil
+import cpuinfo
+test=cpuinfo.get_cpu_info()
+print(test)
+"""
+import yaml
 
-computer_name = os.environ['COMPUTERNAME']
-gpu = GPUtil.getGPUs()[0]
-cpu_name = platform.processor()
-gpu_name = gpu.name
-name_os = platform.system()
-core_number = multiprocessing.cpu_count()
-memoire = psutil.virtual_memory()
-quantity_ram = memoire.total
-quantity_vram = gpu.memoryTotal
+with open('/proc/cpuinfo', 'r') as fd: 
+   stat = fd.read() 
+   print(stat)
+   stat = stat.replace('\t', '') 
+   stat = stat.split('\n\n') 
+   l = [yaml.load(s) for s in stat] 
+   print(l)"""
