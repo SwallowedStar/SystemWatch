@@ -28,6 +28,38 @@ apiRouter.post("/computer", async (req, res) => {
     res.json(await createEntry(Computer, ComputerController, req))
 })
 
+apiRouter.post("/computer/complete", async (req, res) => {
+    const neededComputerProperties = ["computerName", "GPUname", "amountRAM", "amountVRAM", "CPU"]
+    const neededCPUProperties = ["CPUname", "coreNumber", "minFrequency", "maxFrequency"]
+
+    let finish = false
+
+    for(let computerProperty of neededComputerProperties){
+        if(req.body[computerProperty] === undefined && !finish){
+            finish = true
+            res.json({
+                "error": `missing : ${computerProperty}`
+            })
+            break
+        }
+    }
+
+    if(!finish){
+        for(let CPUproperty of neededCPUProperties){
+            if(req.body.CPU[CPUproperty] === undefined && !finish){
+                finish = true
+                res.json({
+                    "error": `missing : ${CPUproperty}`
+                })
+                break
+            }
+        }
+    }
+    if(!finish){
+        res.json(await  ComputerController.createComplete(req.body))
+    }
+})
+
 apiRouter.get("/computer/:computerID", async (req, res) => {
     const id = parseInt(req.params.computerID)
     if(isNaN(id)){

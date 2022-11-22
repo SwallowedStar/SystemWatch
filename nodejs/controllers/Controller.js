@@ -72,22 +72,22 @@ class Controller{
         return this.model.load(result[0][0])
     }
 
-    async delete(ids){
+    async delete(object){
     
         let placeholders = []
         let values = []
         
         for(let property of this.model.idProperties){
             placeholders.push(`${property}=?`)
-            values.push(ids[property])
+            values.push(object[property])
         }
-
         const response = pool.execute(`DELETE FROM ${this.model.name.toLowerCase()} WHERE ${placeholders.join(" and ")}` , values)
         .catch(e=>{
             return {
                 "error" : e.sqlMessage
             }
         })
+
         return response
     }
 }

@@ -78,6 +78,11 @@ async function testComputerController() {
     results["ComputerController.get"] = deepEqual(computerGet, computer)
     console.log(computerGet)
 
+    console.log("==== ComputerController.find")
+    let computerFind = await ComputerController.find(computerName)
+    results["ComputerController.find"] = deepEqual(computerFind, computer)
+    console.log(computerFind)
+
     console.log("==== ComputerController.getComplete")
     let computerComplete = await ComputerController.getComplete(computer.computerID)
     results["ComputerController.getComplete"] = computerComplete instanceof Computer && computerComplete.cores.length == cpu.coreNumber
@@ -92,6 +97,31 @@ async function testComputerController() {
     let deleted = await ComputerController.delete(computer)
     results["ComputerController.delete"] = deleted !== null && deleted[0].affectedRows == 1
     console.log(deleted)
+
+    const CPUname = "New CPU"
+    const coreNumber = 2
+    const minFrequency = 0
+    const maxFrequency = 5400000000
+
+    let newCompleteComputer = {
+        "computerName": computerName, 
+        "GPUname": GPUname,
+        "amountRAM": amountRAM,
+        "amountVRAM": amountVRAM,
+        "CPU": {
+            "CPUname": CPUname,
+            "coreNumber": coreNumber, 
+            "minFrequency": minFrequency,
+            "maxFrequency": maxFrequency
+        }
+    }
+
+    console.log("==== ComputerController.createComplete")
+    let createdCompleteComputer = await ComputerController.createComplete(newCompleteComputer)
+    results["ComputerController.createComplete"] = createdCompleteComputer instanceof Computer
+    console.log(createdCompleteComputer)
+
+    await ComputerController.delete(createdCompleteComputer)
 
     return results
 }
