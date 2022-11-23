@@ -42,7 +42,7 @@ sudo docker run --name <INSTANCE NAME> -e MYSQL_ROOT_PASSWORD=<MYSQL ROOT USER P
 Once you've done that, you can import the database into mysql.
 There is the SQL creation script in the `database/system_watch_database.sql` file.
 ```
-sudo docker exec -i <INSTANCE NAME> mysql -uroot -<MYSQL ROOT USER PASSWORD> < database/system_watch_db.sql
+sudo docker exec -i <INSTANCE NAME> mysql -uroot -p<MYSQL ROOT USER PASSWORD> < database/system_watch_db.sql
 ```
 
 
