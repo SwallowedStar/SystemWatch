@@ -72,7 +72,14 @@ apiRouter.get("/computer/:computerID", async (req, res) => {
 })
 
 apiRouter.get("/computer/find/:computerName", async (req, res) => {
-    res.json( await ComputerController.find(req.params.computerName) )
+    const foundComputer = await ComputerController.find(req.params.computerName)
+    if(foundComputer["error"] !== undefined){
+        res.json(foundComputer)
+    } else {
+        const fullComputer = await ComputerController.getComplete(foundComputer.computerID)
+        console.log(fullComputer)
+        res.json( fullComputer )
+    }
 })
 
 apiRouter.get("/computer/complete/:computerID", async (req, res) => {
