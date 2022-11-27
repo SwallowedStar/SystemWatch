@@ -3,8 +3,8 @@ const express = require("express")
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const http = require("http");
-const apiRouter = require("./routes/api")
 
+const {Server} = require("socket.io")
 require("dotenv").config()
 
 // Create the app
@@ -29,5 +29,32 @@ server.on('error', function (error) {
     console.error(error);
 });
 
+
+const io = new Server(server, {
+    cors: {
+        origin: (requestOrigin, callback) => {
+            callback(undefined, requestOrigin)
+        },
+        methods: ["GET", "POST"]
+    }
+})
+
+io.on("connection", (socket) => {
+    // TODO: look into the concepts of rooms and namespaces
+    console.log(`Confirmed connection from ${socket.id}`)
+
+    socket.emit("welcome", "Hello world")
+    
+    if (socket.handshake.query["computerID"] !== undefined){
+        console.log("Logging into room " + socket.handshake.query["computerID"] + typeof(socket.handshake.query["computerID"]))
+        socket.join(socket.handshake.query["computerID"])
+    }
+})
+
+// Very ugly, but it has to work like that because of the need of the server in socket.io
+module.exports = io
+
+const apiRouter = require("./routes/api");
+const { type } = require("os");
 // Setting up routes here
 app.use("/api", apiRouter)

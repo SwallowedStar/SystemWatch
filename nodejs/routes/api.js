@@ -2,6 +2,7 @@ const {ComputerController, CPUController, MonitorController, CoreStatusControlle
 const express = require("express")
 const { Computer, CPU, Monitor, Core, CoreStatus } = require("../models")
 const { getMissingProperties, isValidDate } = require("../utils")
+const io = require("../app")
 
 const apiRouter = express.Router()
 
@@ -139,11 +140,12 @@ apiRouter.delete("/cpu/:CPUid", async (req, res) => {
     }
 })
 
-
-// apiRouter.post()
-
 apiRouter.post("/monitor", async (req, res) => {
-    res.json(await createEntry(Monitor, MonitorController, req))
+    const response = await createEntry(Monitor, MonitorController, req)
+    if(response["error"] === undefined){
+        io.to("" + response.computerID).emit("monitorchannel", JSON.stringify(response))
+    }
+    res.json(response)
 })
 
 apiRouter.get("/monitors", async (req, res) => {
@@ -151,7 +153,12 @@ apiRouter.get("/monitors", async (req, res) => {
 })
 
 apiRouter.post("/corestatus", async (req, res) => {
-    res.json(await createEntry(CoreStatus, CoreStatusController, req))
+    const response = await createEntry(CoreStatus, CoreStatusController, req)
+    if(response["error"] === undefined){
+        io.to("" + response.computerID).emit("corestatuschannel", JSON.stringify(response))
+    }
+    
+    res.json(response)
 })
 
 apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
