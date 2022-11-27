@@ -170,6 +170,16 @@ apiRouter.delete("/monitor/:computerID/:date/:time", async (req, res) => {
     }
 })
 
+
+apiRouter.post("/corestatus", async (req, res) => {
+    const response = await createEntry(CoreStatus, CoreStatusController, req)
+    if(response["error"] === undefined){
+        io.to("" + response.computerID).emit("corestatuschannel", JSON.stringify(response))
+    }
+    
+    res.json(response)
+})
+
 apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
     const id = parseInt(req.params.computerID)
     
