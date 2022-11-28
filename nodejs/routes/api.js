@@ -152,13 +152,22 @@ apiRouter.get("/monitors", async (req, res) => {
     res.json(await MonitorController.all())
 })
 
-apiRouter.post("/corestatus", async (req, res) => {
-    const response = await createEntry(CoreStatus, CoreStatusController, req)
-    if(response["error"] === undefined){
-        io.to("" + response.computerID).emit("corestatuschannel", JSON.stringify(response))
-    }
+apiRouter.delete("/monitor/:computerID/:date/:time", async (req, res) => {
     
-    res.json(response)
+    const id = parseInt(req.params.computerID)
+    req.params.time = req.params.date + " " + req.params.time
+    const date = new Date(req.params.time)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else if (!isValidDate(date) || date.toString() == "Invalid Date"){
+        res.json({
+            "error" : "wrong date format"
+        })
+    } else {
+        res.json( await MonitorController.delete(req.params))
+    }
 })
 
 apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
@@ -186,6 +195,15 @@ apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:
     else {
         res.json( await MonitorController.getComputerActivityBetween(id, startString, finishString))
     }
+})
+
+apiRouter.post("/corestatus", async (req, res) => {
+    const response = await createEntry(CoreStatus, CoreStatusController, req)
+    if(response["error"] === undefined){
+        io.to("" + response.computerID).emit("corestatuschannel", JSON.stringify(response))
+    }
+    
+    res.json(response)
 })
 
 
@@ -217,6 +235,29 @@ apiRouter.get("/corestatus/interval/:computerID/:startDate/:startTime/:finishDat
     }
     else {
         res.json( await CoreStatusController.getComputerActivityBetween(id, startString, finishString))
+    }
+})
+
+apiRouter.delete("/corestatus/:computerID/:idCore/:date/:time", async (req, res) => {
+    
+    const id = parseInt(req.params.computerID)
+    const idCore = parseInt(req.params.idCore)
+    req.params.time = req.params.date + " " + req.params.time
+    const date = new Date(req.params.time)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the computer id must be an int"
+        })
+    } else if (isNaN(idCore)) {
+        res.json({
+            "error" : "the core id must be an int"
+        })
+    } else if (!isValidDate(date) || date.toString() == "Invalid Date"){
+        res.json({
+            "error" : "wrong date format"
+        })
+    } else {
+        res.json( await CoreStatusController.delete(req.params))
     }
 })
 
