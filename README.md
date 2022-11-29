@@ -3,18 +3,27 @@
 ---
 ## Summary
 
-
+- [Description](#description)
+- [Technologies & Dependencies](#technologies--dependencies)
+- [How to install](#installing)
+- [How to use](#how-to-use)
+- [Special thanks](#special-thanks)
 
 ---
 ## Description
 
 This tool will let you monitor the status of your Server from anywhere.
 
+Using sockets, a RestAPI and some Python libraries, you will be able to monitor your system remotly on a Dashboard. 
+We strongly advide you to use this product in a closed network, as it has not been secured : the interactions with the API and the sockets are uncrypted.
 
 ---
 ## Technologies & Dependencies
 
-
+This software can be separated in 3 parts : 
+- The scrapping part : a python script scraps all the data needed and sends it to the API
+- The Rest API is made using nodejs. it gets all the infos from the computers it needs to monitor.
+- The Front-end is also made with nodejs and expressjs. We didn't feel like doing a lot of CSS, so we just got some CSS from Bootstrap.
 
 --- 
 ## Installing
