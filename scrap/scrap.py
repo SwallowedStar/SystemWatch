@@ -10,6 +10,7 @@ import GPUtil
 import socket
 import cpuinfo
 import requests as rq
+from dotenv import load_dotenv
 
 
 def calc_generale(incr):
@@ -151,6 +152,10 @@ def res_func(res):
 
 
 if __name__ == "__main__":
+    load_dotenv()
+    IP_HOST= os.getenv('IP_HOST')
+    LISTEN_PORT=os.getenv("LISTEN_PORT")
+
     res_l = []
     ctx = multiprocessing.get_context("spawn")
     nb_proc = 4
@@ -191,7 +196,7 @@ if __name__ == "__main__":
         print(l_multiple_core)
         print(l_various_usage)
 
-        r=rq.get("http://192.168.0.19:3000/api/computer/find/"+l_general_infos[0][0])
+        r=rq.get("http://"+IP_HOST+":"+LISTEN_PORT+"/api/computer/find/"+l_general_infos[0][0])
         data=r.json()
         pc_exist=True
         time_send=str(datetime.datetime.now())
@@ -205,14 +210,13 @@ if __name__ == "__main__":
             }
             json_info_computer={
                 "computerName":l_general_infos[0][0],
-                "GPUname":"None",
+                "GPUname":l_general_infos[0][2],
                 "amountRAM":l_general_infos[0][5],
-                "amountVRAM":0,
+                "amountVRAM":l_general_infos[0][6],
                 "CPU":json_cpu
             }
             json_monitor={
                 "time":time_send,
-                "computerID":data["computerID"],
                 "RAMusage":l_various_usage[0][0],
                 "nbThreads":l_thread_proc[0][0],
                 "nbProcesses":l_thread_proc[0][1],
@@ -221,8 +225,8 @@ if __name__ == "__main__":
                 "VRAMusage":l_various_usage[0][6],
                 "electricalConsumption":0
             }
-            rq.post("http://192.168.0.19:3000/api/computer/complete",json=json_info_computer)
-            rq.post("http://192.168.0.19:3000/api/monitor",json=json_monitor)
+            rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/computer/complete",json=json_info_computer)
+            rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/monitor",json=json_monitor)
 
 
         elif(pc_exist==True):
@@ -239,7 +243,7 @@ if __name__ == "__main__":
             }
             print(json_monitor)
 
-            rq.post("http://192.168.0.19:3000/api/monitor",json=json_monitor)
+            rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/monitor",json=json_monitor)
        
 
             i=0
@@ -248,12 +252,12 @@ if __name__ == "__main__":
                     "time":time_send,                    
                     "computerID":data["computerID"],
                     "idCore":x["idCore"],
-                    "coreFreqeuncy":l_multiple_core[0][1][i],
+                    "coreFrequency":l_multiple_core[0][1][i],
                     "coreTemp":l_multiple_core[0][0][i]
                 }
                 i+=1
                 print(json_core)
-                rq.post("http://192.168.0.19:3000/api/corestatus",json=json_core)
+                rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/corestatus",json=json_core)
 
             
 
