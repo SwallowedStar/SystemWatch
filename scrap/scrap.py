@@ -225,10 +225,35 @@ if __name__ == "__main__":
         p.terminate()
 
         #Now lets do the request
-        l_thread_proc=[res_l[0]]
-        l_multiple_core=[res_l[1]]
-        l_various_usage=[res_l[2]]
-        l_general_infos=[res_l[3]]
+        l_test_for=[]
+        l_thread_proc=[]
+        l_multiple_core=[]
+        l_various_usage=[]
+        l_general_infos=[]
+        for x in res_l:
+            if(len(x)==2):
+                if(isinstance(x[0], list)):
+                    l_multiple_core=[x]
+                else:
+                    l_thread_proc=[x]
+            elif(len(x)==7):
+                l_general_infos=[x]
+
+            elif(len(x)==8):
+                l_various_usage=[x]
+
+        print(l_thread_proc)
+        print(l_general_infos)
+        print(l_multiple_core)
+        print(l_various_usage)
+
+        r=rq.get("http://192.168.0.19:3000/api/computer/find/"+l_general_infos[0][0]+"")
+        data=r.json()
+        print(data)
+        """if(x["computerName"]==l_general_infos[0][0]):
+                comput_id=x["computerID"]"""
+        
+        """
         json_cpu={
             "CPUname":l_general_infos[0][1],
             "coreNumber":l_general_infos[0][4],
@@ -242,22 +267,46 @@ if __name__ == "__main__":
             "amountVRAM":0,
             "CPU":json_cpu
         }
+        time_send=str(datetime.datetime.now())
+        print(time_send)
+
+
 
         json_monitor={
-
+            "time":time_send,
+            "computerID":comput_id,
+            "RAMusage":l_various_usage[0][0],
+            "nbThreads":l_thread_proc[0][0],
+            "nbProcesses":l_thread_proc[0][1],
+            "GPUtemp":l_various_usage[0][1],
+            "CPUfreq":l_various_usage[0][3],
+            "VRAMusage":l_various_usage[0][6],
+            "electricalConsumption":0
         }
 
 
+        nb_core=l_general_infos[0][4]
+        for x in range(1,nb_core+1):
+            json_core_status={
+                "time":time_send,
+                "computerID":comput_id,
+                "idCore":x,
+                "coreFrequency":l_multiple_core[0][0][x-1],
+                "coreTemp":l_multiple_core[0][1][x-1]
+            }
+            print(json_core_status)"""
 
 
-        print(json_info_computer)
+
+
+
 
         
         """ Post le computer + le cpu
         print(rq.post("http://192.168.0.19:3000/api/computer/complete",json=json_info_computer))"""
         #print(rq.get("http://192.168.0.19:3000/api/ping"))
         #rq.delete("http://192.168.0.19:3000/api/cpu/64")
-        r=rq.get("http://192.168.0.19:3000/api/computers")
+        """r=rq.get("http://192.168.0.19:3000/api/computers")
         data=r.json()
 
         for x in data:
@@ -265,14 +314,11 @@ if __name__ == "__main__":
                 comput_id=x["computerID"]
         
 
-        time_send=datetime.datetime.now()
 
-        
-        print(time_send)
+
+
         r=rq.get("http://192.168.0.19:3000/api/cpus")
-        data=r.json()
-
-        print(data)
+        data=r.json()"""
 
 
 
