@@ -72,6 +72,10 @@ To do so, create a `.env` file in the nodejs folder with the folowing infos :
 - **DB_PASSWORD** : The user password
 - **DB_NAME** : The name of the database you'll be using. by default, you should put "system_watch_db" 
 
+You also need to create a .env file in the scrap folder : 
+- **LISTEN_PORT** : the listening port for expressjs
+- **IP_HOST** : the IP of your computer
+A default file would look like this : 
 ```
 LISTEN_PORT = 3000
 DB_HOST = "127.0.0.1"
