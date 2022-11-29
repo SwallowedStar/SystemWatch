@@ -10,10 +10,7 @@ import GPUtil
 import socket
 import cpuinfo
 import requests as rq
-<<<<<<< HEAD
 from dotenv import load_dotenv
-=======
->>>>>>> 9e61d73 (finish link scrap to api ( few opitmization + comments to do ))
 
 
 def calc_generale(incr):
