@@ -2,6 +2,7 @@ const {ComputerController, CPUController, MonitorController, CoreStatusControlle
 const express = require("express")
 const { Computer, CPU, Monitor, Core, CoreStatus } = require("../models")
 const { getMissingProperties, isValidDate } = require("../utils")
+const io = require("../app")
 
 const apiRouter = express.Router()
 
@@ -72,7 +73,14 @@ apiRouter.get("/computer/:computerID", async (req, res) => {
 })
 
 apiRouter.get("/computer/find/:computerName", async (req, res) => {
-    res.json( await ComputerController.find(req.params.computerName) )
+    const foundComputer = await ComputerController.find(req.params.computerName)
+    if(foundComputer["error"] !== undefined){
+        res.json(foundComputer)
+    } else {
+        const fullComputer = await ComputerController.getComplete(foundComputer.computerID)
+        console.log(fullComputer)
+        res.json( fullComputer )
+    }
 })
 
 apiRouter.get("/computer/complete/:computerID", async (req, res) => {
@@ -132,19 +140,34 @@ apiRouter.delete("/cpu/:CPUid", async (req, res) => {
     }
 })
 
-
-// apiRouter.post()
-
 apiRouter.post("/monitor", async (req, res) => {
-    res.json(await createEntry(Monitor, MonitorController, req))
+    const response = await createEntry(Monitor, MonitorController, req)
+    if(response["error"] === undefined){
+        io.to("" + response.computerID).emit("monitorchannel", JSON.stringify(response))
+    }
+    res.json(response)
 })
 
 apiRouter.get("/monitors", async (req, res) => {
     res.json(await MonitorController.all())
 })
 
-apiRouter.post("/corestatus", async (req, res) => {
-    res.json(await createEntry(CoreStatus, CoreStatusController, req))
+apiRouter.delete("/monitor/:computerID/:date/:time", async (req, res) => {
+    
+    const id = parseInt(req.params.computerID)
+    req.params.time = req.params.date + " " + req.params.time
+    const date = new Date(req.params.time)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the id must be an int"
+        })
+    } else if (!isValidDate(date) || date.toString() == "Invalid Date"){
+        res.json({
+            "error" : "wrong date format"
+        })
+    } else {
+        res.json( await MonitorController.delete(req.params))
+    }
 })
 
 apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
@@ -172,6 +195,15 @@ apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:
     else {
         res.json( await MonitorController.getComputerActivityBetween(id, startString, finishString))
     }
+})
+
+apiRouter.post("/corestatus", async (req, res) => {
+    const response = await createEntry(CoreStatus, CoreStatusController, req)
+    if(response["error"] === undefined){
+        io.to("" + response.computerID).emit("corestatuschannel", JSON.stringify(response))
+    }
+    
+    res.json(response)
 })
 
 
@@ -203,6 +235,29 @@ apiRouter.get("/corestatus/interval/:computerID/:startDate/:startTime/:finishDat
     }
     else {
         res.json( await CoreStatusController.getComputerActivityBetween(id, startString, finishString))
+    }
+})
+
+apiRouter.delete("/corestatus/:computerID/:idCore/:date/:time", async (req, res) => {
+    
+    const id = parseInt(req.params.computerID)
+    const idCore = parseInt(req.params.idCore)
+    req.params.time = req.params.date + " " + req.params.time
+    const date = new Date(req.params.time)
+    if(isNaN(id)){
+        res.json({
+            "error" : "the computer id must be an int"
+        })
+    } else if (isNaN(idCore)) {
+        res.json({
+            "error" : "the core id must be an int"
+        })
+    } else if (!isValidDate(date) || date.toString() == "Invalid Date"){
+        res.json({
+            "error" : "wrong date format"
+        })
+    } else {
+        res.json( await CoreStatusController.delete(req.params))
     }
 })
 
