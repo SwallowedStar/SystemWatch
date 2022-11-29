@@ -9,7 +9,7 @@ from psutil import *
 import GPUtil
 import socket
 import cpuinfo
-
+import requests as rq
 """
 # Compliqué a expliquer mais pas tres utile ?
 print("CPU_TIME")
@@ -76,9 +76,10 @@ def calc_generale(incr):
     elif (incr == 1):
         # GET infos for computer table
         computer_name = socket.gethostname()
-        gpu = GPUtil.getGPUs()
+        gpu = GPUtil.getGPUs()            
+        cpu_name = cpuinfo.get_cpu_info()['brand_raw']
+
         if (gpu == []):
-            cpu_name = cpuinfo.get_cpu_info()['brand_raw']
 
             name_os = platform.system()
             core_number = multiprocessing.cpu_count()
@@ -89,7 +90,6 @@ def calc_generale(incr):
 
         else:
             gpu = GPUtil.getGPUs()[0]
-            cpu_name = cpuinfo.get_cpu_info()['brand_raw']
             gpu_name = gpu.name
             name_os = platform.system()
             core_number = multiprocessing.cpu_count()
@@ -103,8 +103,12 @@ def calc_generale(incr):
     elif (incr == 2):
         memoire = psutil.virtual_memory()
         ram_usage = memoire.used
-        gpu = GPUtil.getGPUs()    
+        gpu = GPUtil.getGPUs()
+
         if(os_name=="Windows"):
+            freq_cpu = cpu_freq()
+            min_cpu=freq_cpu.min
+            max_cpu=freq_cpu.max
             import clr as clllr
             file = "OpenHardwareMonitorLib"
 
@@ -128,34 +132,36 @@ def calc_generale(incr):
                 
                 # rajouter min max freq
                 
-                return [ram_usage, 0, 0, cpu_freq, 0, 0]
+                return [ram_usage, 0, 0, cpu_freq,min_cpu,max_cpu, 0, 0]
             else:
                 gpu = GPUtil.getGPUs()[0]
                 gpu_temp = gpu.temperature
                 gpu_usage = gpu.load
                 vram_usage = gpu.memoryUsed
                
-                return [ram_usage, gpu_temp, gpu_usage, freq_cpu, vram_usage, 0]
+                return [ram_usage, gpu_temp, gpu_usage, freq_cpu,min_cpu,max_cpu, vram_usage, 0]
         elif(os_name=="Linux"):
+            freq_cpu = cpu_freq()
+            freq_cpu_current = freq_cpu.current
+            min_cpu=freq_cpu.min
+            max_cpu=freq_cpu.max
             if (gpu == []):
-                freq_cpu = cpu_freq()
+                
                 # rajouter min max freq
                 
-                return [ram_usage, 0, 0, freq_cpu.current, 0, 0]
+                return [ram_usage, 0, 0, freq_cpu_current,min_cpu,max_cpu, 0, 0]
             else:
                 gpu = GPUtil.getGPUs()[0]
                 gpu_temp = gpu.temperature
                 gpu_usage = gpu.load
                 # Only on Linux
-                freq_cpu = cpu_freq()
-                freq_cpu = freq_cpu.current
                 vram_usage = gpu.memoryUsed
                 
               
-                return [ram_usage, gpu_temp, gpu_usage, freq_cpu, vram_usage, 0]
+                return [ram_usage, gpu_temp, gpu_usage, freq_cpu_current,min_cpu,max_cpu, vram_usage, 0]
 
     elif (incr == 3):
-        if(os_name=="Linux"):
+        if(os_name=="Windows"):
             import clr as clllr
             file = "OpenHardwareMonitorLib"
 
@@ -175,7 +181,7 @@ def calc_generale(incr):
                         temperature_cpu.append(sensor.Value)
 
             return [frequence_cpu,temperature_cpu]
-        elif(os_name=="Linurfzfex"):
+        elif(os_name=="Linux"):
        
             all_coeur = sensors_temperatures()
             all_freq = cpu_freq(percpu=True)
@@ -192,6 +198,8 @@ def calc_generale(incr):
 
 def res_func(res):
     res_l.append(res)
+
+
 
 
 if __name__ == "__main__":
@@ -216,24 +224,61 @@ if __name__ == "__main__":
         print(datetime.datetime.now() - date_deb)
         p.terminate()
 
-# Fonctionne mais necessite de run en admin
-"""import clr # the pythonnet module.
-clr.AddReference("OpenHardwareMonitorLib")
-# e.g. clr.AddReference(r'OpenHardwareMonitor/OpenHardwareMonitorLib'), without .dll
+        #Now lets do the request
+        l_thread_proc=[res_l[0]]
+        l_multiple_core=[res_l[1]]
+        l_various_usage=[res_l[2]]
+        l_general_infos=[res_l[3]]
+        json_cpu={
+            "CPUname":l_general_infos[0][1],
+            "coreNumber":l_general_infos[0][4],
+            "minFrequency":l_various_usage[0][4],
+            "maxFrequency":l_various_usage[0][5]
+        }
+        json_info_computer={
+            "computerName":l_general_infos[0][0],
+            "GPUname":"None",
+            "amountRAM":l_general_infos[0][5],
+            "amountVRAM":0,
+            "CPU":json_cpu
+        }
 
-from OpenHardwareMonitor.Hardware import Computer
+        json_monitor={
 
-c = Computer()
-c.CPUEnabled = True # get the Info about CPU
-c.GPUEnabled = True # get the Info about GPU
-c.Open()
-while True:
-    for a in range(0, len(c.Hardware[0].Sensors)):
-        # print(c.Hardware[0].Sensors[a].Identifier)
-        if "/temperature" in str(c.Hardware[0].Sensors[a].Identifier):
-            print(c.Hardware[0].Sensors[a].get_Value())
-            c.Hardware[0].Update()
-            time.sleep(1)
+        }
 
 
-"""
+
+
+        print(json_info_computer)
+
+        
+        """ Post le computer + le cpu
+        print(rq.post("http://192.168.0.19:3000/api/computer/complete",json=json_info_computer))"""
+        #print(rq.get("http://192.168.0.19:3000/api/ping"))
+        #rq.delete("http://192.168.0.19:3000/api/cpu/64")
+        r=rq.get("http://192.168.0.19:3000/api/computers")
+        data=r.json()
+
+        for x in data:
+            if(x["computerName"]==l_general_infos[0][0]):
+                comput_id=x["computerID"]
+        
+
+        time_send=datetime.datetime.now()
+
+        
+        print(time_send)
+        r=rq.get("http://192.168.0.19:3000/api/cpus")
+        data=r.json()
+
+        print(data)
+
+
+
+
+        
+
+
+
+
