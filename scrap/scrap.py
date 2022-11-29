@@ -10,58 +10,6 @@ import GPUtil
 import socket
 import cpuinfo
 import requests as rq
-"""
-# Compliqué a expliquer mais pas tres utile ?
-print("CPU_TIME")
-print(cpu_times_percent())
-
-#Nb coeur cpu, et si cpu_count(logical=false), retourne le nb de coeur physique
-print("CPU COUNT")
-print(cpu_count())
-
-# Retourne deverses stats spu (interruption, nb call system ...)
-print("CPU STATS")
-print(cpu_stats())
-
-# retourne freq du cpu
-print("CPU FREQ")
-print(cpu_freq(percpu=True))
-# getloadavg mais pas utile celui la , trop precis
-
-#Stats sur la memoire
-print("Stats Memmory")
-print(virtual_memory())
-
-# Infos sur les artitions disk
-print("Disk partitions")
-print(disk_partitions())
-
-#Infos sur usage disk
-print("Disk usage")
-print(disk_usage(path))
-
-# Stats network
-print("Network stats")
-print(net_io_counters())
-
-#Temperature  + vitesse FANS, ONLY LINUX
-print("Temparature")
-print(sensors_temperatures())
-print("Fans vitesse")
-print(sensors_fans())
-
-#Battery (utile ou pas ? )
-print("Batteri")
-print(sensors_battery())
-
-
-
-gpu=GPUtil.getGPUs()[0]
-print("temperature gpu")
-print(gpu.temperature)
-print(GPUtil.showUtilization())
-print(GPUtil.getAvailable())
-"""
 
 
 def calc_generale(incr):
@@ -213,10 +161,6 @@ if __name__ == "__main__":
         for x in range(0, nb_proc):
             p.apply_async(calc_generale, [incr], callback=res_func)
             incr += 1
-
-        """test2 = p.apply_async(calc_2, [beforeArray, halfBlob,newImage,afterArray,blobSize])
-        test3=p.apply_async(calc_3, [beforeArray, halfBlob,newImage,afterArray,blobSize])"""
-
         p.close()
         p.join()
 
@@ -247,26 +191,79 @@ if __name__ == "__main__":
         print(l_multiple_core)
         print(l_various_usage)
 
-        r=rq.get("http://192.168.0.19:3000/api/computer/find/"+l_general_infos[0][0]+"")
+        r=rq.get("http://192.168.0.19:3000/api/computer/find/"+l_general_infos[0][0])
         data=r.json()
-        print(data)
+        pc_exist=True
+        time_send=str(datetime.datetime.now())
+        if("error" in data):
+            pc_exist=False
+            json_cpu={
+                "CPUname":l_general_infos[0][1],
+                "coreNumber":l_general_infos[0][4],
+                "minFrequency":l_various_usage[0][4],
+                "maxFrequency":l_various_usage[0][5]
+            }
+            json_info_computer={
+                "computerName":l_general_infos[0][0],
+                "GPUname":"None",
+                "amountRAM":l_general_infos[0][5],
+                "amountVRAM":0,
+                "CPU":json_cpu
+            }
+            json_monitor={
+                "time":time_send,
+                "computerID":data["computerID"],
+                "RAMusage":l_various_usage[0][0],
+                "nbThreads":l_thread_proc[0][0],
+                "nbProcesses":l_thread_proc[0][1],
+                "GPUtemp":l_various_usage[0][1],
+                "CPUfreq":l_various_usage[0][3],
+                "VRAMusage":l_various_usage[0][6],
+                "electricalConsumption":0
+            }
+            rq.post("http://192.168.0.19:3000/api/computer/complete",json=json_info_computer)
+            rq.post("http://192.168.0.19:3000/api/monitor",json=json_monitor)
+
+
+        elif(pc_exist==True):
+            json_monitor={
+                "time":time_send,
+                "computerID":data["computerID"],
+                "RAMusage":l_various_usage[0][0],
+                "nbThreads":l_thread_proc[0][0],
+                "nbProcesses":l_thread_proc[0][1],
+                "GPUtemp":l_various_usage[0][1],
+                "CPUfreq":l_various_usage[0][3],
+                "VRAMusage":l_various_usage[0][6],
+                "electricalConsumption":0
+            }
+            print(json_monitor)
+
+            rq.post("http://192.168.0.19:3000/api/monitor",json=json_monitor)
+       
+
+            i=0
+            for x in data["cores"]:
+                json_core={
+                    "time":time_send,                    
+                    "computerID":data["computerID"],
+                    "idCore":x["idCore"],
+                    "coreFreqeuncy":l_multiple_core[0][1][i],
+                    "coreTemp":l_multiple_core[0][0][i]
+                }
+                i+=1
+                print(json_core)
+                rq.post("http://192.168.0.19:3000/api/corestatus",json=json_core)
+
+            
+
+
+
         """if(x["computerName"]==l_general_infos[0][0]):
                 comput_id=x["computerID"]"""
         
         """
-        json_cpu={
-            "CPUname":l_general_infos[0][1],
-            "coreNumber":l_general_infos[0][4],
-            "minFrequency":l_various_usage[0][4],
-            "maxFrequency":l_various_usage[0][5]
-        }
-        json_info_computer={
-            "computerName":l_general_infos[0][0],
-            "GPUname":"None",
-            "amountRAM":l_general_infos[0][5],
-            "amountVRAM":0,
-            "CPU":json_cpu
-        }
+
         time_send=str(datetime.datetime.now())
         print(time_send)
 
