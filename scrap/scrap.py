@@ -152,174 +152,175 @@ def res_func(res):
 
 
 if __name__ == "__main__":
-    load_dotenv()
-    IP_HOST= os.getenv('IP_HOST')
-    LISTEN_PORT=os.getenv("LISTEN_PORT")
+    boolean=True
 
-    res_l = []
-    ctx = multiprocessing.get_context("spawn")
-    nb_proc = 4
-    incr = 0
-    res = []
-    with ctx.Pool(processes=nb_proc) as p:
-        date_deb = datetime.datetime.now()
-        for x in range(0, nb_proc):
-            p.apply_async(calc_generale, [incr], callback=res_func)
-            incr += 1
-        p.close()
-        p.join()
+    while boolean:
+        #print("Lancement processus")
+        load_dotenv()
+        IP_HOST= os.getenv('IP_HOST')
+        LISTEN_PORT=os.getenv("LISTEN_PORT")
 
-        print(res_l)
-        print(datetime.datetime.now() - date_deb)
-        p.terminate()
+        res_l = []
+        ctx = multiprocessing.get_context("spawn")
+        nb_proc = 4
+        incr = 0
+        res = []
+        with ctx.Pool(processes=nb_proc) as p:
+            date_deb = datetime.datetime.now()
+            for x in range(0, nb_proc):
+                p.apply_async(calc_generale, [incr], callback=res_func)
+                incr += 1
+            p.close()
+            p.join()
 
-        #Now lets do the request
-        l_test_for=[]
-        l_thread_proc=[]
-        l_multiple_core=[]
-        l_various_usage=[]
-        l_general_infos=[]
-        for x in res_l:
-            if(len(x)==2):
-                if(isinstance(x[0], list)):
-                    l_multiple_core=[x]
-                else:
-                    l_thread_proc=[x]
-            elif(len(x)==7):
-                l_general_infos=[x]
+           
+            #print(datetime.datetime.now() - date_deb)
+            p.terminate()
 
-            elif(len(x)==8):
-                l_various_usage=[x]
+            #Now lets do the request
+            l_test_for=[]
+            l_thread_proc=[]
+            l_multiple_core=[]
+            l_various_usage=[]
+            l_general_infos=[]
+            for x in res_l:
+                if(len(x)==2):
+                    if(isinstance(x[0], list)):
+                        l_multiple_core=[x]
+                    else:
+                        l_thread_proc=[x]
+                elif(len(x)==7):
+                    l_general_infos=[x]
 
-        print(l_thread_proc)
-        print(l_general_infos)
-        print(l_multiple_core)
-        print(l_various_usage)
+                elif(len(x)==8):
+                    l_various_usage=[x]
 
-        r=rq.get("http://"+IP_HOST+":"+LISTEN_PORT+"/api/computer/find/"+l_general_infos[0][0])
-        data=r.json()
-        pc_exist=True
-        time_send=str(datetime.datetime.now())
-        if("error" in data):
-            pc_exist=False
-            json_cpu={
-                "CPUname":l_general_infos[0][1],
-                "coreNumber":l_general_infos[0][4],
-                "minFrequency":l_various_usage[0][4],
-                "maxFrequency":l_various_usage[0][5]
-            }
-            json_info_computer={
-                "computerName":l_general_infos[0][0],
-                "GPUname":l_general_infos[0][2],
-                "amountRAM":l_general_infos[0][5],
-                "amountVRAM":l_general_infos[0][6],
-                "CPU":json_cpu
-            }
-            json_monitor={
-                "time":time_send,
-                "RAMusage":l_various_usage[0][0],
-                "nbThreads":l_thread_proc[0][0],
-                "nbProcesses":l_thread_proc[0][1],
-                "GPUtemp":l_various_usage[0][1],
-                "CPUfreq":l_various_usage[0][3],
-                "VRAMusage":l_various_usage[0][6],
-                "electricalConsumption":0
-            }
-            rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/computer/complete",json=json_info_computer)
-            rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/monitor",json=json_monitor)
+         
 
-
-        elif(pc_exist==True):
-            json_monitor={
-                "time":time_send,
-                "computerID":data["computerID"],
-                "RAMusage":l_various_usage[0][0],
-                "nbThreads":l_thread_proc[0][0],
-                "nbProcesses":l_thread_proc[0][1],
-                "GPUtemp":l_various_usage[0][1],
-                "CPUfreq":l_various_usage[0][3],
-                "VRAMusage":l_various_usage[0][6],
-                "electricalConsumption":0
-            }
-            print(json_monitor)
-
-            rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/monitor",json=json_monitor)
-       
-
-            i=0
-            for x in data["cores"]:
-                json_core={
-                    "time":time_send,                    
-                    "computerID":data["computerID"],
-                    "idCore":x["idCore"],
-                    "coreFrequency":l_multiple_core[0][1][i],
-                    "coreTemp":l_multiple_core[0][0][i]
+            r=rq.get("http://"+IP_HOST+":"+LISTEN_PORT+"/api/computer/find/"+l_general_infos[0][0])
+            data=r.json()
+            pc_exist=True
+            time_send=str(datetime.datetime.now())
+            if("error" in data):
+                pc_exist=False
+                
+                json_cpu={
+                    "CPUname":l_general_infos[0][1],
+                    "coreNumber":l_general_infos[0][4],
+                    "minFrequency":l_various_usage[0][4],
+                    "maxFrequency":l_various_usage[0][5]
                 }
-                i+=1
-                print(json_core)
-                rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/corestatus",json=json_core)
+                json_info_computer={
+                    "computerName":l_general_infos[0][0],
+                    "GPUname":l_general_infos[0][2],
+                    "amountRAM":l_general_infos[0][5],
+                    "amountVRAM":l_general_infos[0][6],
+                    "CPU":json_cpu
+                }
+                json_monitor={
+                    "time":time_send,
+                    "RAMusage":l_various_usage[0][0],
+                    "nbThreads":l_thread_proc[0][0],
+                    "nbProcesses":l_thread_proc[0][1],
+                    "GPUtemp":l_various_usage[0][1],
+                    "CPUfreq":l_various_usage[0][3],
+                    "VRAMusage":l_various_usage[0][6],
+                    "electricalConsumption":0
+                }
+                rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/computer/complete",json=json_info_computer)
+                rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/monitor",json=json_monitor)
 
+
+            elif(pc_exist==True):
+                json_monitor={
+                    "time":time_send,
+                    "computerID":data["computerID"],
+                    "RAMusage":l_various_usage[0][0],
+                    "nbThreads":l_thread_proc[0][0],
+                    "nbProcesses":l_thread_proc[0][1],
+                    "GPUtemp":l_various_usage[0][1],
+                    "CPUfreq":l_various_usage[0][3],
+                    "VRAMusage":l_various_usage[0][6],
+                    "electricalConsumption":0
+                }
+            
+
+                rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/monitor",json=json_monitor)
+        
+
+                i=0
+                for x in data["cores"]:
+                    json_core={
+                        "time":time_send,                    
+                        "computerID":data["computerID"],
+                        "idCore":x["idCore"],
+                        "coreFrequency":l_multiple_core[0][1][i],
+                        "coreTemp":l_multiple_core[0][0][i]
+                    }
+                    i+=1
+                    rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/corestatus",json=json_core)
+
+                
+            time.sleep(0.5)
+
+
+            """if(x["computerName"]==l_general_infos[0][0]):
+                    comput_id=x["computerID"]"""
+            
+            """
+
+            time_send=str(datetime.datetime.now())
+            print(time_send)
+
+
+
+            json_monitor={
+                "time":time_send,
+                "computerID":comput_id,
+                "RAMusage":l_various_usage[0][0],
+                "nbThreads":l_thread_proc[0][0],
+                "nbProcesses":l_thread_proc[0][1],
+                "GPUtemp":l_various_usage[0][1],
+                "CPUfreq":l_various_usage[0][3],
+                "VRAMusage":l_various_usage[0][6],
+                "electricalConsumption":0
+            }
+
+
+            nb_core=l_general_infos[0][4]
+            for x in range(1,nb_core+1):
+                json_core_status={
+                    "time":time_send,
+                    "computerID":comput_id,
+                    "idCore":x,
+                    "coreFrequency":l_multiple_core[0][0][x-1],
+                    "coreTemp":l_multiple_core[0][1][x-1]
+                }
+                print(json_core_status)"""
+
+
+
+
+
+
+            
+            """ Post le computer + le cpu
+            print(rq.post("http://192.168.0.19:3000/api/computer/complete",json=json_info_computer))"""
+            #print(rq.get("http://192.168.0.19:3000/api/ping"))
+            #rq.delete("http://192.168.0.19:3000/api/cpu/64")
+            """r=rq.get("http://192.168.0.19:3000/api/computers")
+            data=r.json()
+
+            for x in data:
+                if(x["computerName"]==l_general_infos[0][0]):
+                    comput_id=x["computerID"]
             
 
 
 
-        """if(x["computerName"]==l_general_infos[0][0]):
-                comput_id=x["computerID"]"""
-        
-        """
 
-        time_send=str(datetime.datetime.now())
-        print(time_send)
-
-
-
-        json_monitor={
-            "time":time_send,
-            "computerID":comput_id,
-            "RAMusage":l_various_usage[0][0],
-            "nbThreads":l_thread_proc[0][0],
-            "nbProcesses":l_thread_proc[0][1],
-            "GPUtemp":l_various_usage[0][1],
-            "CPUfreq":l_various_usage[0][3],
-            "VRAMusage":l_various_usage[0][6],
-            "electricalConsumption":0
-        }
-
-
-        nb_core=l_general_infos[0][4]
-        for x in range(1,nb_core+1):
-            json_core_status={
-                "time":time_send,
-                "computerID":comput_id,
-                "idCore":x,
-                "coreFrequency":l_multiple_core[0][0][x-1],
-                "coreTemp":l_multiple_core[0][1][x-1]
-            }
-            print(json_core_status)"""
-
-
-
-
-
-
-        
-        """ Post le computer + le cpu
-        print(rq.post("http://192.168.0.19:3000/api/computer/complete",json=json_info_computer))"""
-        #print(rq.get("http://192.168.0.19:3000/api/ping"))
-        #rq.delete("http://192.168.0.19:3000/api/cpu/64")
-        """r=rq.get("http://192.168.0.19:3000/api/computers")
-        data=r.json()
-
-        for x in data:
-            if(x["computerName"]==l_general_infos[0][0]):
-                comput_id=x["computerID"]
-        
-
-
-
-
-        r=rq.get("http://192.168.0.19:3000/api/cpus")
-        data=r.json()"""
+            r=rq.get("http://192.168.0.19:3000/api/cpus")
+            data=r.json()"""
 
 
 
