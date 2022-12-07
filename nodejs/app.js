@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const http = require("http");
 
+
 const {Server} = require("socket.io")
 require("dotenv").config()
 
@@ -29,6 +30,9 @@ server.on('error', function (error) {
     console.error(error);
 });
 
+// We give to the app the ejs engine
+app.set('view engine', 'ejs');
+
 
 const io = new Server(server, {
     cors: {
@@ -40,7 +44,6 @@ const io = new Server(server, {
 })
 
 io.on("connection", (socket) => {
-    // TODO: look into the concepts of rooms and namespaces
     console.log(`Confirmed connection from ${socket.id}`)
 
     socket.emit("welcome", "Hello world")
@@ -55,6 +58,10 @@ io.on("connection", (socket) => {
 module.exports = io
 
 const apiRouter = require("./routes/api");
+const viewRouter = require("./routes/views")
+
 const { type } = require("os");
 // Setting up routes here
 app.use("/api", apiRouter)
+app.use("/", viewRouter)
+
