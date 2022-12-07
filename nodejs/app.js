@@ -65,3 +65,4 @@ const { type } = require("os");
 app.use("/api", apiRouter)
 app.use("/", viewRouter)
 
+app.use("/static", express.static("static"))
