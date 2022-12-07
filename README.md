@@ -15,7 +15,7 @@
 This tool will let you monitor the status of your Server from anywhere.
 
 Using sockets, a RestAPI and some Python libraries, you will be able to monitor your system remotly on a Dashboard. 
-We strongly advide you to use this product in a closed network, as it has not been secured : the interactions with the API and the sockets are uncrypted.
+We strongly advide you to use this product in a closed network, as it has not been secured : the data going through the API and the sockets are uncrypted.
 
 ---
 ## Technologies & Dependencies
@@ -33,7 +33,6 @@ We will be refering to different party by this vocabular :
 - *MonitorMachine* : This is the machine that will have the Python monitoring script 
 
 ### NodeServer Setup
-
 #### Mysql DB Installation 
 
 If you don't have mysql installed on your server, I'd advise you to install it using docker.
@@ -81,11 +80,6 @@ DB_PASSWORD = <password>
 DB_NAME = "system_watch_db"
 ```
 
-
-You also need to create a .env file in the scrap folder : 
-- **LISTEN_PORT** : the listening port for expressjs
-- **IP_HOST** : the IP of your computer
-
 A default file would look like this : 
 ```
 LISTEN_PORT = 3000
@@ -103,6 +97,22 @@ It passes only if all the tests at the end show `true`
 
 ### MonitorMachine Setup
 
+#### Install dependencies 
+
+No dependencies to install for now 
+#### Configure API access
+
+For this program to run, you'll need to define the environment variables.
+To do so you also need to create a *.env* file in the scrap folder with the following informations : 
+- **LISTEN_PORT** : the port to access the API
+- **IP_HOST** : the IP of the computer hosting the API
+
+A basic file will look like this : 
+
+```
+LISTEN_PORT = 3000
+IP_HOST = "127.0.0.1"
+```
 
 --- 
 ## How to use
