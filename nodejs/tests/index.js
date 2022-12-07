@@ -60,7 +60,8 @@ async function testComputerController() {
     const amountRAM = 6000000000
     const amountVRAM = 6000000000
     const CPUid = 1
-    let computerToSend = new Computer(undefined, computerName, GPUname, amountRAM, amountVRAM, CPUid)
+    const osName = "Windows 10"
+    let computerToSend = new Computer(undefined, computerName, GPUname, amountRAM, amountVRAM, CPUid, osName)
 
     console.log("==== ComputerController.create")
     let computer = await ComputerController.create(computerToSend)
@@ -90,7 +91,7 @@ async function testComputerController() {
 
     console.log("==== ComputerController.all")
     let allComputers = await ComputerController.all()
-    results["ComputerController.all"] = allComputers.length == 2
+    results["ComputerController.all"] = allComputers.length >= 2
     console.log(allComputers)
 
     console.log("==== ComputerController.delete")
@@ -108,6 +109,7 @@ async function testComputerController() {
         "GPUname": GPUname,
         "amountRAM": amountRAM,
         "amountVRAM": amountVRAM,
+        "osName": osName,
         "CPU": {
             "CPUname": CPUname,
             "coreNumber": coreNumber, 

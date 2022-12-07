@@ -1,10 +1,10 @@
 const Model = require("./Model")
 
 class Computer extends Model{
-    static dbProperties = ["computerName", "GPUname", "amountRAM", "amountVRAM", "CPUid"]
+    static dbProperties = ["computerName", "GPUname", "amountRAM", "amountVRAM", "CPUid", "osName"]
     static autoCompleteProperty = "computerID"
     static idProperties = ["computerID"]
-    constructor(computerID, computerName, GPUname, amountRAM, amountVRAM, CPUid){
+    constructor(computerID, computerName, GPUname, amountRAM, amountVRAM, CPUid, osName){
         super(Computer)
         this.computerID = computerID,
         this.computerName = computerName
@@ -12,6 +12,7 @@ class Computer extends Model{
         this.amountRAM = amountRAM
         this.amountVRAM = amountVRAM
         this.CPUid = CPUid
+        this.osName = osName
 
         this.CPU = null
         this.cores = []
