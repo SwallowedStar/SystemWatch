@@ -6,6 +6,7 @@ const http = require("http");
 
 
 const {Server} = require("socket.io")
+const {Server} = require("socket.io")
 require("dotenv").config()
 
 // Create the app
@@ -44,6 +45,7 @@ const io = new Server(server, {
 })
 
 io.on("connection", (socket) => {
+    // TODO: look into the concepts of rooms and namespaces
     console.log(`Confirmed connection from ${socket.id}`)
 
     socket.emit("welcome", "Hello world")
