@@ -4,8 +4,6 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const http = require("http");
 
-
-const {Server} = require("socket.io")
 const {Server} = require("socket.io")
 require("dotenv").config()
 
@@ -67,3 +65,4 @@ const { type } = require("os");
 app.use("/api", apiRouter)
 app.use("/", viewRouter)
 
+app.use("/static", express.static("static"))

@@ -6,26 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - SystemMonitor</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/homeStyle.css">
 </head>
 <body>
     
-    <div class="container-fluid">
-        <div class="row">
-            <h1 class="text-center">Select your Computer from this list</h1>
+    <div class="container heavy-rain-gradient">
+        <h1 class="d-flex align-items-center justify-content-center" style="min-height: 30vh">Select your Computer from this list</h1>
+
+        <div class="d-flex justify-content-center" style="padding: 20px;">
+            <% for(let computer of allComputers){ %> 
+                <%- include('../partials/computerListElement.ejs', {computer: computer}); %>
+            <% } %>
         </div>
-        <div class="row">
 
-        </div>
-    </div>
-
-
-    <% for(var i=0; i<allComputers.length; i++){
-        <li><%= allComputers[i] %> </li>
-    } %> 
-
-    <%- include('../partials/footer'); %>
+        
     
+        <%- include('../partials/footer'); %>
 
+    </div>
     <script>
         let computerArray = "dfsgsdhfbg"
         console.log(computerArray)
