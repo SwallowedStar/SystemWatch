@@ -78,7 +78,6 @@ apiRouter.get("/computer/find/:computerName", async (req, res) => {
         res.json(foundComputer)
     } else {
         const fullComputer = await ComputerController.getComplete(foundComputer.computerID)
-        console.log(fullComputer)
         res.json( fullComputer )
     }
 })
@@ -170,29 +169,6 @@ apiRouter.delete("/monitor/:computerID/:date/:time", async (req, res) => {
     }
 })
 
-
-apiRouter.post("/corestatus", async (req, res) => {
-    const response = await createEntry(CoreStatus, CoreStatusController, req)
-    if(response["error"] === undefined){
-        io.to("" + response.computerID).emit("corestatuschannel", JSON.stringify(response))
-    }
-    
-    const id = parseInt(req.params.computerID)
-    req.params.time = req.params.date + " " + req.params.time
-    const date = new Date(req.params.time)
-    if(isNaN(id)){
-        res.json({
-            "error" : "the id must be an int"
-        })
-    } else if (!isValidDate(date) || date.toString() == "Invalid Date"){
-        res.json({
-            "error" : "wrong date format"
-        })
-    } else {
-        res.json( await MonitorController.delete(req.params))
-    }
-})
-
 apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
     const id = parseInt(req.params.computerID)
     
@@ -227,11 +203,6 @@ apiRouter.post("/corestatus", async (req, res) => {
     }
     
     res.json(response)
-})
-
-
-apiRouter.post("/corestatus", async (req, res) => {
-    res.json(await createEntry(CoreStatus, CoreStatusController, req))
 })
 
 apiRouter.get("/corestatus/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {

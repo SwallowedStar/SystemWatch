@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real time Dashboard - SystemWatch </title>
+    
+</head>
+<body>
+    
+    <div class="container">
+        
+    </div>
+
+    <%- include('../partials/footer'); %>
+</body>
+
+<!-- On importe SocketIO et Axios -->
+<script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    // Socket Connection
+    const socketHost = "<%= socketHost %>:<%= listenPort %>"
+    const computerID = "<%= computerID %>"
+    const socket = io(`${socketHost}?computerID=${computerID}`)
+
+    socket.on("welcome", function(data) {
+        console.log("Connection made")
+
+    })
+
+    socket.on("corestatuschannel", function(data){
+        // TODO: What to do when a new corestatus is received
+        console.log(`new core status added ${data}`)
+
+    })
+
+    socket.on("monitorchannel", function(data){
+        // TODO: What to do when a new monitor is received
+        console.log(`new monitor status added ${data}`)
+    })
+
+    // Getting existingData : 
+
+    let currentDate = new Date()
+    let previousDate =  new Date()
+    previousDate.setMinutes(previousDate.getMinutes() - 5)
+
+    let finishDateString = `${currentDate.getFullYear()}-${('00'+(currentDate.getMonth()+1)).slice(-2)}-${('00'+(currentDate.getDate()+1)).slice(-2)}/${('00'+(currentDate.getHours()+1)).slice(-2)}:${('00'+(currentDate.getMinutes()+1)).slice(-2)}:${('00'+(currentDate.getSeconds()+1)).slice(-2)}`
+    let startDateString = `${previousDate.getFullYear()}-${('00'+(previousDate.getMonth()+1)).slice(-2)}-${('00'+(previousDate.getDate()+1)).slice(-2)}/${('00'+(previousDate.getHours()+1)).slice(-2)}:${('00'+(previousDate.getMinutes()+1)).slice(-2)}:${('00'+(previousDate.getSeconds()+1)).slice(-2)}`
+
+    console.log(startDateString)
+    console.log(finishDateString)
+    console.log(`${socketHost}/api/monitor/interval/${startDateString}/${finishDateString}`)
+
+    axios.get(`http://${socketHost}/api/monitor/interval/${computerID}/${startDateString}/${finishDateString}`)
+    .then(function(response){
+        // Here Will the the data from the 5 last minutes
+    })
+
+</script>
+</html>
