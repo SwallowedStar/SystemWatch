@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
     socket.emit("welcome", "Hello world")
     
     if (socket.handshake.query["computerID"] !== undefined){
-        console.log("Logging into room " + socket.handshake.query["computerID"] + typeof(socket.handshake.query["computerID"]))
+        console.log(socket.id + " Logging into room " + socket.handshake.query["computerID"])
         socket.join(socket.handshake.query["computerID"])
     }
 })
@@ -60,7 +60,6 @@ module.exports = io
 const apiRouter = require("./routes/api");
 const viewRouter = require("./routes/views")
 
-const { type } = require("os");
 // Setting up routes here
 app.use("/api", apiRouter)
 app.use("/", viewRouter)
