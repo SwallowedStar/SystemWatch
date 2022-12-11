@@ -216,7 +216,7 @@ if __name__ == "__main__":
                     "amountRAM":l_general_infos[0][5],
                     "amountVRAM":l_general_infos[0][6],
                     "CPU":json_cpu,
-                    "osName":l_various_usage[0][3]
+                    "osName":l_general_infos[0][3]
                 }
                 json_monitor={
                     "time":time_send,
