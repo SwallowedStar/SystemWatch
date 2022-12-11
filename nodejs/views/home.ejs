@@ -13,16 +13,12 @@
     <div class="container heavy-rain-gradient">
         <h1 class="d-flex align-items-center justify-content-center" style="min-height: 30vh">Select your Computer from this list</h1>
 
-        <div class="d-flex justify-content-center" style="padding: 20px;">
+        <div class="d-flex justify-content-center flex-column" style="padding: 20px;">
             <% for(let computer of allComputers){ %> 
                 <%- include('../partials/computerListElement.ejs', {computer: computer}); %>
             <% } %>
         </div>
-
-        
-    
-        <%- include('../partials/footer'); %>
-
     </div>
+    <%- include('../partials/footer'); %>
 </body>
 </html>
