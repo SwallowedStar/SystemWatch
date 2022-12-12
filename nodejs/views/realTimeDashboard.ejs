@@ -39,7 +39,6 @@
     socket.on("corestatuschannel", function(data){
         // TODO: What to do when a new corestatus is received
         console.log(`new core status added ${data}`)
-        document.querySelector("#monitor").textContent = data
 
         counter = counter + 1
 
@@ -58,7 +57,7 @@
     socket.on("monitorchannel", async function(data){
         // TODO: What to do when a new monitor is received
         console.log(`new monitor status added ${data}`)
-
+        document.querySelector("#monitor").innerHTML = data + "<br>"
         
     })
 
