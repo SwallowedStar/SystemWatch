@@ -28,7 +28,7 @@ const lineChartComposition = {
     }
 }
 
-async function displayCPUTemps(corestatus, chart, displayed){
+async function displayCPUTemps(corestatus, chart, isDisplayed){
     if(chart.data.datasets.length != 1){
         chart.data.datasets = [
             {
@@ -39,7 +39,7 @@ async function displayCPUTemps(corestatus, chart, displayed){
         ]
         chart.data.labels = Array(MAX_AMOUNT_LINE_DATA_DISPLAYED).fill(0);
         
-        const lastData = getLastCoreDataFromStorage(coreData);
+        const lastData = getLastDataFromStorage(coreData);
         for(data of lastData){
             displayCPUTemps(data, chart, displayCPUTemps);
         }
@@ -71,14 +71,14 @@ async function displayCPUTemps(corestatus, chart, displayed){
             chart.data.labels.shift();
             chart.data.datasets[0].data.shift();
         }
-        if(displayed)
+        if(isDisplayed)
             chart.update();
 
         receivedCoreStatus = [];
     }
 }
 
-async function displayCoreCPUTemps(corestatus, chart, displayed){
+async function displayCoreCPUTemps(corestatus, chart, isDisplayed){
     if(chart.data.datasets.length != computer.CPU.coreNumber){
         for(let i = 0; i < computer.CPU.coreNumber; i++ ){
             chart.data.datasets[i] = {
@@ -89,9 +89,9 @@ async function displayCoreCPUTemps(corestatus, chart, displayed){
         }
         chart.data.labels = Array(MAX_AMOUNT_LINE_DATA_DISPLAYED).fill(0);
     
-        const lastData = getLastCoreDataFromStorage(coreData);
+        const lastData = getLastDataFromStorage(coreData);
         for(data of lastData){
-            displayCoreCPUTemps(data, chart, displayed);
+            displayCoreCPUTemps(data, chart, isDisplayed);
         }
         receivedCoreStatus = [];
     }
@@ -117,24 +117,56 @@ async function displayCoreCPUTemps(corestatus, chart, displayed){
             chart.data.datasets[i].data.shift();
         }
     }
-    if(displayed)
+    if(isDisplayed)
         chart.update();
 }
 
-async function getCoreDataFromDatabase(){
+async function displayRamUsage(monitor, chart, isDisplayed){
+    // Initilazation : 
+    // If no dataset is present, we need to fill 1 with existints data 
+    if(chart.data.datasets.length != 1){
+        chart.data.datasets= [{
+            type: "line",
+            label: `RAM Usage`,
+            data: Array(MAX_AMOUNT_LINE_DATA_DISPLAYED).fill(0)
+        }]
+        chart.data.labels = Array(MAX_AMOUNT_LINE_DATA_DISPLAYED).fill(0);
+        const monitors = getLastDataFromStorage(monitorData);
+        for(monitor of monitors){
+            displayRamUsage(monitor, chart, isDisplayed);
+        }
+    }
+
+    // We then push the last monitor found
+    let time = new Date(monitor.time);
+    let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
+
+    chart.data.datasets[0].data.push(monitor.RAMusage / 1000000000);
+    chart.data.labels.push(timeString);
+
+    // We shift the data if necessary
+    if(chart.data.labels.length > MAX_AMOUNT_LINE_DATA_DISPLAYED){
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+    }
+
+    if(isDisplayed)
+        chart.update();
+}
+
+async function getDataFromDatabase(table){
     let currentDate = new Date();
     let previousDate =  new Date();
     previousDate.setMinutes(previousDate.getMinutes() - 1);
 
     let finishDateString = `${currentDate.getFullYear()}-${('00'+(currentDate.getMonth()+1)).slice(-2)}-${('00'+(currentDate.getDate())).slice(-2)}/${('00'+(currentDate.getHours())).slice(-2)}:${('00'+(currentDate.getMinutes())).slice(-2)}:${('00'+(currentDate.getSeconds())).slice(-2)}`;
     let startDateString = `${previousDate.getFullYear()}-${('00'+(previousDate.getMonth()+1)).slice(-2)}-${('00'+(previousDate.getDate())).slice(-2)}/${('00'+(previousDate.getHours())).slice(-2)}:${('00'+(previousDate.getMinutes())).slice(-2)}:${('00'+(previousDate.getSeconds())).slice(-2)}`;
-    let response = await axios.get(`http://${socketHost}/api/corestatus/interval/${computer.computerID}/${startDateString}/${finishDateString}`);
+    let response = await axios.get(`http://${socketHost}/api/${table}/interval/${computer.computerID}/${startDateString}/${finishDateString}`);
     return response.data;
 }
 
-function getLastCoreDataFromStorage(data){
-    // TODO: this function looks into the local storage and 
-    // get the data that's less than 1 minute old
+// gets the last 2 minutes of data stored in local storage
+function getLastDataFromStorage(data){
     let previousDate =  new Date();
     previousDate.setMinutes(previousDate.getMinutes() - 2);
 
@@ -153,6 +185,8 @@ function getLastCoreDataFromStorage(data){
     return freshData;
 }
 
+
+// toggles display of an HTML element with a certain id
 function toggle(id){
     const elem = document.querySelector("#"+id);
     if(elem.style.display == "none"){

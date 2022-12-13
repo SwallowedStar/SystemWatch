@@ -14,14 +14,23 @@
                 <div class="sidebar-header">
                     <h3>Options</h3>
                 </div>
-                <p>
-                    <label for="displaycputemp">Display the CPU temperature</label>
-                    <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer')">
-                </p>
-                <p>
-                    <label for="coretemp">Display temperature of each core</label>
-                    <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempCanvas');toggle('coreTempCanvas');">
-                </p>
+                <div>
+                    <div>
+                        <label for="displaycputemp">Display the CPU temperature</label>
+                        <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer')">
+                    </div>
+                    <div>
+                        <label for="coretemp">Display temperature of each core</label>
+                        <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempCanvas');toggle('coreTempCanvas');">
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <label for="ramusage">Display RAM usage</label>
+                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageCanvas')">
+                    </div>
+                </div>
+                
     
             </div>
             <div class="col-9">
@@ -36,8 +45,8 @@
                     <canvas id="coreTempCanvas" style="display: none;"></canvas>
                 </div>
                 
-                <div class="col-sm" id="ramUsage">
-    
+                <div class="col-sm" id="ramUsageContainer">
+                    <canvas id="ramUsageCanvas"></canvas>
                 </div>
                 <div class="col-sm" id="cpuGeneralContainer">
     
@@ -80,19 +89,38 @@
         coreTempChartComposition.options.plugins.title.text = "Core Temperatures in Celsius"
         const coreTempChart = new Chart(coreTempContainer, coreTempChartComposition)
 
+        // RAM Usage Line chart : 
+        // #ramUsageCanvas
+        const ramUsageContainer = document.querySelector("#ramUsageCanvas")
+        const ramUsageChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
+        ramUsageChartComposition.options.plugins.title.text = "Amount of RAM used"
+        ramUsageChartComposition.options.scales.y.max = computer.amountRAM / 1000000000
+        const ramUsageChart = new Chart(ramUsageContainer, ramUsageChartComposition)
+
+
         // Creating the possible options 
         const coreTempOption = document.querySelector("#coretemp");
         if(coreTempOption.checked){
             toggle('cpuTempCanvas');
             toggle('coreTempCanvas');
         }
+        const ramUsageOption = document.querySelector("#ramusage");
+        if(!ramUsageOption.checked){
+            toggle('ramUsageCanvas');
+        }
 
         // Getting existing Data : 
-        let data = await getCoreDataFromDatabase();
-        for(let corestatus of data){
+        let receivedCoreStatusData = await getDataFromDatabase("corestatus");
+        for(let corestatus of receivedCoreStatusData){
             coreData.push(corestatus);
             displayCPUTemps(corestatus, cpuTempChart, !coreTempOption.checked);
             displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
+        }
+        
+        let receivedMonitorData = await getDataFromDatabase("monitor");
+        for(let monitor of receivedMonitorData){
+            monitorData.push(monitor);
+            displayRamUsage(monitor, ramUsageChart, true);
         }
 
         // Socket Connection
@@ -113,9 +141,10 @@
 
         socket.on("monitorchannel", async function(data){
             // TODO: What to do when a new monitor is received
-            // console.log(`new monitor status added ${data}`)
             const monitor = JSON.parse(data);
             monitorData.push(monitor);
+
+            displayRamUsage(monitor, ramUsageChart, ramUsageOption.checked)
         })
     }
 </script>
