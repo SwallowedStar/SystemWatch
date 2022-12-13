@@ -6,74 +6,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real time Dashboard - SystemWatch </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    
 </head>
 <body>
+    <div class="container-fluid" id="container">
+        <div class="row">
+            <div class="col-3 d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
+                <div class="sidebar-header">
+                    <h3>Options</h3>
+                </div>
+                <p>
+                    <label for="displaycputemp">Display the CPU temperature</label>
+                    <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer')">
+                </p>
+                <p>
+                    <label for="coretemp">Display temperature of each core</label>
+                    <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempCanvas');toggle('coreTempCanvas');">
+                </p>
     
-    <div class="container">
-        <h1 class="d-flex align-items-center justify-content-center" style="min-height: 30vh"><%= computer.computerName %></h1>
-        <div id="monitor">
+            </div>
+            <div class="col-9">
+                <h1 class="col-sm" style="min-height: 30vh; text-align: center;"><%= computer.computerName %></h1>
+                
+                <div class="col-sm" id="cpuUsageContainer">
+                    <canvas id="cpuUsageCanvas"></canvas>
+                </div>
 
-        </div>
-        <div id="corestatus">
+                <div class="col-sm" id="cpuTempContainer">
+                    <canvas id="cpuTempCanvas"></canvas>
+                    <canvas id="coreTempCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <div class="col-sm" id="ramUsage">
+    
+                </div>
+                <div class="col-sm" id="cpuGeneralContainer">
+    
+                </div>
+                <div class="col-sm" id="gpuTempContainer">
+    
+                </div>
+        <%- include('../partials/footer'); %>
 
+            </div>
         </div>
     </div>
 
-    <%- include('../partials/footer'); %>
 </body>
 
-<!-- On importe SocketIO et Axios -->
+<!-- On importe SocketIO, Axios et Chart.js -->
 <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/dashboardUtils.js"></script>
+
 <script>
-    // Socket Connection
     const socketHost = "<%= socketHost %>:<%= listenPort %>"
     const computer = JSON.parse('<%- JSON.stringify(computer) %>')
     const socket = io(`${socketHost}?computerID=${computer.computerID}`)
+    
 
-    socket.on("welcome", function(data) {
-        console.log("Connection made")
-    })
-
-    socket.on("corestatuschannel", function(data){
-        // TODO: What to do when a new corestatus is received
-        console.log(`new core status added ${data}`)
-
-        counter = counter + 1
-
-        console.log(counter)
+    window.onload = async function(){
+        // Create charts : 
         
-        if(counter == computer.CPU.coreNumber+1){
-            document.querySelector("#corestatus").innerHTML = data + "<br>"
-            counter = 1
-        } else {
-            document.querySelector("#corestatus").innerHTML += data + "<br>"            
+        // CPU Temperature line chart
+        const cpuTempContainer = document.querySelector("#cpuTempCanvas")
+        const cpuTempChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
+        cpuTempChartComposition.options.plugins.title.text = "CPU Temperature in Celsius"
+        const cpuTempChart = new Chart(cpuTempContainer, cpuTempChartComposition)
+        
+        // Core Temperatures line chart
+        const coreTempContainer = document.querySelector("#coreTempCanvas")
+        const coreTempChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
+        coreTempChartComposition.options.plugins.title.text = "Core Temperatures in Celsius"
+        const coreTempChart = new Chart(coreTempContainer, coreTempChartComposition)
+
+        // Creating the possible options 
+        const coreTempOption = document.querySelector("#coretemp");
+        if(coreTempOption.checked){
+            toggle('cpuTempCanvas');
+            toggle('coreTempCanvas');
         }
 
-    })
+        // Getting existing Data : 
+        let data = await getCoreDataFromDatabase();
+        for(let corestatus of data){
+            coreData.push(corestatus);
+            displayCPUTemps(corestatus, cpuTempChart, !coreTempOption.checked);
+            displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
+        }
 
-    let counter = 0
-    socket.on("monitorchannel", async function(data){
-        // TODO: What to do when a new monitor is received
-        console.log(`new monitor status added ${data}`)
-        document.querySelector("#monitor").innerHTML = data + "<br>"
+        // Socket Connection
         
-    })
+        socket.on("welcome", function(data) {
+            console.log("Connection made");
+        })
 
-    // Getting existingData : 
+        socket.on("corestatuschannel", function(data){
+            const corestatus = JSON.parse(data);
+            coreData.push(corestatus);
 
-    let currentDate = new Date()
-    let previousDate =  new Date()
-    previousDate.setMinutes(previousDate.getMinutes() - 5)
+            displayCPUTemps(corestatus, cpuTempChart, !coreTempOption.checked); // Default Behavior
+            displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
+            
+            // TODO: Display CPU Usage
+        })
 
-    let finishDateString = `${currentDate.getFullYear()}-${('00'+(currentDate.getMonth()+1)).slice(-2)}-${('00'+(currentDate.getDate()+1)).slice(-2)}/${('00'+(currentDate.getHours()+1)).slice(-2)}:${('00'+(currentDate.getMinutes()+1)).slice(-2)}:${('00'+(currentDate.getSeconds()+1)).slice(-2)}`
-    let startDateString = `${previousDate.getFullYear()}-${('00'+(previousDate.getMonth()+1)).slice(-2)}-${('00'+(previousDate.getDate()+1)).slice(-2)}/${('00'+(previousDate.getHours()+1)).slice(-2)}:${('00'+(previousDate.getMinutes()+1)).slice(-2)}:${('00'+(previousDate.getSeconds()+1)).slice(-2)}`
-
-    axios.get(`http://${socketHost}/api/monitor/interval/${computer.computerID}/${startDateString}/${finishDateString}`)
-    .then(function(response){
-        // Here Will the the data from the 5 last minutes
-    })
-
+        socket.on("monitorchannel", async function(data){
+            // TODO: What to do when a new monitor is received
+            // console.log(`new monitor status added ${data}`)
+            const monitor = JSON.parse(data);
+            monitorData.push(monitor);
+        })
+    }
 </script>
 </html>
