@@ -6,9 +6,8 @@ class CoreTemperatureDisplay{
         const canvas = this.container.querySelector("canvas")
         const composition = JSON.parse(JSON.stringify(lineChartComposition))
         composition.options.plugins.title.text = "Core Temperatures in Celsius"
+        composition.options.scales.y.max = 100
         this.chart = new Chart(canvas, composition)
-        // Ici, il y a un dilemn, est ce que c'est mieux de ne rien montrer
-        //this.initialize() 
     }
     initialize(){
         for(let i = 0; i < this.computerCores.length; i++ ){

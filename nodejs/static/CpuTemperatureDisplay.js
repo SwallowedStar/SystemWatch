@@ -4,10 +4,11 @@ class CpuTemperatureDisplay{
         this.computerCores = computerCores
         this.container = document.querySelector(`#${containerId}`)
         
-        const cpuTempContainer = this.container.querySelector("canvas")
-        const cpuTempChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
-        cpuTempChartComposition.options.plugins.title.text = "CPU Temperature in Celsius"
-        this.chart = new Chart(cpuTempContainer, cpuTempChartComposition)
+        const canvas = this.container.querySelector("canvas")
+        const composition = JSON.parse(JSON.stringify(lineChartComposition))
+        composition.options.plugins.title.text = "CPU Temperature in Celsius"
+        composition.options.scales.y.max = 100
+        this.chart = new Chart(canvas, composition)
     }
 
     initialize(){

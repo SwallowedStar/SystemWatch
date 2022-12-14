@@ -17,21 +17,19 @@
                 <div>
                     <div>
                         <label for="displaycputemp">Display the CPU temperature</label>
-                        <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer')">
+                        <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer');toggle('coreTempContainer');updateCharts()">
                     </div>
                     <div>
                         <label for="coretemp">Display temperature of each core</label>
-                        <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempCanvas');toggle('coreTempCanvas');">
+                        <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempCanvas');toggle('coreTempCanvas');updateCharts()">
                     </div>
                 </div>
                 <div>
                     <div>
                         <label for="ramusage">Display RAM usage</label>
-                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageCanvas')">
+                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageCanvas'); updateCharts()">
                     </div>
                 </div>
-                
-    
             </div>
             <div class="col-9">
                 <h1 class="col-sm" style="min-height: 30vh; text-align: center;"><%= computer.computerName %></h1>
@@ -50,6 +48,28 @@
                 
                 <div class="col-sm" id="ramUsageContainer">
                     <canvas id="ramUsageCanvas"></canvas>
+                    <div class="d-flex flex-row justify-content-center">
+                        <div class="p-2">
+                            <h5>
+                                In use
+                            </h5>
+                            <span id="usedRAM">
+                                
+                            </span>
+                        </div>
+                        <div class="p-2">
+                            <h5>
+                                Available
+                            </h5>
+                            <span id="availableRAM">
+                                
+                            </span>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-sm" id="cpuGeneralContainer">
+    
                 </div>
                 <div class="col-sm" id="cpuGeneralContainer">
     
@@ -88,14 +108,16 @@
         const cpuTempsDisplay = new CpuTemperatureDisplay("cpuTempContainer", computer.cores)
 
         // Core Temperatures line chart
-        // const coreTempContainer = document.querySelector("#coreTempCanvas")
-        // const coreTempChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
-        // coreTempChartComposition.options.plugins.title.text = "Core Temperatures in Celsius"
-        // const coreTempChart = new Chart(coreTempContainer, coreTempChartComposition)
         const coreTempsDisplay = new CoreTemperatureDisplay("coreTempContainer", computer.cores)
 
         // RAM Usage Line chart : 
         const ramUsageDisplay = new RamUsageDisplay("ramUsageContainer", computer.amountRAM)
+
+        function updateCharts(){
+            cpuTempsDisplay.update()
+            coreTempsDisplay.update()
+            ramUsageDisplay.update()
+        }
 
         // Creating the possible options 
         const coreTempOption = document.querySelector("#coretemp");
@@ -113,7 +135,6 @@
         for(let corestatus of receivedCoreStatusData){
             coreData.push(corestatus);
             cpuTempsDisplay.push(corestatus, !coreTempOption.checked)
-            // displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
             coreTempsDisplay.push(corestatus, coreTempOption.checked)
         }
         
@@ -124,7 +145,6 @@
         }
 
         // Socket Connection
-        
         socket.on("welcome", function(data) {
             console.log("Connection made");
         })
@@ -134,7 +154,6 @@
             coreData.push(corestatus);
 
             cpuTempsDisplay.push(corestatus, !coreTempOption.checked)
-            // displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
             coreTempsDisplay.push(corestatus, coreTempOption.checked)
             
             // TODO: Display CPU Usage

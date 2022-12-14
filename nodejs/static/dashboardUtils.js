@@ -7,12 +7,15 @@ const lineChartComposition = {
     options: {
         scales: {
             y: {
-                max: 100,
+
                 beginAtZero: true
             }
         },
         animation: {
             duration: 0, // disable animations
+            // y: {
+            //     duration: 0 
+            // }
         },
         plugins : {
             title: {
