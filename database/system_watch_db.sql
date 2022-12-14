@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS `computer` (
   `amountRAM` bigint(11) UNSIGNED NOT NULL,
   `amountVRAM` bigint(11) UNSIGNED NOT NULL,
   `CPUid` int(11) NOT NULL,
+  `osName` varchar(50) NULL,
   PRIMARY KEY (`computerID`),
   KEY `fk_computer_cpu_CPUid` (`CPUid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=latin1;

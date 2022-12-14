@@ -3,6 +3,7 @@ const { Computer, Core, CPU } = require("../models")
 const Controller = require("./Controller")
 const CPUController = require("./CPUController")
 const CoreController = require("./CoreController")
+const { getMissingProperties } = require("../utils")
 
 // ================ COMPUTER CONTROLLER ================ 
 
@@ -39,7 +40,7 @@ ComputerController.getComplete = async (computerId) => {
 
 ComputerController.createComplete = async(computer) => {
     let cpuExists = true
-
+    
     let cpu = await CPUController.find(computer.CPU.CPUname)
     if(cpu["error"] !== undefined){
         cpuExists = false
@@ -68,6 +69,19 @@ ComputerController.createComplete = async(computer) => {
     }
 
     return ComputerController.getComplete(newComputer.computerID)
+}
+
+ComputerController.allComplete = async() => {
+    let request = "SELECT * FROM computer co join cpu cp on co.CPUid = cp.CPUid"
+    const result = await pool.execute(request)
+    let computers = []
+    for(let r of result[0]){
+        let completeComputer = Computer.load(r)
+        let cpu = CPU.load(r)
+        completeComputer.CPU = cpu 
+        computers.push(completeComputer)
+    }
+    return computers
 }
 
 module.exports = ComputerController

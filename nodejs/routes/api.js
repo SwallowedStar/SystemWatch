@@ -78,7 +78,6 @@ apiRouter.get("/computer/find/:computerName", async (req, res) => {
         res.json(foundComputer)
     } else {
         const fullComputer = await ComputerController.getComplete(foundComputer.computerID)
-        console.log(fullComputer)
         res.json( fullComputer )
     }
 })
@@ -204,11 +203,6 @@ apiRouter.post("/corestatus", async (req, res) => {
     }
     
     res.json(response)
-})
-
-
-apiRouter.post("/corestatus", async (req, res) => {
-    res.json(await createEntry(CoreStatus, CoreStatusController, req))
 })
 
 apiRouter.get("/corestatus/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {

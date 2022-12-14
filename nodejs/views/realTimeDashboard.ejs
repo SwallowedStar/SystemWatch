@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real time Dashboard - SystemWatch </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container-fluid" id="container">
+        <div class="row">
+            <div class="col-3 d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
+                <div class="sidebar-header">
+                    <h3>Options</h3>
+                </div>
+                <div>
+                    <div>
+                        <label for="displaycputemp">Display the CPU temperature</label>
+                        <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer');toggle('coreTempContainer');updateCharts()">
+                    </div>
+                    <div>
+                        <label for="coretemp">Display temperature of each core</label>
+                        <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempCanvas');toggle('coreTempCanvas');updateCharts()">
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <label for="ramusage">Display RAM usage</label>
+                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageCanvas'); updateCharts()">
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <h1 class="col-sm" style="min-height: 30vh; text-align: center;"><%= computer.computerName %></h1>
+                
+                <div class="col-sm" id="cpuUsageContainer">
+                    <canvas id="cpuUsageCanvas"></canvas>
+                </div>
+
+                <div class="col-sm" id="cpuTempContainer">
+                    <canvas id="cpuTempCanvas"></canvas>
+                </div>
+
+                <div class="col-sm" id="coreTempContainer">
+                    <canvas id="coreTempCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <div class="col-sm" id="ramUsageContainer">
+                    <canvas id="ramUsageCanvas"></canvas>
+                    <div class="d-flex flex-row justify-content-center">
+                        <div class="p-2">
+                            <h5>
+                                In use
+                            </h5>
+                            <span id="usedRAM">
+                                
+                            </span>
+                        </div>
+                        <div class="p-2">
+                            <h5>
+                                Available
+                            </h5>
+                            <span id="availableRAM">
+                                
+                            </span>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-sm" id="cpuGeneralContainer">
+    
+                </div>
+                <div class="col-sm" id="cpuGeneralContainer">
+    
+                </div>
+                <div class="col-sm" id="gpuTempContainer">
+    
+                </div>
+        <%- include('../partials/footer'); %>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<!-- On importe SocketIO, Axios et Chart.js -->
+<script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/dashboardUtils.js"></script>
+<script src="/static/CpuTemperatureDisplay.js"></script>
+<script src="/static/CoreTemperatureDisplay.js"></script>
+<script src="/static/RamUsage.js"></script>
+
+
+<script>
+    const socketHost = "<%= socketHost %>:<%= listenPort %>"
+    const computer = JSON.parse('<%- JSON.stringify(computer) %>')
+    const socket = io(`${socketHost}?computerID=${computer.computerID}`)
+    
+
+    window.onload = async function(){
+        // Create charts : 
+        
+        // CPU Temperature line chart
+        const cpuTempsDisplay = new CpuTemperatureDisplay("cpuTempContainer", computer.cores)
+
+        // Core Temperatures line chart
+        const coreTempsDisplay = new CoreTemperatureDisplay("coreTempContainer", computer.cores)
+
+        // RAM Usage Line chart : 
+        const ramUsageDisplay = new RamUsageDisplay("ramUsageContainer", computer.amountRAM)
+
+        function updateCharts(){
+            cpuTempsDisplay.update()
+            coreTempsDisplay.update()
+            ramUsageDisplay.update()
+        }
+
+        // Creating the possible options 
+        const coreTempOption = document.querySelector("#coretemp");
+        if(coreTempOption.checked){
+            toggle('cpuTempCanvas');
+            toggle('coreTempCanvas');
+        }
+        const ramUsageOption = document.querySelector("#ramusage");
+        if(!ramUsageOption.checked){
+            toggle('ramUsageCanvas');
+        }
+
+        // Getting existing Data : 
+        let receivedCoreStatusData = await getDataFromDatabase("corestatus");
+        for(let corestatus of receivedCoreStatusData){
+            coreData.push(corestatus);
+            cpuTempsDisplay.push(corestatus, !coreTempOption.checked)
+            coreTempsDisplay.push(corestatus, coreTempOption.checked)
+        }
+        
+        let receivedMonitorData = await getDataFromDatabase("monitor");
+        for(let monitor of receivedMonitorData){
+            monitorData.push(monitor);
+            ramUsageDisplay.push(monitor, ramUsageOption.checked)
+        }
+
+        // Socket Connection
+        socket.on("welcome", function(data) {
+            console.log("Connection made");
+        })
+
+        socket.on("corestatuschannel", function(data){
+            const corestatus = JSON.parse(data);
+            coreData.push(corestatus);
+
+            cpuTempsDisplay.push(corestatus, !coreTempOption.checked)
+            coreTempsDisplay.push(corestatus, coreTempOption.checked)
+            
+            // TODO: Display CPU Usage
+        })
+
+        socket.on("monitorchannel", async function(data){
+            // TODO: What to do when a new monitor is received
+            const monitor = JSON.parse(data);
+            monitorData.push(monitor);
+
+            ramUsageDisplay.push(monitor, ramUsageOption.checked)
+        })
+    }
+</script>
+</html>
