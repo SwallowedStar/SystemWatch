@@ -1,11 +1,9 @@
 import datetime
 import multiprocessing
 import platform
-import threading
 import time
 import os
-import psutil
-from psutil import *
+import psutil as ps 
 import GPUtil
 import socket
 import cpuinfo
@@ -18,7 +16,7 @@ def calc_generale(incr):
     if (incr == 0):
         nb_thread = 0
         nb_proc = 0
-        for x in psutil.process_iter(attrs=None, ad_value=None):
+        for x in ps.process_iter(attrs=None, ad_value=None):
             nb_thread += x.num_threads()
             nb_proc += 1
         return [nb_thread, nb_proc]
@@ -32,7 +30,7 @@ def calc_generale(incr):
 
             name_os = platform.system()
             core_number = multiprocessing.cpu_count()
-            memoire = psutil.virtual_memory()
+            memoire = ps.virtual_memory()
             quantity_ram = memoire.total
 
             return [computer_name, cpu_name, 0, name_os, core_number, quantity_ram, 0]
@@ -42,7 +40,7 @@ def calc_generale(incr):
             gpu_name = gpu.name
             name_os = platform.system()
             core_number = multiprocessing.cpu_count()
-            memoire = psutil.virtual_memory()
+            memoire = ps.virtual_memory()
             quantity_ram = memoire.total
             quantity_vram = gpu.memoryTotal
 
@@ -50,12 +48,12 @@ def calc_generale(incr):
 
 
     elif (incr == 2):
-        memoire = psutil.virtual_memory()
+        memoire = ps.virtual_memory()
         ram_usage = memoire.used
         gpu = GPUtil.getGPUs()
 
         if(os_name=="Windows"):
-            freq_cpu = cpu_freq()
+            freq_cpu = ps.cpu_freq()
             min_cpu=freq_cpu.min
             max_cpu=freq_cpu.max
             import clr as clllr
@@ -66,38 +64,34 @@ def calc_generale(incr):
             handle = Hardware.Computer()
             handle.CPUEnabled = True
             handle.Open()
-            frequence_cpu=0
+            core_frequence=0
             compt=0
             for i in handle.Hardware:
                 i.Update()
                 for sensor in i.Sensors:
                     if sensor.SensorType.ToString() == "Clock" and "Core" in sensor.Name:
-                        frequence_cpu += sensor.Value
+                        core_frequence += sensor.Value
                         compt+=1
-
-            frequence_cpu=frequence_cpu/compt
-
+            core_frequence=core_frequence/compt
             if (gpu == []):
-                
                 # rajouter min max freq
-                
-                return [ram_usage, 0, 0, cpu_freq,min_cpu,max_cpu, 0, 0]
+                return [ram_usage, 0, 0, core_frequence,min_cpu,max_cpu, 0, 0]
             else:
                 gpu = GPUtil.getGPUs()[0]
                 gpu_temp = gpu.temperature
                 gpu_usage = gpu.load
                 vram_usage = gpu.memoryUsed
-               
+
                 return [ram_usage, gpu_temp, gpu_usage, freq_cpu,min_cpu,max_cpu, vram_usage, 0]
         elif(os_name=="Linux"):
-            freq_cpu = cpu_freq()
+            freq_cpu = ps.cpu_freq()
             freq_cpu_current = freq_cpu.current
             min_cpu=freq_cpu.min
             max_cpu=freq_cpu.max
             if (gpu == []):
-                
+
                 # rajouter min max freq
-                
+
                 return [ram_usage, 0, 0, freq_cpu_current,min_cpu,max_cpu, 0, 0]
             else:
                 gpu = GPUtil.getGPUs()[0]
@@ -105,44 +99,51 @@ def calc_generale(incr):
                 gpu_usage = gpu.load
                 # Only on Linux
                 vram_usage = gpu.memoryUsed
-                
-              
+
+
                 return [ram_usage, gpu_temp, gpu_usage, freq_cpu_current,min_cpu,max_cpu, vram_usage, 0]
 
     elif (incr == 3):
         if(os_name=="Windows"):
             import clr as clllr
             file = "OpenHardwareMonitorLib"
-
+            
             clllr.AddReference(file)
             from OpenHardwareMonitor import Hardware
             handle = Hardware.Computer()
             handle.CPUEnabled = True
             handle.Open()
-            frequence_cpu=[]
-            temperature_cpu=[]
+            core_frequence=[]
+            core_temperatures=[]
+            core_usages = []
+            # TODO: test the core_usage 
             for i in handle.Hardware:
                 i.Update()
                 for sensor in i.Sensors:
                     if (sensor.SensorType.ToString() == "Clock" and "Core" in sensor.Name):
-                        frequence_cpu.append(sensor.Value)
+                        core_frequence.append(sensor.Value)
                     elif(sensor.SensorType.ToString()=="Temperature" and "Core" in sensor.Name):
-                        temperature_cpu.append(sensor.Value)
+                        core_temperatures.append(sensor.Value)
+                    elif(sensor.Name == "CPU Core"):
+                        core_usages.append(sensor.Value)
+            return [core_frequence,core_temperatures]
 
-            return [frequence_cpu,temperature_cpu]
         elif(os_name=="Linux"):
-       
-            all_coeur = sensors_temperatures()
-            all_freq = cpu_freq(percpu=True)
-            tab_temp = []
-            tab_usage = []
-            for element in all_coeur["coretemp"]:
+            all_temp_cores = ps.sensors_temperatures()
+            all_freq = ps.cpu_freq(percpu=True)
+            all_percentages = ps.cpu_percent(1, percpu=True)
+            core_temperatures = []
+            core_frequence = []
+            core_usages = []
+            for element in all_temp_cores["coretemp"]:
                 if ("Core" in element.label):
-                    tab_temp.append(element.current)
+                    core_temperatures.append(element.current)
             for element in all_freq:
-                tab_usage.append(element.current)
+                core_frequence.append(element.current)
+            for element in all_percentages:
+                core_usages.append(element)
 
-            return [tab_temp, tab_usage]
+            return [core_temperatures, core_frequence, core_usages]
 
 
 def res_func(res):
@@ -255,79 +256,12 @@ if __name__ == "__main__":
                         "time":time_send,                    
                         "computerID":data["computerID"],
                         "idCore":x["idCore"],
+                        "coreTemp":l_multiple_core[0][0][i],
                         "coreFrequency":l_multiple_core[0][1][i],
-                        "coreTemp":l_multiple_core[0][0][i]
+                        "coreUsage": l_multiple_core[0][2][i]
                     }
                     i+=1
                     rq.post("http://"+IP_HOST+":"+LISTEN_PORT+"/api/corestatus",json=json_core)
 
                 
             time.sleep(0.5)
-
-
-            """if(x["computerName"]==l_general_infos[0][0]):
-                    comput_id=x["computerID"]"""
-            
-            """
-
-            time_send=str(datetime.datetime.now())
-            print(time_send)
-
-
-
-            json_monitor={
-                "time":time_send,
-                "computerID":comput_id,
-                "RAMusage":l_various_usage[0][0],
-                "nbThreads":l_thread_proc[0][0],
-                "nbProcesses":l_thread_proc[0][1],
-                "GPUtemp":l_various_usage[0][1],
-                "CPUfreq":l_various_usage[0][3],
-                "VRAMusage":l_various_usage[0][6],
-                "electricalConsumption":0
-            }
-
-
-            nb_core=l_general_infos[0][4]
-            for x in range(1,nb_core+1):
-                json_core_status={
-                    "time":time_send,
-                    "computerID":comput_id,
-                    "idCore":x,
-                    "coreFrequency":l_multiple_core[0][0][x-1],
-                    "coreTemp":l_multiple_core[0][1][x-1]
-                }
-                print(json_core_status)"""
-
-
-
-
-
-
-            
-            """ Post le computer + le cpu
-            print(rq.post("http://192.168.0.19:3000/api/computer/complete",json=json_info_computer))"""
-            #print(rq.get("http://192.168.0.19:3000/api/ping"))
-            #rq.delete("http://192.168.0.19:3000/api/cpu/64")
-            """r=rq.get("http://192.168.0.19:3000/api/computers")
-            data=r.json()
-
-            for x in data:
-                if(x["computerName"]==l_general_infos[0][0]):
-                    comput_id=x["computerID"]
-            
-
-
-
-
-            r=rq.get("http://192.168.0.19:3000/api/cpus")
-            data=r.json()"""
-
-
-
-
-        
-
-
-
-
