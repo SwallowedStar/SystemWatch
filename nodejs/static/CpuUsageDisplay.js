@@ -1,4 +1,4 @@
-class CpuTemperatureDisplay{
+class CpuUsageDisplay{
     constructor(containerId, computerCores){
         this.receivedCoreStatus = []
         this.computerCores = computerCores
@@ -6,7 +6,7 @@ class CpuTemperatureDisplay{
         
         const canvas = this.container.querySelector("canvas")
         const composition = JSON.parse(JSON.stringify(lineChartComposition))
-        composition.options.plugins.title.text = "CPU Temperature in Celsius"
+        composition.options.plugins.title.text = "CPU Usage in %"
         composition.options.scales.y.max = 100
         this.chart = new Chart(canvas, composition)
     }
@@ -15,7 +15,7 @@ class CpuTemperatureDisplay{
         this.chart.data.datasets = [
             {
                 type: "line",
-                label: "# temp of CPU in celsius",
+                label: "% of CPU power used",
                 data: Array(MAX_AMOUNT_LINE_DATA_DISPLAYED).fill(0)
             }
         ]
@@ -47,15 +47,15 @@ class CpuTemperatureDisplay{
 
         // When we've got all the data, we get the mean and display it thanks to the chart
         if(justOnTime && this.receivedCoreStatus.length == this.computerCores.length){
-            let averageTemp = 0;
+            let averageUsage = 0;
             for(let cs of this.receivedCoreStatus){
-                averageTemp += cs.coreTemp / computer.CPU.coreNumber;
+                averageUsage += cs.coreUsage / computer.CPU.coreNumber;
             }
             let time = new Date(this.receivedCoreStatus[0].time);
             let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
             
             this.chart.data.labels.push(timeString);
-            this.chart.data.datasets[0].data.push(averageTemp);
+            this.chart.data.datasets[0].data.push(averageUsage);
             if(this.chart.data.labels.length > MAX_AMOUNT_LINE_DATA_DISPLAYED){
                 this.chart.data.labels.shift();
                 this.chart.data.datasets[0].data.shift();

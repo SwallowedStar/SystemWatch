@@ -16,6 +16,12 @@
                 </div>
                 <div>
                     <div>
+                        <label for="cpuload">Display CPU load</label>
+                        <input type="checkbox" id="cpuload" name="cpuload" checked onclick="toggle('cpuUsageContainer');">
+                    </div>
+                </div>
+                <div>
+                    <div>
                         <label for="displaycputemp">Display the CPU temperature</label>
                         <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer');toggle('coreTempContainer');updateCharts()">
                     </div>
@@ -27,7 +33,7 @@
                 <div>
                     <div>
                         <label for="ramusage">Display RAM usage</label>
-                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageCanvas'); updateCharts()">
+                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageContainer'); updateCharts()">
                     </div>
                 </div>
             </div>
@@ -36,6 +42,10 @@
                 
                 <div class="col-sm" id="cpuUsageContainer">
                     <canvas id="cpuUsageCanvas"></canvas>
+                </div>
+
+                <div class="col-sm" id="coreUsageContainer">
+                    <canvas id="coreUsageCanvas"></canvas>
                 </div>
 
                 <div class="col-sm" id="cpuTempContainer">
@@ -89,9 +99,13 @@
 <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- On importe tous les éléments à afficher -->
 <script src="/static/dashboardUtils.js"></script>
 <script src="/static/CpuTemperatureDisplay.js"></script>
 <script src="/static/CoreTemperatureDisplay.js"></script>
+<script src="/static/CpuUsageDisplay.js"></script>
+<script src="/static/CoreUsageDisplay.js"></script>
 <script src="/static/RamUsage.js"></script>
 
 
@@ -99,35 +113,50 @@
     const socketHost = "<%= socketHost %>:<%= listenPort %>"
     const computer = JSON.parse('<%- JSON.stringify(computer) %>')
     const socket = io(`${socketHost}?computerID=${computer.computerID}`)
-    
+    const charts = []
+    function updateCharts(){
+        for(let chart of charts){
+            chart.update()
+        }
+    }
 
     window.onload = async function(){
         // Create charts : 
         
         // CPU Temperature line chart
         const cpuTempsDisplay = new CpuTemperatureDisplay("cpuTempContainer", computer.cores)
+        charts.push(cpuTempsDisplay)
 
         // Core Temperatures line chart
         const coreTempsDisplay = new CoreTemperatureDisplay("coreTempContainer", computer.cores)
+        charts.push(coreTempsDisplay)
 
         // RAM Usage Line chart : 
         const ramUsageDisplay = new RamUsageDisplay("ramUsageContainer", computer.amountRAM)
+        charts.push(ramUsageDisplay)
 
-        function updateCharts(){
-            cpuTempsDisplay.update()
-            coreTempsDisplay.update()
-            ramUsageDisplay.update()
-        }
+        // CPU Usage Line chart :
+        const cpuUsageDisplay = new CpuUsageDisplay("cpuUsageContainer", computer.cores)
+        charts.push(cpuUsageDisplay)
+
+        // Core Usage Line chart :
+        const coreUsageDisplay = new CoreUsageDisplay("coreUsageContainer", computer.cores)
+        charts.push(coreUsageDisplay)
+        
 
         // Creating the possible options 
         const coreTempOption = document.querySelector("#coretemp");
         if(coreTempOption.checked){
-            toggle('cpuTempCanvas');
-            toggle('coreTempCanvas');
+            toggle('cpuTempContainer');
+            toggle('coreTempContainer');
         }
         const ramUsageOption = document.querySelector("#ramusage");
         if(!ramUsageOption.checked){
-            toggle('ramUsageCanvas');
+            toggle('ramUsageContainer');
+        }
+        const cpuUsageOption = document.querySelector("#cpuload");
+        if(!cpuUsageOption.checked){
+            toggle('cpuUsageContainer')
         }
 
         // Getting existing Data : 
@@ -136,6 +165,8 @@
             coreData.push(corestatus);
             cpuTempsDisplay.push(corestatus, !coreTempOption.checked)
             coreTempsDisplay.push(corestatus, coreTempOption.checked)
+            cpuUsageDisplay.push(corestatus, cpuUsageOption.checked)
+            coreUsageDisplay.push(corestatus, !cpuUsageOption.checked)
         }
         
         let receivedMonitorData = await getDataFromDatabase("monitor");
@@ -155,6 +186,8 @@
 
             cpuTempsDisplay.push(corestatus, !coreTempOption.checked)
             coreTempsDisplay.push(corestatus, coreTempOption.checked)
+            cpuUsageDisplay.push(corestatus, cpuUsageOption.checked)
+            coreUsageDisplay.push(corestatus, cpuUsageOption.checked)
             
             // TODO: Display CPU Usage
         })
