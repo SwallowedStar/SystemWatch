@@ -42,6 +42,9 @@
 
                 <div class="col-sm" id="cpuTempContainer">
                     <canvas id="cpuTempCanvas"></canvas>
+                </div>
+
+                <div class="col-sm" id="coreTempContainer">
                     <canvas id="coreTempCanvas" style="display: none;"></canvas>
                 </div>
                 
@@ -67,6 +70,10 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/static/dashboardUtils.js"></script>
+<script src="/static/CpuTemperatureDisplay.js"></script>
+<script src="/static/CoreTemperatureDisplay.js"></script>
+<script src="/static/RamUsage.js"></script>
+
 
 <script>
     const socketHost = "<%= socketHost %>:<%= listenPort %>"
@@ -78,25 +85,17 @@
         // Create charts : 
         
         // CPU Temperature line chart
-        const cpuTempContainer = document.querySelector("#cpuTempCanvas")
-        const cpuTempChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
-        cpuTempChartComposition.options.plugins.title.text = "CPU Temperature in Celsius"
-        const cpuTempChart = new Chart(cpuTempContainer, cpuTempChartComposition)
-        
+        const cpuTempsDisplay = new CpuTemperatureDisplay("cpuTempContainer", computer.cores)
+
         // Core Temperatures line chart
-        const coreTempContainer = document.querySelector("#coreTempCanvas")
-        const coreTempChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
-        coreTempChartComposition.options.plugins.title.text = "Core Temperatures in Celsius"
-        const coreTempChart = new Chart(coreTempContainer, coreTempChartComposition)
+        // const coreTempContainer = document.querySelector("#coreTempCanvas")
+        // const coreTempChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
+        // coreTempChartComposition.options.plugins.title.text = "Core Temperatures in Celsius"
+        // const coreTempChart = new Chart(coreTempContainer, coreTempChartComposition)
+        const coreTempsDisplay = new CoreTemperatureDisplay("coreTempContainer", computer.cores)
 
         // RAM Usage Line chart : 
-        // #ramUsageCanvas
-        const ramUsageContainer = document.querySelector("#ramUsageCanvas")
-        const ramUsageChartComposition = JSON.parse(JSON.stringify(lineChartComposition))
-        ramUsageChartComposition.options.plugins.title.text = "Amount of RAM used"
-        ramUsageChartComposition.options.scales.y.max = computer.amountRAM / 1000000000
-        const ramUsageChart = new Chart(ramUsageContainer, ramUsageChartComposition)
-
+        const ramUsageDisplay = new RamUsageDisplay("ramUsageContainer", computer.amountRAM)
 
         // Creating the possible options 
         const coreTempOption = document.querySelector("#coretemp");
@@ -113,14 +112,15 @@
         let receivedCoreStatusData = await getDataFromDatabase("corestatus");
         for(let corestatus of receivedCoreStatusData){
             coreData.push(corestatus);
-            displayCPUTemps(corestatus, cpuTempChart, !coreTempOption.checked);
-            displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
+            cpuTempsDisplay.push(corestatus, !coreTempOption.checked)
+            // displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
+            coreTempsDisplay.push(corestatus, coreTempOption.checked)
         }
         
         let receivedMonitorData = await getDataFromDatabase("monitor");
         for(let monitor of receivedMonitorData){
             monitorData.push(monitor);
-            displayRamUsage(monitor, ramUsageChart, true);
+            ramUsageDisplay.push(monitor, ramUsageOption.checked)
         }
 
         // Socket Connection
@@ -133,8 +133,9 @@
             const corestatus = JSON.parse(data);
             coreData.push(corestatus);
 
-            displayCPUTemps(corestatus, cpuTempChart, !coreTempOption.checked); // Default Behavior
-            displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
+            cpuTempsDisplay.push(corestatus, !coreTempOption.checked)
+            // displayCoreCPUTemps(corestatus, coreTempChart, coreTempOption.checked);
+            coreTempsDisplay.push(corestatus, coreTempOption.checked)
             
             // TODO: Display CPU Usage
         })
@@ -144,7 +145,7 @@
             const monitor = JSON.parse(data);
             monitorData.push(monitor);
 
-            displayRamUsage(monitor, ramUsageChart, ramUsageOption.checked)
+            ramUsageDisplay.push(monitor, ramUsageOption.checked)
         })
     }
 </script>
