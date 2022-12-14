@@ -212,9 +212,10 @@ async function testCoreStatusController(){
     const idCore = 1
     const coreFrequency = 2000000000
     const coreTemp = 32.1
+    const coreUsage = 30.2
     
-    const coreStatus1 = new CoreStatus(time, computerID, idCore, coreFrequency, coreTemp)
-    const coreStatus2 = new CoreStatus(time2, computerID, idCore, coreFrequency, coreTemp)
+    const coreStatus1 = new CoreStatus(time, computerID, idCore, coreFrequency, coreTemp, coreUsage)
+    const coreStatus2 = new CoreStatus(time2, computerID, idCore, coreFrequency, coreTemp, coreUsage)
 
     const monitorController1 = new Monitor(time, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)
     const monitorController2 = new Monitor(time2, computerID, 500000, 540, 300, 60.5, 3500, 50000, 30.6)

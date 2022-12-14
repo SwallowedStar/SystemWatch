@@ -76,15 +76,16 @@ class Monitor extends Model{
 }
 
 class CoreStatus extends Model{
-    static dbProperties = ["time", "computerID", "idCore", "coreFrequency", "coreTemp"] 
+    static dbProperties = ["time", "computerID", "idCore", "coreFrequency", "coreTemp", "coreUsage"] 
     static idProperties = ["time", "computerID", "computerID"]
-    constructor(time, computerID, idCore, coreFrequency, coreTemp){
+    constructor(time, computerID, idCore, coreFrequency, coreTemp, coreUsage){
         super(CoreStatus)
         this.time = time
         this.computerID = computerID
         this.idCore = idCore
         this.coreFrequency = coreFrequency,
         this.coreTemp = coreTemp
+        this.coreUsage = coreUsage
     }
 }
 
