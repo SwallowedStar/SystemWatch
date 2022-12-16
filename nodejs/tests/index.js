@@ -1,5 +1,7 @@
-const { ComputerController, CoreController, MonitorController, CPUController, CoreStatusController } = require("../controllers")
+const { ComputerController, CoreController, MonitorController, CPUController, CoreStatusController } = require("../controllers");
 const { Computer, Core, CPU, Monitor, CoreStatus } = require("../models")
+const { pool } = require("../database")
+
 
 function isObject(object) {
     return object != null && typeof object === 'object';
@@ -249,16 +251,38 @@ async function testCoreStatusController(){
     return results
 }
 
-function testModel() {
-    console.log("======== STARTING TESTS FOR MODELS ========")
+async function createTestData() {
+    await pool.execute(
+    "INSERT INTO `cpu` (`CPUid`, `CPUname`, `coreNumber`, `minFrequency`, `maxFrequency`) VALUES \
+    (1, 'AMD Ryzen 5 4500U', 6, 0, 2380);");
+    
+    await pool.execute(
+    "INSERT INTO `computer` (`computerID`, `computerName`, `GPUname`, `amountRAM`, `amountVRAM`, `CPUid`) VALUES \
+    (1, 'Hp envy', 'AMD Radeon', 12000000000, 6000000000, 1);");
 
+    await pool.execute(
+    "INSERT INTO `core` (`idCore`, `computerID`) VALUES\
+    (1, 1),\
+    (2, 1),\
+    (3, 1),\
+    (4, 1),\
+    (5, 1),\
+    (6, 1);");
+}
+
+async function purgeTestData() {
+    await pool.execute("DELETE FROM computer WHERE computerID = 1")
+    await pool.execute("DELETE FROM cpu WHERE CPUid = 1")
+    
 }
 
 module.exports = {
-    testComputerController: testComputerController,
+    testComputerController: testComputerController, 
     testCoreController: testCoreController,
     testMonitorController: testMonitorController,
     testCPUController: testCPUController,
-    testCoreStatusController: testCoreStatusController
+    testCoreStatusController: testCoreStatusController, 
+    createTestData: createTestData, 
+    purgeTestData: purgeTestData
 }
 
