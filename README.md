@@ -70,7 +70,9 @@ To do so, create a `.env` file in the nodejs folder with the folowing infos :
 - **DB_USER** : The user that will be able to access the database
 - **DB_PASSWORD** : The user password
 - **DB_NAME** : The name of the database you'll be using. by default, you should put "system_watch_db" 
+- **SOCKET_HOST** : This is where the API and socket and socket is installed. It will be used by the front end to ask data to the server
 
+A default file would look like this : 
 ```
 LISTEN_PORT = 3000
 DB_HOST = "127.0.0.1"
@@ -78,13 +80,7 @@ DB_PORT = 3306
 DB_USER = "root"
 DB_PASSWORD = <password>
 DB_NAME = "system_watch_db"
-```
-
-A default file would look like this : 
-```
-LISTEN_PORT = 3000
-IP_HOST = "127.0.0.1"
-
+SOCKET_HOST = "127.0.0.1"
 ```
 
 Once all of that is done, you should see if the build passes the tests : 
@@ -93,13 +89,30 @@ cd nodejs
 npm run test
 ```
 
-It passes only if all the tests at the end show `true`
+It passes only if all the tests at the end show `true`.
 
-### MonitorMachine Setup
+To launch the server and test it with the python scrapper, you can use : 
+```
+npm run dev
+```
 
+Once this step is done, you have to setup the machine monitor.
+
+### Machine Monitor Setup
+
+Everything linked to this part of the project is in the folder named *scrap*.
+This part of the project has been tested on Linux. Adaptations have been made for Windows machines, but it might not work as expected.
 #### Install dependencies 
 
-No dependencies to install for now 
+First of all, we created this using Python version 3.10.6.
+
+You can find all the libraries used for the scrapping in the requirements.txt file located in the scrap folder. 
+
+To install dependencies, you need to use the command : 
+```
+pip3 install -r scrap/requirements.txt
+```
+
 #### Configure API access
 
 For this program to run, you'll need to define the environment variables.
@@ -114,9 +127,27 @@ LISTEN_PORT = 3000
 IP_HOST = "127.0.0.1"
 ```
 
+
 --- 
 ## How to use
 
+If you didn't read the setup instruction, you need to [go back](#installing). These are important steps.
+
+The first thing you need to do is launch the nodejs backend. \
+You can do it with these commands:
+
+```
+cd nodejs
+npm run dev
+```
+
+Then launch the python scraper : 
+```
+python3 scrap/scrap.py
+```
+
+Then in the webbrowser of your choice and type in the adress of the backend server. \
+For example, it can be : http://localhost:3000/
 
 --- 
 ## Special thanks
