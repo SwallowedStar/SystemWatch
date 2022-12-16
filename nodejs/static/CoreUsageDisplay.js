@@ -23,7 +23,6 @@ class CoreUsageDisplay{
         for(data of lastData){
             this.push(data, true);
         }
-        //this.update()
     }
     async push(corestatus, isDisplayed){
         if(this.chart.data.datasets.length != this.computerCores.length){

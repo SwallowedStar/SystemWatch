@@ -42,7 +42,7 @@ class CoreTemperatureDisplay extends Display{
             xaxis: {
                 title: "Time",
                 rangemode: 'tozero',
-                range : this.xRange
+                range : [0, MAX_AMOUNT_LINE_DATA_DISPLAYED]
             },
             yaxis: {
                 title: "Core Temperature in Celsius",

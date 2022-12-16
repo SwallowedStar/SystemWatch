@@ -35,11 +35,11 @@ class CpuTemperatureDisplay extends Display{
         }
 
         const layout = {
-            title: "CPU Temperature in Celsius",
+            title: "CPU Temperature in Celsius over time",
             xaxis: {
                 title: "Time",
                 rangemode: 'tozero',
-                range : this.xRange
+                range : [0, MAX_AMOUNT_LINE_DATA_DISPLAYED]
             },
             yaxis: {
                 title: "CPU Temperature in Celsius",

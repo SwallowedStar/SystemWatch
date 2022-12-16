@@ -69,3 +69,15 @@ function toggle(id){
         elem.style.display = "none"; 
     }
 }
+
+function relayout(ed, divs) {
+    divs.forEach((div, i) => {
+        let x = div.layout.xaxis;
+        if (ed["xaxis.autorange"] && x.autorange) return;
+        if (
+            x.range[0] != ed["xaxis.range[0]"] ||
+            x.range[1] != ed["xaxis.range[1]"]
+        )
+        Plotly.relayout(div, ed);
+    });
+}

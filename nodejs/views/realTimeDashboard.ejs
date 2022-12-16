@@ -23,17 +23,17 @@
                 <div>
                     <div>
                         <label for="displaycputemp">Display the CPU temperature</label>
-                        <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer');toggle('coreTempContainer');updateCharts()">
+                        <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer');toggle('coreTempContainer');">
                     </div>
                     <div>
                         <label for="coretemp">Display temperature of each core</label>
-                        <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempCanvas');toggle('coreTempCanvas');updateCharts()">
+                        <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempContainer');toggle('coreTempContainer');">
                     </div>
                 </div>
                 <div>
                     <div>
                         <label for="ramusage">Display RAM usage</label>
-                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageContainer'); updateCharts()">
+                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageContainer');">
                     </div>
                 </div>
             </div>
@@ -41,21 +41,16 @@
                 <h1 class="col-sm" style="min-height: 30vh; text-align: center;"><%= computer.computerName %></h1>
                 
                 <div class="col-sm" id="cpuUsageContainer">
-                    <canvas id="cpuUsageCanvas" class="canvas"></canvas>
-                </div>
-
-                <div class="col-sm" id="coreUsageContainer">
-                    <canvas id="coreUsageCanvas" class="canvas"></canvas>
+                    <!-- <canvas id="cpuUsageCanvas" class="canvas"></canvas> -->
+                    <div id="cpuUsageCanvas" class="canvas"></div>
                 </div>
 
                 <div class="col-sm" id="cpuTempContainer">
-                    <!-- <canvas id="cpuTempCanvas" class="canvas"></canvas> -->
                     <div id="cpuTempCanvas" class="canvas"></div>
                 </div>
 
-                <div class="col-sm" id="coreTempContainer">
-                    <!-- <canvas id="coreTempCanvas" style="display: none;" class="canvas"></canvas> -->
-                    <div id="coreTempCanvas" style="display: none;" class="canvas"></div>
+                <div class="col-sm" id="coreTempContainer" style="display: none;">
+                    <div id="coreTempCanvas" class="canvas"></div>
                 </div>
                 
                 <div class="col-sm" id="ramUsageContainer">
@@ -110,31 +105,22 @@
 <script src="/static/CpuTemperatureDisplay.js"></script>
 <script src="/static/CoreTemperatureDisplay.js"></script>
 <script src="/static/CpuUsageDisplay.js"></script>
-<script src="/static/CoreUsageDisplay.js"></script>
 <script src="/static/RamUsage.js"></script>
 
 
 <script>
+
     const socketHost = "<%= socketHost %>:<%= listenPort %>"
     const computer = JSON.parse('<%- JSON.stringify(computer) %>')
     const socket = io(`${socketHost}?computerID=${computer.computerID}`)
     const charts = []
-    function updateCharts(){
-        for(let chart of charts){
-            chart.update()
-        }
-    }
 
     window.onload = async function(){
         // Create charts : 
         
         // CPU Usage Line chart :
-        const cpuUsageDisplay = new CpuUsageDisplay("cpuUsageContainer", computer.cores)
-        charts.push(cpuUsageDisplay)
-
-        // Core Usage Line chart :
-        const coreUsageDisplay = new CoreUsageDisplay("coreUsageContainer", computer.cores)
-        charts.push(coreUsageDisplay)
+        // const cpuUsageDisplay = new CpuUsageDisplay("cpuUsageContainer", computer.cores)
+        // charts.push(cpuUsageDisplay)
         
 
         // Creating the possible options 
@@ -161,11 +147,12 @@
         // Core Temperatures line chart
         const coreTempsDisplay = new CoreTemperatureDisplay("coreTempContainer", computer.cores, receivedCoreStatusData)
 
+        // CPU Usage line chart
+        const cpuUsageDisplay = new CpuUsageDisplay("cpuUsageContainer", computer.cores, receivedCoreStatusData)
+
         for(let corestatus of receivedCoreStatusData){
             coreData.push(corestatus);
-            // coreTempsDisplay.push(corestatus, coreTempOption.checked)
-            cpuUsageDisplay.push(corestatus, cpuUsageOption.checked)
-            // coreUsageDisplay.push(corestatus, !cpuUsageOption.checked)
+            // cpuUsageDisplay.push(corestatus, cpuUsageOption.checked)
         }
         
         let receivedMonitorData = await getDataFromDatabase("monitor");
@@ -176,6 +163,48 @@
         for(let monitor of receivedMonitorData){
             monitorData.push(monitor);
         }
+
+        // Synchronizing linecharts : 
+
+        let displays = [ramUsageDisplay, coreTempsDisplay, cpuTempsDisplay, cpuUsageDisplay];
+        let plots = []
+
+        displays.forEach((d)=>{
+            plots.push(document.querySelector("#"+d.graphId))
+        })
+
+        let updating = false;
+        plots[0].on("plotly_redraw", function(ed){
+            let range = plots[0].layout.xaxis.range
+            let newRange = [range[0]+ 1, range[1] + 1]
+            for(let plot of plots){
+                Plotly.relayout(plot, {xaxis:{range: newRange}})
+            }
+        })
+
+        plots.forEach(div => {
+            div.on("plotly_relayout", async function(ed) {
+                if (updating) {
+                    return;
+                }
+                updating = true;
+                const dimensions = {
+                    "xaxis.range[0]" : ed["xaxis.range[0]"],
+                    "xaxis.range[1]" : ed["xaxis.range[1]"]
+                } 
+                for(let p of plots){
+                    if(ed["dragmode"] !== undefined){
+                        await Plotly.relayout(p, ed);
+                    } else if(ed["xaxis.range[0]"] !== undefined) {
+                        await Plotly.relayout(p, dimensions);
+                    } else {
+                        return;
+                    }
+                }
+
+                updating = false;
+            });
+        });
 
         // Socket Connection
         socket.on("welcome", function(data) {
@@ -189,7 +218,6 @@
             cpuTempsDisplay.push(corestatus)
             coreTempsDisplay.push(corestatus)
             cpuUsageDisplay.push(corestatus, cpuUsageOption.checked)
-            // coreUsageDisplay.push(corestatus, cpuUsageOption.checked)
             
             // TODO: Display CPU Usage
         })

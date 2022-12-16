@@ -1,51 +1,60 @@
-class CpuUsageDisplay{
-    constructor(containerId, computerCores){
-        this.receivedCoreStatus = []
+class CpuUsageDisplay extends Display{
+    constructor(containerId, computerCores, existingData){
+        super(containerId)
         this.computerCores = computerCores
-        this.container = document.querySelector(`#${containerId}`)
-        
-        const canvas = this.container.querySelector("canvas")
-        const composition = JSON.parse(JSON.stringify(lineChartComposition))
-        composition.options.plugins.title.text = "CPU Usage in %"
-        composition.options.scales.y.max = 100
-        this.chart = new Chart(canvas, composition)
-    }
+        this.receivedCoreStatus = []
 
-    initialize(){
-        this.chart.data.datasets = [
-            {
-                type: "line",
-                label: "% of CPU power used",
-                data: Array(MAX_AMOUNT_LINE_DATA_DISPLAYED).fill(0)
+        const data = {
+            x: [],
+            y: []
+        }
+        for(let i = 0; i < MAX_AMOUNT_LINE_DATA_DISPLAYED * this.computerCores.length; i += this.computerCores.length){
+            let monitor = existingData[i]
+            if(monitor !== undefined){
+                let time = new Date(monitor.time);
+                let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
+
+                let monitors = existingData.slice(i, i + 4)
+                let onTime = true
+                let averageUsage = 0
+
+                monitors.forEach((m)=>{
+                    onTime = onTime && (monitors[0].time == m.time);
+                    averageUsage += m.coreTemp / this.computerCores.length
+                })
+
+                if(monitors.length == this.computerCores.length && onTime){
+                    data.x.push(timeString)
+                    data.y.push(averageUsage)
+                }
+            } else {
+                data.x.unshift(0)
+                data.y.unshift(0)
             }
-        ]
-        this.chart.data.labels = Array(MAX_AMOUNT_LINE_DATA_DISPLAYED).fill(0);
-        
-        const lastData = getLastDataFromStorage(coreData);
-        for(data of lastData){
-            this.push(data, true);
+
+            const layout = {
+                title: "CPU Usage in % over time",
+                xaxis: {
+                    title: "Time",
+                    rangemode: 'tozero',
+                    range : [0, MAX_AMOUNT_LINE_DATA_DISPLAYED]
+                },
+                yaxis: {
+                    title: "CPU Usage in %",
+                    range: [0,100]
+                }
+            }
+            Plotly.newPlot(this.graphId, [data], layout);
         }
-        this.update()
-        this.receivedCoreStatus = [];
     }
-
-    async push(corestatus, isDisplayed){
-
-        if(this.chart.data.datasets.length != 1){
-            this.initialize()
-        }
-
-        // First, we need to chec if we're on time : 
-        // if we get the full data of the cpu core for 1 time.
-        // We check that by checking if we have the first corestatus stored in memory
+    async push(monitor){
         let justOnTime = true;
-        this.receivedCoreStatus.push(corestatus);
+        this.receivedCoreStatus.push(monitor);
         if(this.receivedCoreStatus[0].idCore != this.computerCores[0].idCore){
             justOnTime = false;
             this.receivedCoreStatus = [];
         }
 
-        // When we've got all the data, we get the mean and display it thanks to the chart
         if(justOnTime && this.receivedCoreStatus.length == this.computerCores.length){
             let averageUsage = 0;
             for(let cs of this.receivedCoreStatus){
@@ -54,21 +63,16 @@ class CpuUsageDisplay{
             let time = new Date(this.receivedCoreStatus[0].time);
             let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
             
-            this.chart.data.labels.push(timeString);
-            this.chart.data.datasets[0].data.push(averageUsage);
-            if(this.chart.data.labels.length > MAX_AMOUNT_LINE_DATA_DISPLAYED){
-                this.chart.data.labels.shift();
-                this.chart.data.datasets[0].data.shift();
-            }
-            if(isDisplayed)
-                this.update();
+            this.dataToUpdate.x[0].push(timeString);
+            this.dataToUpdate.y[0].push(averageUsage);
 
             this.receivedCoreStatus = [];
+
+            this.update();
         }
-
     }
-
     update(){
-        this.chart.update()
+        Plotly.extendTraces(this.graphId, this.dataToUpdate, [0]);
+        super.update()
     }
 }
