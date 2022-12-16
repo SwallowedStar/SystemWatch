@@ -171,3 +171,9 @@ UNLOCK TABLES;
 
 -- Dump completed on 2022-12-16 15:37:28
 
+CREATE TRIGGER before_insert_monitor
+BEFORE INSERT ON monitor FOR EACH ROW
+BEGIN
+    DELETE from monitor
+        where time <= DATE_SUB(NOW(), INTERVAL 12 HOUR);
+end;
