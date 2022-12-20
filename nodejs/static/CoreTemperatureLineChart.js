@@ -1,4 +1,4 @@
-class CoreTemperatureDisplay extends Display{
+class CoreTemperatureLineChart extends Display{
     constructor(containerId, computerCores, existingData){
         super(containerId);
         this.receivedCoreStatus = 0;
@@ -11,7 +11,7 @@ class CoreTemperatureDisplay extends Display{
         this.computerCores.forEach((_)=>{
             this.dataToUpdate.x.push([])
             this.dataToUpdate.y.push([])
-            data.push({x:[], y:[]})
+            data.push({x:[], y:[], mode: 'lines+markers'})
         })
         // We initialize data
         for(let i = 0; i < MAX_AMOUNT_LINE_DATA_DISPLAYED * this.computerCores.length; i+=this.computerCores.length){

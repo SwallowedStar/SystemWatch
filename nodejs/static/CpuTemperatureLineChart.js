@@ -1,4 +1,4 @@
-class CpuTemperatureDisplay extends Display{
+class CpuTemperatureLineChart extends Display{
     constructor(containerId, computerCores, existingData){
         super(containerId);
         this.receivedCoreStatus = [];
@@ -7,7 +7,8 @@ class CpuTemperatureDisplay extends Display{
         // We initialise the data
         const data = {
             x:[],
-            y:[]
+            y:[],
+            mode: 'lines+markers'
         }
         for(let i = 0; i < MAX_AMOUNT_LINE_DATA_DISPLAYED * this.computerCores.length; i+=this.computerCores.length){
             let corestatus = existingData[i]
@@ -49,14 +50,11 @@ class CpuTemperatureDisplay extends Display{
         Plotly.newPlot(this.graphId, [data], layout);
     }
     async push(corestatus){
-        let justOnTime = true;
         this.receivedCoreStatus.push(corestatus);
+        
         if(this.receivedCoreStatus[0].idCore != this.computerCores[0].idCore){
-            justOnTime = false;
             this.receivedCoreStatus = [];
-        }
-
-        if(justOnTime && this.receivedCoreStatus.length == this.computerCores.length){
+        } else if(this.receivedCoreStatus.length == this.computerCores.length){
             let averageTemp = 0;
             for(let cs of this.receivedCoreStatus){
                 averageTemp += cs.coreTemp / computer.CPU.coreNumber;

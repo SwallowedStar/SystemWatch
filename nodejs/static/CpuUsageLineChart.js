@@ -1,4 +1,4 @@
-class CpuUsageDisplay extends Display{
+class CpuUsageLineChart extends Display{
     constructor(containerId, computerCores, existingData){
         super(containerId)
         this.computerCores = computerCores
@@ -6,27 +6,13 @@ class CpuUsageDisplay extends Display{
 
         const data = {
             x: [],
-            y: []
+            y: [],
+            mode: 'lines+markers'
         }
-        for(let i = 0; i < MAX_AMOUNT_LINE_DATA_DISPLAYED * this.computerCores.length; i += this.computerCores.length){
+        for(let i = 0; i < MAX_AMOUNT_LINE_DATA_DISPLAYED * this.computerCores.length; i++){
             let monitor = existingData[i]
             if(monitor !== undefined){
-                let time = new Date(monitor.time);
-                let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
-
-                let monitors = existingData.slice(i, i + 4)
-                let onTime = true
-                let averageUsage = 0
-
-                monitors.forEach((m)=>{
-                    onTime = onTime && (monitors[0].time == m.time);
-                    averageUsage += m.coreTemp / this.computerCores.length
-                })
-
-                if(monitors.length == this.computerCores.length && onTime){
-                    data.x.push(timeString)
-                    data.y.push(averageUsage)
-                }
+                this.push(monitor)
             } else {
                 data.x.unshift(0)
                 data.y.unshift(0)

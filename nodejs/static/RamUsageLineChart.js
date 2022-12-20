@@ -1,11 +1,12 @@
-class RamUsageDisplay extends Display{
+class RamUsageLineChart extends Display{
     constructor(containerId, maxRamAmount, existingData){
         super(containerId)
         this.maxRamAmount = Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))
 
         const data = {
             x:[],
-            y:[]
+            y:[],
+            mode: 'lines+markers'
         }
         for(let i = 0; i < MAX_AMOUNT_LINE_DATA_DISPLAYED; i ++){
             let monitor = existingData[i]

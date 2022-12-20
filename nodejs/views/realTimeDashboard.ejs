@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real time Dashboard - SystemWatch </title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
 </head>
 <body>
     <div class="container-fluid" id="container">
@@ -14,45 +15,64 @@
                 <div class="sidebar-header">
                     <h3>Options</h3>
                 </div>
-                <div>
+                <form autocomplete="off">
                     <div>
-                        <label for="cpuload">Display CPU load</label>
-                        <input type="checkbox" id="cpuload" name="cpuload" checked onclick="toggle('cpuUsageContainer');">
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <label for="displaycputemp">Display the CPU temperature</label>
-                        <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer');toggle('coreTempContainer');">
+                        <div class="form-check form-switch">
+                            <label class="form-check-label" for="cpuload">Display CPU load</label>
+                            <input class="form-check-input" checked data-bs-toggle="collapse" data-bs-target="#cpuUsageContainer" aria-expanded="false" aria-controls="cpuUsageContainer" type="checkbox" id="cpuload" name="cpuload" >
+                        </div>
                     </div>
                     <div>
-                        <label for="coretemp">Display temperature of each core</label>
-                        <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempContainer');toggle('coreTempContainer');">
+                        <div class="form-check form-switch">
+                            <label class="form-check-label" for="displaycputemp">Display the CPU temperature</label>
+                            <input class="form-check-input" checked data-bs-toggle="collapse" data-bs-target=".temperature-option" aria-expanded="false" aria-controls="coreTemperatureOption temperature"  type="checkbox" id="displaycputemp" name="displaycputemp" >
+                        </div>
+                        <div class="form-check form-switch collapse temperature-option show" id="coreTemperatureOption">
+                            <div class="form-check form-switch">
+                                <label class="form-check-label" for="coretemp">Display temperature of each core</label>
+                                <input class="form-check-input" data-bs-toggle="collapse" data-bs-target=".coreTemperatureOption" aria-expanded="false" aria-controls="cpuTempContainer coreTempContainer temperatureDisplayTypeOption" type="checkbox" name="coretemp" id="coretemp">
+                            </div>
+                            
+                            <div class="form-check form-switch collapse coreTemperatureOption show" id="temperatureDisplayTypeOption">
+                                <button class="btn dropdown-toggle btn-primary btn-sm" id="displayDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">Change display type</button>
+                                <ul class="dropdown-menu" aria-labelledby="displayDropdownButton">
+                                    <li><a class="dropdown-item" href="#" onclick="setVisibility('cpuTempGaugeContainer', true); setVisibility('cpuTempLineChartContainer', false);">Gauge Chart</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="setVisibility('cpuTempGaugeContainer', false); setVisibility('cpuTempLineChartContainer', true);">Line Chart</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
                     </div>
-                </div>
-                <div>
                     <div>
-                        <label for="ramusage">Display RAM usage</label>
-                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageContainer');">
+                        <div class="form-check form-switch">
+                            <label class="form-check-label"  for="ramusage">Display RAM usage</label>
+                            <input class="form-check-input" type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageContainer');">
+                        </div>
                     </div>
-                </div>
+                </form>
+                
             </div>
             <div class="col-9">
                 <h1 class="col-sm" style="min-height: 30vh; text-align: center;"><%= computer.computerName %></h1>
                 
-                <div class="col-sm" id="cpuUsageContainer">
-                    <!-- <canvas id="cpuUsageCanvas" class="canvas"></canvas> -->
+                <div class="col-sm collapse show" id="cpuUsageContainer">
                     <div id="cpuUsageCanvas" class="canvas"></div>
                 </div>
 
-                <div class="col-sm" id="cpuTempContainer">
-                    <div id="cpuTempCanvas" class="canvas"></div>
+                <div class="col-sm temperature-option collapse show" id="temperature">
+                    <div class="collapse coreTemperatureOption show" id="cpuTempContainer">
+                        <div class="collapse" id="cpuTempLineChartContainer">
+                            <div id="cpuTempCanvas" class="canvas"></div>
+                        </div>
+                        <div class="collapse show" id="cpuTempGaugeContainer">
+                            <div id="cpuTempGaugeCanvas" class="canvas"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="collapse coreTemperatureOption" id="coreTempContainer">
+                        <div id="coreTempCanvas" class="canvas"></div>
+                    </div>
                 </div>
-
-                <div class="col-sm" id="coreTempContainer" style="display: none;">
-                    <div id="coreTempCanvas" class="canvas"></div>
-                </div>
-                
                 <div class="col-sm" id="ramUsageContainer">
                     <div id="ramUsageCanvas" class="canvas"></div>
                     <div class="d-flex flex-row justify-content-center">
@@ -95,17 +115,18 @@
 <!-- On importe SocketIO, Axios et Chart.js -->
 <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.16.5.js" charset="utf-8"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
 <!-- On importe tous les éléments à afficher -->
 <script src="/static/dashboardUtils.js"></script>
 <script src="/static/Display.js"></script>
-<script src="/static/CpuTemperatureDisplay.js"></script>
-<script src="/static/CoreTemperatureDisplay.js"></script>
-<script src="/static/CpuUsageDisplay.js"></script>
-<script src="/static/RamUsage.js"></script>
+<script src="/static/CpuTemperatureLineChart.js"></script>
+<script src="/static/CoreTemperatureLineChart.js"></script>
+<script src="/static/CpuTemperatureGauge.js"></script>
+<script src="/static/CpuUsageLineChart.js"></script>
+<script src="/static/RamUsageLineChart.js"></script>
 
 
 <script>
@@ -116,63 +137,37 @@
     const charts = []
 
     window.onload = async function(){
-        // Create charts : 
-        
-        // CPU Usage Line chart :
-        // const cpuUsageDisplay = new CpuUsageDisplay("cpuUsageContainer", computer.cores)
-        // charts.push(cpuUsageDisplay)
-        
-
         // Creating the possible options 
-        const coreTempOption = document.querySelector("#coretemp");
-        if(coreTempOption.checked){
-            toggle('cpuTempContainer');
-            toggle('coreTempContainer');
-        }
-        const ramUsageOption = document.querySelector("#ramusage");
-        if(!ramUsageOption.checked){
-            toggle('ramUsageContainer');
-        }
-        const cpuUsageOption = document.querySelector("#cpuload");
-        if(!cpuUsageOption.checked){
-            toggle('cpuUsageContainer')
-        }
 
         // Getting existing Data : 
         let receivedCoreStatusData = await getDataFromDatabase("corestatus");
+        let receivedMonitorData = await getDataFromDatabase("monitor");
 
         // CPU Temperature line chart
-        const cpuTempsDisplay = new CpuTemperatureDisplay("cpuTempContainer", computer.cores, receivedCoreStatusData)
+        const cpuTempsLineChart = new CpuTemperatureLineChart("cpuTempLineChartContainer", computer.cores, receivedCoreStatusData)
+
+        // CPU Temperature gauge chart 
+        const cpuTempsGaugeChart = new CpuTemperatureGaugeChart("cpuTempGaugeContainer", computer.cores, receivedCoreStatusData)
 
         // Core Temperatures line chart
-        const coreTempsDisplay = new CoreTemperatureDisplay("coreTempContainer", computer.cores, receivedCoreStatusData)
+        const coreTempsLineChart = new CoreTemperatureLineChart("coreTempContainer", computer.cores, receivedCoreStatusData)
 
         // CPU Usage line chart
-        const cpuUsageDisplay = new CpuUsageDisplay("cpuUsageContainer", computer.cores, receivedCoreStatusData)
+        const cpuUsageLineChart = new CpuUsageLineChart("cpuUsageContainer", computer.cores, receivedCoreStatusData)
 
-        for(let corestatus of receivedCoreStatusData){
-            coreData.push(corestatus);
-            // cpuUsageDisplay.push(corestatus, cpuUsageOption.checked)
-        }
-        
-        let receivedMonitorData = await getDataFromDatabase("monitor");
-        
         // RAM Usage Line chart : 
-        const ramUsageDisplay = new RamUsageDisplay("ramUsageContainer", computer.amountRAM, receivedMonitorData)
+        const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM, receivedMonitorData)
         
-        for(let monitor of receivedMonitorData){
-            monitorData.push(monitor);
-        }
-
         // Synchronizing linecharts : 
 
-        let displays = [ramUsageDisplay, coreTempsDisplay, cpuTempsDisplay, cpuUsageDisplay];
+        let lineCharts = [cpuUsageLineChart, ramUsageLineChart, coreTempsLineChart, cpuTempsLineChart];
         let plots = []
 
-        displays.forEach((d)=>{
+        lineCharts.forEach((d)=>{
             plots.push(document.querySelector("#"+d.graphId))
         })
 
+        //
         let updating = false;
         plots[0].on("plotly_redraw", function(ed){
             let range = plots[0].layout.xaxis.range
@@ -201,7 +196,6 @@
                         return;
                     }
                 }
-
                 updating = false;
             });
         });
@@ -213,21 +207,19 @@
 
         socket.on("corestatuschannel", function(data){
             const corestatus = JSON.parse(data);
-            coreData.push(corestatus);
 
-            cpuTempsDisplay.push(corestatus)
-            coreTempsDisplay.push(corestatus)
-            cpuUsageDisplay.push(corestatus, cpuUsageOption.checked)
-            
-            // TODO: Display CPU Usage
+            cpuTempsLineChart.push(corestatus)
+            coreTempsLineChart.push(corestatus)
+            cpuTempsGaugeChart.push(corestatus)
+            cpuUsageLineChart.push(corestatus)
+
+            // TODO: Display GPU Usage
         })
 
         socket.on("monitorchannel", async function(data){
             // TODO: What to do when a new monitor is received
             const monitor = JSON.parse(data);
-            monitorData.push(monitor);
-
-            ramUsageDisplay.push(monitor)
+            ramUsageLineChart.push(monitor)
         })
     }
 </script>
