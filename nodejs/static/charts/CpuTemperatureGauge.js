@@ -4,19 +4,17 @@ class CpuTemperatureGaugeChart{
         const graphContainer = this.container.querySelector("div")
         this.graphId = graphContainer.id
         this.receivedCoreStatus = [];
-        this.dataToUpdate = {
-            value: 0,
-            delta: { reference: 50, increasing: { color: "red" }, decreasing: {color: "blue"}  }
-        }
+
         this.computerCores = computerCores;
 
-        let data = [
+        this.data = [
             {
                 type: "indicator",
                 mode: "gauge+number+delta",
                 domain: { row: 0, column: 0 },
                 number : {'suffix': "°C"},
                 value: 50,
+                delta: { reference: 50, increasing: { color: "red" }, decreasing: {color: "blue"}  },
                 title: {
                     text: "CPU Temperature in Degree Celsius", 
                     font: { size: 24 }
@@ -31,17 +29,15 @@ class CpuTemperatureGaugeChart{
             }
         ]
 
-        const layout = {
+        this.layout = {
             margin: {t: 0, b: 0}, 
+            editable: true,
+            dragmode: 'swap',
             width: 600, 
             height: 450
         }
 
-        Plotly.newPlot(this.graphId, data, layout)
-        
-        for(let i = existingData.length - 8; i < existingData.length; i++){
-            this.push(existingData[i])
-        }
+        Plotly.newPlot(this.graphId, this.data, this.layout)
     }
 
     async push(corestatus){
@@ -53,13 +49,17 @@ class CpuTemperatureGaugeChart{
             for(let cs of this.receivedCoreStatus){
                 averageTemp += cs.coreTemp / computer.CPU.coreNumber;
             }
-            this.dataToUpdate.delta.reference = this.dataToUpdate.value;
-            this.dataToUpdate.value = averageTemp;
+            this.data[0].delta.reference = this.data[0].value;
+            this.data[0].value = averageTemp;
             this.receivedCoreStatus = [];
         }
         this.update()
     }
     update(){
-        Plotly.update(this.graphId, this.dataToUpdate, {}, [0])
+        try{
+            Plotly.update(this.graphId, this.data[0], {}, [0])
+        } catch (e) {
+            Plotly.newPlot(this.graphId, this.data, this.layout)
+        }
     }
 }

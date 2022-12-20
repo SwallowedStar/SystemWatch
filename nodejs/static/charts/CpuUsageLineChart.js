@@ -1,37 +1,30 @@
 class CpuUsageLineChart extends Display{
-    constructor(containerId, computerCores, existingData){
+    constructor(containerId, computerCores){
         super(containerId)
         this.computerCores = computerCores
         this.receivedCoreStatus = []
 
-        const data = {
+        this.data = [{
             x: [],
             y: [],
             mode: 'lines+markers'
-        }
-        for(let i = 0; i < MAX_AMOUNT_LINE_DATA_DISPLAYED * this.computerCores.length; i++){
-            let monitor = existingData[i]
-            if(monitor !== undefined){
-                this.push(monitor)
-            } else {
-                data.x.unshift(0)
-                data.y.unshift(0)
+        }]
+        this.layout = {
+            title: "CPU Usage in % over time",
+            editable: true,
+            dragmode: 'swap',
+            width: 600,
+            xaxis: {
+                title: "Time",
+                rangemode: 'tozero',
+                range : this.range
+            },
+            yaxis: {
+                title: "CPU Usage in %",
+                range: [0,100]
             }
-
-            const layout = {
-                title: "CPU Usage in % over time",
-                xaxis: {
-                    title: "Time",
-                    rangemode: 'tozero',
-                    range : [0, MAX_AMOUNT_LINE_DATA_DISPLAYED]
-                },
-                yaxis: {
-                    title: "CPU Usage in %",
-                    range: [0,100]
-                }
-            }
-            Plotly.newPlot(this.graphId, [data], layout);
         }
+        Plotly.newPlot(this.graphId, this.data, this.layout);
     }
     async push(monitor){
         let justOnTime = true;
@@ -51,14 +44,13 @@ class CpuUsageLineChart extends Display{
             
             this.dataToUpdate.x[0].push(timeString);
             this.dataToUpdate.y[0].push(averageUsage);
+            
+            this.data[0].x.push(timeString)
+            this.data[0].y.push(averageUsage)
 
             this.receivedCoreStatus = [];
 
             this.update();
         }
-    }
-    update(){
-        Plotly.extendTraces(this.graphId, this.dataToUpdate, [0]);
-        super.update()
     }
 }
