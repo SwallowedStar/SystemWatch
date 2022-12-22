@@ -13,51 +13,15 @@
     <div class="container-fluid" id="container">
         <div class="row">
             <div class="col-3 d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
-                <div class="sidebar-header">
-                    <h3>Options</h3>
-                </div>
-                <form autocomplete="off">
-                    <div>
-                        <div class="form-check form-switch">
-                            <label class="form-check-label" for="cpuload">Display CPU load</label>
-                            <input class="form-check-input" checked data-bs-toggle="collapse" data-bs-target="#cpuUsageContainer" aria-expanded="false" aria-controls="cpuUsageContainer" type="checkbox" id="cpuload" name="cpuload" >
-                        </div>
-                    </div>
-                    <div>
-                        <div class="form-check form-switch">
-                            <label class="form-check-label" for="displaycputemp">Display the CPU temperature</label>
-                            <input class="form-check-input" checked data-bs-toggle="collapse" data-bs-target=".temperature-option" aria-expanded="false" aria-controls="coreTemperatureOption temperature"  type="checkbox" id="displaycputemp" name="displaycputemp" >
-                        </div>
-                        <div class="form-check form-switch collapse temperature-option show" id="coreTemperatureOption">
-                            <div class="form-check form-switch">
-                                <label class="form-check-label" for="coretemp">Display temperature of each core</label>
-                                <input class="form-check-input" data-bs-toggle="collapse" data-bs-target=".coreTemperatureOption" aria-expanded="false" aria-controls="cpuTempContainer coreTempContainer temperatureDisplayTypeOption" type="checkbox" name="coretemp" id="coretemp">
-                            </div>
-                            
-                            <div class="form-check form-switch collapse coreTemperatureOption show" id="temperatureDisplayTypeOption">
-                                <button class="btn dropdown-toggle btn-primary btn-sm" id="displayDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">Change display type</button>
-                                <ul class="dropdown-menu" aria-labelledby="displayDropdownButton">
-                                    <li><a class="dropdown-item" href="#" onclick="setVisibility('cpuTempGaugeContainer', true); setVisibility('cpuTempLineChartContainer', false);">Gauge Chart</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="setVisibility('cpuTempGaugeContainer', false); setVisibility('cpuTempLineChartContainer', true);">Line Chart</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    <div>
-                        <div class="form-check form-switch">
-                            <label class="form-check-label"  for="ramusage">Display RAM usage</label>
-                            <input class="form-check-input" checked data-bs-toggle="collapse" data-bs-target="#ramUsageContainer" aria-expanded="false" aria-controls="ramUsageContainer" type="checkbox" name="ramusage" id="ramusage" checked>
-                        </div>
-                    </div>
-                </form>
+                
+            <%- include('../partials/options'); %>
                 
             </div>
             <div class="col-9 drag-list">
                 <h1 class="col-sm" style="min-height: 15vh; line-height: 7vh; text-align: center;"><%= computer.computerName %></h1>
                 <div class="row">
                     <div class="col-sm drag-item" draggable="true">
-                        <div class="collapse show"  id="cpuUsageContainer">
+                        <div class="collapse show resizable"  id="cpuUsageContainer">
                             <div id="cpuUsageCanvas" class="canvas"></div>
                         </div>
                     </div>
@@ -65,15 +29,15 @@
                     <div class="col-sm drag-item" draggable="true">
                         <div class="temperature-option collapse show"  id="temperature">
                             <div class="collapse coreTemperatureOption show" id="cpuTempContainer">
-                                <div class="collapse" id="cpuTempLineChartContainer">
+                                <div class="collapse resizable" id="cpuTempLineChartContainer">
                                     <div id="cpuTempCanvas" class="canvas"></div>
                                 </div>
-                                <div class="collapse show" id="cpuTempGaugeContainer">
+                                <div class="collapse show resizable" id="cpuTempGaugeContainer">
                                     <div id="cpuTempGaugeCanvas" class="canvas"></div>
                                 </div>
                             </div>
                             
-                            <div class="collapse coreTemperatureOption" id="coreTempContainer">
+                            <div class="collapse coreTemperatureOption resizable" id="coreTempContainer">
                                 <div id="coreTempCanvas" class="canvas"></div>
                             </div>
                         </div>
@@ -82,9 +46,9 @@
                 </div>
                 
                 <div class="col-sm drag-item" draggable="true">
-                    <div class="collapse show" id="ramUsageContainer">
+                    <div class="collapse show resizable" id="ramUsageContainer">
                         <div id="ramUsageCanvas" class="canvas"></div>
-                        <div class="d-flex flex-row justify-content-center">
+                        <div class="d-flex flex-row justify-content-center extra-infos">
                             <div class="p-2">
                                 <h5>
                                     In use
@@ -143,12 +107,12 @@
 <script src="/static/charts/RamUsageLineChart.js"></script>
 <script src="/static/charts/GuideLineChart.js"></script>
 <script src="/static/dragNdropUtils.js"></script>
+<script src="/static/resizeUtils.js"></script>
 
 <script>
     const socketHost = "<%= socketHost %>:<%= listenPort %>"
     const computer = JSON.parse('<%- JSON.stringify(computer) %>')
     const socket = io(`${socketHost}?computerID=${computer.computerID}`)
-    const charts = []
 
     // CPU Temperature line chart
     const cpuTempsLineChart = new CpuTemperatureLineChart("cpuTempLineChartContainer", computer.cores)
@@ -168,6 +132,10 @@
     // Guide Line chart : 
     const guideLineChart = new GuideLineChart("guideChartContainer")
 
+    let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart];
+    const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart];
+
+
     // Getting existing Data : 
     getDataFromDatabase("corestatus").then((receivedCoreStatusData) => {
         for(let corestatus of receivedCoreStatusData){
@@ -185,7 +153,6 @@
     });
 
     // Synchronizing linecharts : 
-    let lineCharts = [guideLineChart, cpuUsageLineChart, ramUsageLineChart, coreTempsLineChart, cpuTempsLineChart];
     let plots = []
 
     lineCharts.forEach((d)=>{
@@ -206,25 +173,32 @@
             if (updating) {
                 return;
             }
-            updating = true;
-            const dimensions = {
-                "xaxis.range[0]" : ed["xaxis.range[0]"],
-                "xaxis.range[1]" : ed["xaxis.range[1]"]
-            } 
-            for(let p of plots){
-                if(ed["dragmode"] !== undefined){
-                    await Plotly.relayout(p, ed);
-                } else if(ed["xaxis.range[0]"] !== undefined) {
-                    await Plotly.relayout(p, dimensions);
-                } else {
-                    return;
+            if(ed["xaxis.range[0]"] !== undefined){
+                updating = true;
+                const dimensions = {
+                    "xaxis.range[0]" : ed["xaxis.range[0]"],
+                    "xaxis.range[1]" : ed["xaxis.range[1]"]
+                } 
+                for(let p of plots){
+                    if(ed["dragmode"] !== undefined){
+                        await Plotly.relayout(p, ed);
+                    } else if(ed["xaxis.range[0]"] !== undefined) {
+                        await Plotly.relayout(p, dimensions);
+                    } else {
+                        return;
+                    }
                 }
+                updating = false;
+            } else {
+                return
             }
-            updating = false;
+            
         });
     });
 
-    // Socket Connection
+    createResizeObservers(charts);
+
+    // Socket Connection (will be disabled if the dashboard is static)
     socket.on("welcome", function(data) {
         console.log("Connection made");
     })
@@ -241,10 +215,11 @@
     })
 
     socket.on("monitorchannel", async function(data){
-        // TODO: What to do when a new monitor is received
         const monitor = JSON.parse(data);
         ramUsageLineChart.push(monitor)
         guideLineChart.push()
+
+        // TODO: Display electrical consumption
     })
 </script>
 </html>

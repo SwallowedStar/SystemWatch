@@ -1,0 +1,38 @@
+<div class="sidebar-header">
+    <h3>Options</h3>
+</div>
+<form autocomplete="off">
+    <div>
+        <div class="form-check form-switch">
+            <label class="form-check-label" for="cpuload">Display CPU load</label>
+            <input class="form-check-input" checked data-bs-toggle="collapse" data-bs-target="#cpuUsageContainer" aria-expanded="false" aria-controls="cpuUsageContainer" type="checkbox" id="cpuload" name="cpuload" >
+        </div>
+    </div>
+    <div>
+        <div class="form-check form-switch">
+            <label class="form-check-label" for="displaycputemp">Display the CPU temperature</label>
+            <input class="form-check-input" checked data-bs-toggle="collapse" data-bs-target=".temperature-option" aria-expanded="false" aria-controls="coreTemperatureOption temperature"  type="checkbox" id="displaycputemp" name="displaycputemp" >
+        </div>
+        <div class="form-check form-switch collapse temperature-option show" id="coreTemperatureOption">
+            <div class="form-check form-switch">
+                <label class="form-check-label" for="coretemp">Display temperature of each core</label>
+                <input class="form-check-input" data-bs-toggle="collapse" data-bs-target=".coreTemperatureOption" aria-expanded="false" aria-controls="cpuTempContainer coreTempContainer temperatureDisplayTypeOption" type="checkbox" name="coretemp" id="coretemp">
+            </div>
+            
+            <div class="form-check form-switch collapse coreTemperatureOption show" id="temperatureDisplayTypeOption">
+                <button class="btn dropdown-toggle btn-primary btn-sm" id="displayDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">Change display type</button>
+                <ul class="dropdown-menu" aria-labelledby="displayDropdownButton">
+                    <li><a class="dropdown-item" href="#" onclick="setVisibility('cpuTempGaugeContainer', true); setVisibility('cpuTempLineChartContainer', false);">Gauge Chart</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="setVisibility('cpuTempGaugeContainer', false); setVisibility('cpuTempLineChartContainer', true);">Line Chart</a></li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    <div>
+        <div class="form-check form-switch">
+            <label class="form-check-label"  for="ramusage">Display RAM usage</label>
+            <input class="form-check-input" checked data-bs-toggle="collapse" data-bs-target="#ramUsageContainer" aria-expanded="false" aria-controls="ramUsageContainer" type="checkbox" name="ramusage" id="ramusage" checked>
+        </div>
+    </div>
+</form>

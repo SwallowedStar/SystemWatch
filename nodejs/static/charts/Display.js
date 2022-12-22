@@ -1,5 +1,6 @@
 class Display{
     constructor(containerId){
+        this.containerId = containerId;
         this.container = document.querySelector(`#${containerId}`); 
         const graphContainer = this.container.querySelector("div");
         this.graphId = graphContainer.id ;
@@ -21,7 +22,9 @@ class Display{
         try{
             Plotly.extendTraces(this.graphId, this.dataToUpdate, Array(this.dataToUpdate.length).fill().map((v,i)=>i));
         } catch (e) {
-            Plotly.newPlot(this.graphId, this.data, this.layout)
+            
+            this.container = document.querySelector(`#${this.containerId}`);
+            Plotly.newPlot(this.graphId, this.data, this.layout);
         }
 
         this.dataToUpdate = {

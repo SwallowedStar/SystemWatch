@@ -1,3 +1,10 @@
 .drag-start{
     opacity: 0.5;
 }
+
+.resizable{
+    resize: both;
+    overflow: hidden;
+    border: 2px lightgrey solid;
+    border-radius: 5px;
+}

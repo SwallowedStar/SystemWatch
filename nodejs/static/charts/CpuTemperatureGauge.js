@@ -1,5 +1,6 @@
 class CpuTemperatureGaugeChart{
-    constructor(containerId, computerCores, existingData){
+    constructor(containerId, computerCores){
+        this.containerId = containerId;
         this.container = document.querySelector(`#${containerId}`)
         const graphContainer = this.container.querySelector("div")
         this.graphId = graphContainer.id
@@ -33,8 +34,6 @@ class CpuTemperatureGaugeChart{
             margin: {t: 0, b: 0}, 
             editable: true,
             dragmode: 'swap',
-            width: 600, 
-            height: 450
         }
 
         Plotly.newPlot(this.graphId, this.data, this.layout)
@@ -59,6 +58,7 @@ class CpuTemperatureGaugeChart{
         try{
             Plotly.update(this.graphId, this.data[0], {}, [0])
         } catch (e) {
+            this.container = document.querySelector(`#${this.containerId}`);
             Plotly.newPlot(this.graphId, this.data, this.layout)
         }
     }
