@@ -2,7 +2,7 @@ class Display{
     constructor(containerId){
         this.containerId = containerId;
         this.container = document.querySelector(`#${containerId}`); 
-        const graphContainer = this.container.querySelector("div");
+        const graphContainer = this.container.querySelector(".canvas");
         this.graphId = graphContainer.id ;
         this.range = [-MAX_AMOUNT_LINE_DATA_DISPLAYED, 0];
         this.data = [];

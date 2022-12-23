@@ -16,10 +16,7 @@ class CpuTemperatureGaugeChart{
                 number : {'suffix': "°C"},
                 value: 50,
                 delta: { reference: 50, increasing: { color: "red" }, decreasing: {color: "blue"}  },
-                title: {
-                    text: "CPU Temperature in Degree Celsius", 
-                    font: { size: 24 }
-                },
+                title: {text: "CPU Temperature in Degree Celsius"},
                 gauge: {
                     axis: { range: [0, 100]},
                     steps: [
