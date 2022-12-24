@@ -3,7 +3,7 @@ class RamUsageLineChart extends Display{
         super(containerId)
         this.maxRamAmount = Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))
 
-        this.data = [{
+        this.dataGraph = [{
             x:[],
             y:[],
             mode: 'lines+markers'
@@ -22,7 +22,7 @@ class RamUsageLineChart extends Display{
                 range: [0,Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))]
             }
         }
-        Plotly.newPlot(this.graphId, this.data, this.layout)
+        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout)
     }
 
     async push(monitor){
@@ -33,21 +33,12 @@ class RamUsageLineChart extends Display{
         this.dataToUpdate.y[0].push(ramUsed);
         this.dataToUpdate.x[0].push(timeString);
 
-        this.data[0].x.push(timeString);
-        this.data[0].y.push(ramUsed);
+        this.dataGraph[0].x.push(timeString);
+        this.dataGraph[0].y.push(ramUsed);
 
         this.container.querySelector("#usedRAM").innerHTML = `${Number(ramUsed.toFixed(2))} Gb (${Number((ramUsed/(this.maxRamAmount)*100).toFixed(2))}%)`
         this.container.querySelector("#availableRAM").innerHTML = `${ Number((this.maxRamAmount - ramUsed).toFixed(2)) } Gb`;
         
         this.update();
-    }
-
-    update(){
-        try{
-            Plotly.extendTraces(this.graphId, this.dataToUpdate, [0]);
-        } catch (e) {
-            Plotly.newPlot(this.graphId, this.data, this.layout)
-        }
-        super.update()
     }
 }

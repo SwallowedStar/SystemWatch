@@ -5,13 +5,14 @@ class CoreTemperatureLineChart extends Display{
         this.computerCores = computerCores;
         this.dataToUpdate.x = []
         this.dataToUpdate.y = []
-        this.data =[]
+        this.dataGraph =[]
 
         for(let i = 1; i <= this.computerCores.length; i ++){
             this.dataToUpdate.x.push([])
             this.dataToUpdate.y.push([])
-            this.data.push({x:[], y:[], mode: 'lines+markers', name:`Core ${i}`})
+            this.dataGraph.push({x:[], y:[], mode: 'lines+markers', name:`Core ${i}`})
         }
+
 
         this.layout = {
             title: "CPU Temperature in Celsius",
@@ -28,7 +29,7 @@ class CoreTemperatureLineChart extends Display{
                 range: [0,100]
             }
         }
-        Plotly.newPlot(this.graphId, this.data, this.layout);
+        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
 
     async push(corestatus){
@@ -44,21 +45,18 @@ class CoreTemperatureLineChart extends Display{
                 this.dataToUpdate.y[k].push(corestatus.coreTemp);
                 this.dataToUpdate.x[k].push(timeString);
 
-                this.data[k].x.push(timeString)
-                this.data[k].y.push(corestatus.coreTemp)
+                this.dataGraph[k].x.push(timeString)
+                this.dataGraph[k].y.push(corestatus.coreTemp)
                 break;
             }
         }
-
         if(this.receivedCoreStatus == this.computerCores.length){
             this.update();
             this.receivedCoreStatus = 0
         }
-
-        // TODO: Update this.data along the way. keep only 100 data points
     }
     update(){
-        super.update()
+        super.update()  
         this.dataToUpdate.x = []
         this.dataToUpdate.y = []
 

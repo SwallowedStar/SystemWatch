@@ -5,7 +5,7 @@ class CpuTemperatureLineChart extends Display{
         this.computerCores = computerCores;
 
         // We initialise the data
-        this.data = [{
+        this.dataGraph = [{
             x:[],
             y:[],
             mode: 'lines+markers'
@@ -27,7 +27,7 @@ class CpuTemperatureLineChart extends Display{
                 range: [0,100]
             }
         }
-        Plotly.newPlot(this.graphId, this.data, this.layout);
+        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
     async push(corestatus){
         this.receivedCoreStatus.push(corestatus);
@@ -45,8 +45,8 @@ class CpuTemperatureLineChart extends Display{
             this.dataToUpdate.x[0].push(timeString);
             this.dataToUpdate.y[0].push(averageTemp);
 
-            this.data[0].x.push(timeString)
-            this.data[0].y.push(averageTemp)
+            this.dataGraph[0].x.push(timeString)
+            this.dataGraph[0].y.push(averageTemp)
 
             this.receivedCoreStatus = [];
 

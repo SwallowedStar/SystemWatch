@@ -1,7 +1,7 @@
 class GuideLineChart extends Display {
     constructor(containerId){
         super(containerId)
-        this.data = [{
+        this.dataGraph = [{
             x: [],
             y: [],
         }]
@@ -12,7 +12,7 @@ class GuideLineChart extends Display {
             },
         }
         this.count = 0
-        Plotly.newPlot(this.graphId, this.data, this.layout);
+        Plotly.newPlot(this.graphId, this.dataGraph, this.layout);
     }
     async push(){
         this.count ++

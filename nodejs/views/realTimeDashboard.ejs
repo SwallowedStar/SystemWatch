@@ -19,55 +19,42 @@
             <div class="col-9 drag-list">
                 <h1 class="col-sm" style="min-height: 15vh; line-height: 7vh; text-align: center;"><%= computer.computerName %></h1>
                 <div class="row">
-                    <div class="drag-item resizable" draggable="true">
-                        <div class="collapse show chart-container"  id="cpuUsageContainer">
+                    <div id="cpuUsageCollapse" draggable="true" class="drag-item resizable collapse show">
+                        <div class="chart-container"  id="cpuUsageContainer">
                             <div id="cpuUsageCanvas" class="canvas"></div>
                         </div>
                     </div>
                     
-                    <div class="drag-item resizable" draggable="true">
-                        <div class="temperature-option collapse show"  id="temperature">
-                            <div class="collapse coreTemperatureOption show" id="cpuTempContainer">
-                                <div class="collapse chart-container" id="cpuTempLineChartContainer">
-                                    <div id="cpuTempCanvas" class="canvas"></div>
-                                </div>
-                                <div class="collapse show chart-container" id="cpuTempGaugeContainer">
-                                    <div id="cpuTempGaugeCanvas" class="canvas"></div>
-                                </div>
+                    <div id="temperatureCollapse" draggable="true" class="drag-item resizable collapse show temperature-option">
+                        <div class="collapse coreTemperatureOption show" id="cpuTempContainer">
+                            <div class="collapse chart-container" id="cpuTempLineChartContainer">
+                                <div id="cpuTempCanvas" class="canvas"></div>
                             </div>
-                            
-                            <div class="collapse coreTemperatureOption chart-container" id="coreTempContainer">
-                                <div id="coreTempCanvas" class="canvas"></div>
+                            <div class="collapse show chart-container" id="cpuTempGaugeContainer">
+                                <div id="cpuTempGaugeCanvas" class="canvas"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="collapse coreTemperatureOption chart-container" id="coreTempContainer">
+                            <div id="coreTempCanvas" class="canvas"></div>
+                        </div>
+                    </div>
+
+                    <div id="ramUsageCollapse" draggable="true" class="col-sm drag-item resizable collapse show">
+                        <div class="chart-container" id="ramUsageContainer">
+                            <div id="ramUsageCanvas" class="canvas"></div>
+                            <div class="d-flex flex-row justify-content-center extra-infos">
+                                <div class="p-2">
+                                    <h5>In use</h5>
+                                    <span id="usedRAM"></span>
+                                </div>
+                                <div class="p-2">
+                                    <h5>Available</h5>
+                                    <span id="availableRAM"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                </div>
-                
-                <div class="col-sm drag-item resizable" draggable="true">
-                    <div class="collapse show chart-container" id="ramUsageContainer">
-                        <div id="ramUsageCanvas" class="canvas"></div>
-                        <div class="d-flex flex-row justify-content-center extra-infos">
-                            <div class="p-2">
-                                <h5>
-                                    In use
-                                </h5>
-                                <span id="usedRAM">
-                                    
-                                </span>
-                            </div>
-                            <div class="p-2">
-                                <h5>
-                                    Available
-                                </h5>
-                                <span id="availableRAM">
-                                    
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    
                 </div>
                 <div class="col-sm" id="cpuGeneralContainer">
     

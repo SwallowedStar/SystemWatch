@@ -17,7 +17,6 @@ async function getDataFromDatabase(table){
 
     let finishDateString = `${currentDate.getFullYear()}-${('00'+(currentDate.getMonth()+1)).slice(-2)}-${('00'+(currentDate.getDate())).slice(-2)}/${('00'+(currentDate.getHours())).slice(-2)}:${('00'+(currentDate.getMinutes())).slice(-2)}:${('00'+(currentDate.getSeconds())).slice(-2)}`;
     let startDateString = `${previousDate.getFullYear()}-${('00'+(previousDate.getMonth()+1)).slice(-2)}-${('00'+(previousDate.getDate())).slice(-2)}/${('00'+(previousDate.getHours())).slice(-2)}:${('00'+(previousDate.getMinutes())).slice(-2)}:${('00'+(previousDate.getSeconds())).slice(-2)}`;
-    console.log("Get " + `http://${socketHost}/api/${table}/interval/${computer.computerID}/${startDateString}/${finishDateString}` )    
     let response = await axios.get(`http://${socketHost}/api/${table}/interval/${computer.computerID}/${startDateString}/${finishDateString}`);
     return response.data;
 }

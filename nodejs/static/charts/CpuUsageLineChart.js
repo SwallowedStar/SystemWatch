@@ -4,7 +4,7 @@ class CpuUsageLineChart extends Display{
         this.computerCores = computerCores
         this.receivedCoreStatus = []
 
-        this.data = [{
+        this.dataGraph = [{
             x: [],
             y: [],
             mode: 'lines+markers'
@@ -24,7 +24,7 @@ class CpuUsageLineChart extends Display{
                 range: [0,100]
             }
         }
-        Plotly.newPlot(this.graphId, this.data, this.layout);
+        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
     async push(monitor){
         let justOnTime = true;
@@ -45,8 +45,8 @@ class CpuUsageLineChart extends Display{
             this.dataToUpdate.x[0].push(timeString);
             this.dataToUpdate.y[0].push(averageUsage);
             
-            this.data[0].x.push(timeString)
-            this.data[0].y.push(averageUsage)
+            this.dataGraph[0].x.push(timeString)
+            this.dataGraph[0].y.push(averageUsage)
 
             this.receivedCoreStatus = [];
 
