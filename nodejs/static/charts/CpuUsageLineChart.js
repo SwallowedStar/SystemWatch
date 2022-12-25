@@ -26,9 +26,9 @@ class CpuUsageLineChart extends LineChart{
         }
         Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
-    async push(monitor){
+    async push(corestatus){
         let justOnTime = true;
-        this.receivedCoreStatus.push(monitor);
+        this.receivedCoreStatus.push(corestatus);
         if(this.receivedCoreStatus[0].idCore != this.computerCores[0].idCore){
             justOnTime = false;
             this.receivedCoreStatus = [];

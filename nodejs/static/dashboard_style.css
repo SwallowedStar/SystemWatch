@@ -8,3 +8,7 @@
     border: 2px lightgrey solid;
     border-radius: 5px;
 }
+
+.info {
+    text-align: center;
+}
