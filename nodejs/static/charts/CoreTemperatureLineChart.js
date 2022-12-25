@@ -13,21 +13,12 @@ class CoreTemperatureLineChart extends LineChart{
             this.dataGraph.push({x:[], y:[], mode: 'lines+markers', name:`Core ${i}`})
         }
 
+        this.layout.title = "CPU Temperature in Celsius";
+        this.layout.yaxis = {
+            title: "Core Temperature in Celsius",
+            range: [0,100]
+        };
 
-        this.layout = {
-            title: "CPU Temperature in Celsius",
-            editable: true,
-            width: 600,
-            xaxis: {
-                title: "Time",
-                rangemode: 'tozero',
-                range : this.range
-            },
-            yaxis: {
-                title: "Core Temperature in Celsius",
-                range: [0,100]
-            }
-        }
         Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
 

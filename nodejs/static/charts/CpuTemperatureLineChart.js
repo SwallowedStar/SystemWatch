@@ -4,28 +4,12 @@ class CpuTemperatureLineChart extends LineChart{
         this.receivedCoreStatus = [];
         this.computerCores = computerCores;
 
-        // We initialise the data
-        this.dataGraph = [{
-            x:[],
-            y:[],
-            mode: 'lines+markers'
-        }]
-
-
-        this.layout = {
-            title: "CPU Temperature in Celsius over time",
-            editable: true,
-            width: 600,
-            xaxis: {
-                title: "Time",
-                rangemode: 'tozero',
-                range : this.range
-            },
-            yaxis: {
-                title: "CPU Temperature in Celsius",
-                range: [0,100]
-            }
+        this.layout.title = "CPU Temperature in Celsius over time",
+        this.layout.yaxis= {
+            title: "CPU Temperature in Celsius",
+            range: [0,100]
         }
+
         Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
     async push(corestatus){

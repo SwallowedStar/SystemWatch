@@ -3,24 +3,12 @@ class RamUsageLineChart extends LineChart{
         super(containerId)
         this.maxRamAmount = Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))
 
-        this.dataGraph = [{
-            x:[],
-            y:[],
-            mode: 'lines+markers'
-        }]
-        this.layout = {
-            title: "Amount of RAM used",
-            editable: true,
-            xaxis: {
-                title: "Time",
-                rangemode: 'tozero',
-                range : this.range
-            },
-            yaxis: {
-                title: "Amount of RAM Used",
-                range: [0,Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))]
-            }
+        this.layout.title = "Amount of RAM used";
+        this.layout.yaxis = {
+            title: "Amount of RAM Used",
+            range: [0,Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))]
         }
+
         Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout)
     }
 

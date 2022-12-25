@@ -5,8 +5,21 @@ class LineChart{
         const graphContainer = this.container.querySelector(".canvas");
         this.graphId = graphContainer.id ;
         this.range = [-MAX_AMOUNT_LINE_DATA_DISPLAYED, 0];
-        this.dataGraph = [];
-        this.layout = {};
+        
+        this.dataGraph = [{
+            x:[],
+            y:[],
+            mode: 'lines+markers'
+        }];
+        
+        this.layout = {
+            editable: true,
+            xaxis: {
+                title: "Time",
+                rangemode: "tozerro",
+                range: this.range
+            }
+        };
         this.count = 0;
 
         this.dataToUpdate = {

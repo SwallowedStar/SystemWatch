@@ -4,24 +4,10 @@ class CpuUsageLineChart extends LineChart{
         this.computerCores = computerCores
         this.receivedCoreStatus = []
 
-        this.dataGraph = [{
-            x: [],
-            y: [],
-            mode: 'lines+markers'
-        }]
-        this.layout = {
-            title: "CPU Usage in % over time",
-            editable: true,
-            width: 600,
-            xaxis: {
-                title: "Time",
-                rangemode: 'tozero',
-                range : this.range
-            },
-            yaxis: {
-                title: "CPU Usage in %",
-                range: [0,100]
-            }
+        this.layout.title = "CPU Usage in % over time",
+        this.layout.yaxis = {
+            title: "CPU Usage in %",
+            range: [0,100]
         }
         Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }

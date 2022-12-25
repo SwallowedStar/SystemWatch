@@ -2,24 +2,9 @@ class ElectricalConsumptionLineChart extends LineChart{
     constructor(containerId){
         super(containerId);
 
-        this.dataGraph = [{
-            x: [],
-            y: [],
-            mode: 'lines+markers'
-        }]
+        this.layout.title = "Electrical Consumption";
+        this.layout.yaxis = { title: "Kilo Watts" };
 
-        this.layout = {
-            title: "Electrical Consumption",
-            editable: true,
-            xaxis: {
-                title: " Time",
-                rangemode: "tozerro",
-                range: this.range
-            },
-            yaxis: {
-                title: "Kilo Watts"
-            }
-        }
         Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout)
     }
     async push(monitor){
