@@ -66,7 +66,7 @@
                         </div>
                     </div>
 
-                    <div id="ramUsageCollapse" draggable="true" class="col-sm drag-item resizable collapse show">
+                    <div id="ramUsageCollapse" draggable="true" class="drag-item resizable collapse show">
                         <div class="chart-container" id="ramUsageContainer">
                             <div id="ramUsageCanvas" class="canvas"></div>
                             <div class="d-flex flex-row justify-content-evenly extra-infos">
@@ -81,12 +81,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-sm" id="cpuGeneralContainer">
-    
-                </div>
-                <div class="col-sm" id="cpuGeneralContainer">
-    
+                    <div id="electricalConsumptionCollapse" draggable="true" class="drag-item resizable collapse">
+                        <div class="chart-container" id="electricalConsumptionContainer">
+                            <div id="electricalConsumptionCanvas" class="canvas"></div>
+                        </div>
+                    </div> 
                 </div>
                 <div class="col-sm" id="gpuTempContainer">
                 </div>
@@ -117,6 +116,7 @@
 <script src="/static/charts/CpuTemperatureGauge.js"></script>
 <script src="/static/charts/CpuUsageLineChart.js"></script>
 <script src="/static/charts/RamUsageLineChart.js"></script>
+<script src="/static/charts/ElectricalConsumptionLineChart.js"></script>
 <script src="/static/charts/GuideLineChart.js"></script>
 <script src="/static/dragNdropUtils.js"></script>
 <script src="/static/resizeUtils.js"></script>
@@ -141,11 +141,14 @@
     // RAM Usage Line chart : 
     const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM)
 
+    // Electrical Consumption Line chart:
+    const electricalConsumptionLineChart = new ElectricalConsumptionLineChart("electricalConsumptionContainer") 
+
     // Guide Line chart : 
     const guideLineChart = new GuideLineChart("guideChartContainer")
 
-    let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart];
-    const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart];
+    let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, electricalConsumptionLineChart];
+    const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart, electricalConsumptionLineChart];
 
     // Getting existing Data : 
     getDataFromDatabase("corestatus").then((receivedCoreStatusData) => {
@@ -159,6 +162,7 @@
     getDataFromDatabase("monitor").then((receivedMonitorData) => {
         for(let monitor of receivedMonitorData){
             ramUsageLineChart.push(monitor)
+            electricalConsumptionLineChart.push(monitor)
             guideLineChart.push()
         }
     });
@@ -228,6 +232,7 @@
     socket.on("monitorchannel", async function(data){
         const monitor = JSON.parse(data);
         ramUsageLineChart.push(monitor)
+        electricalConsumptionLineChart.push(monitor)
         guideLineChart.push()
 
         document.querySelector("#nbProcesses").innerHTML = monitor.nbProcesses
