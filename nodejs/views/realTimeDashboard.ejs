@@ -34,7 +34,7 @@
                                     </div>
                                     <div class="p-2 info" >
                                         <h5>Max frequency</h5>
-                                        <span> <%= computer.CPU.maxFrequency %> </span>
+                                        <span> <%= computer.CPU.maxFrequency / 1000 %> </span>
                                     </div>
                                 </div>
                                 <div class="d-flex flex-row justify-content-evenly">
@@ -45,6 +45,10 @@
                                     <div class="p-2 info" >
                                         <h5>Threads</h5>
                                         <span id="nbThreads"> 0 </span>
+                                    </div>
+                                    <div class="p-2 info" >
+                                        <h5>CPU Frequence</h5>
+                                        <span id="cpuFreq"> 0 </span>
                                     </div>
                                 </div>  
                             </div>
@@ -122,30 +126,30 @@
 <script src="/static/resizeUtils.js"></script>
 
 <script>
-    const socketHost = "<%= socketHost %>:<%= listenPort %>"
-    const computer = JSON.parse('<%- JSON.stringify(computer) %>')
-    const socket = io(`${socketHost}?computerID=${computer.computerID}`)
+    const socketHost = "<%= socketHost %>:<%= listenPort %>";
+    const computer = JSON.parse('<%- JSON.stringify(computer) %>');
+    const socket = io(`${socketHost}?computerID=${computer.computerID}`);
 
     // CPU Temperature line chart
-    const cpuTempsLineChart = new CpuTemperatureLineChart("cpuTempLineChartContainer", computer.cores)
+    const cpuTempsLineChart = new CpuTemperatureLineChart("cpuTempLineChartContainer", computer.cores);
 
     // CPU Temperature gauge chart 
-    const cpuTempsGaugeChart = new CpuTemperatureGaugeChart("cpuTempGaugeContainer", computer.cores)
+    const cpuTempsGaugeChart = new CpuTemperatureGaugeChart("cpuTempGaugeContainer", computer.cores);
 
     // Core Temperatures line chart
-    const coreTempsLineChart = new CoreTemperatureLineChart("coreTempContainer", computer.cores)
+    const coreTempsLineChart = new CoreTemperatureLineChart("coreTempContainer", computer.cores);
 
     // CPU Usage line chart
-    const cpuUsageLineChart = new CpuUsageLineChart("cpuUsageContainer", computer.cores)
+    const cpuUsageLineChart = new CpuUsageLineChart("cpuUsageContainer", computer.cores);
 
     // RAM Usage Line chart : 
-    const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM)
+    const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM);
 
     // Electrical Consumption Line chart:
-    const electricalConsumptionLineChart = new ElectricalConsumptionLineChart("electricalConsumptionContainer") 
+    const electricalConsumptionLineChart = new ElectricalConsumptionLineChart("electricalConsumptionContainer");
 
     // Guide Line chart : 
-    const guideLineChart = new GuideLineChart("guideChartContainer")
+    const guideLineChart = new GuideLineChart("guideChartContainer");
 
     let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, electricalConsumptionLineChart];
     const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart, electricalConsumptionLineChart];
@@ -153,33 +157,33 @@
     // Getting existing Data : 
     getDataFromDatabase("corestatus").then((receivedCoreStatusData) => {
         for(let corestatus of receivedCoreStatusData){
-            cpuTempsLineChart.push(corestatus)
-            coreTempsLineChart.push(corestatus)
-            cpuTempsGaugeChart.push(corestatus)
-            cpuUsageLineChart.push(corestatus)
+            cpuTempsLineChart.push(corestatus);
+            coreTempsLineChart.push(corestatus);
+            cpuTempsGaugeChart.push(corestatus);
+            cpuUsageLineChart.push(corestatus);
         }
     })
     getDataFromDatabase("monitor").then((receivedMonitorData) => {
         for(let monitor of receivedMonitorData){
-            ramUsageLineChart.push(monitor)
-            electricalConsumptionLineChart.push(monitor)
-            guideLineChart.push()
+            ramUsageLineChart.push(monitor);
+            electricalConsumptionLineChart.push(monitor);
+            guideLineChart.push();
         }
     });
 
     // Synchronizing linecharts : 
-    let plots = []
+    let plots = [];
 
     lineCharts.forEach((d)=>{
-        plots.push(document.querySelector("#"+d.graphId))
+        plots.push(document.querySelector("#"+d.graphId));
     })
 
     let updating = false;
     plots[0].on("plotly_redraw", function(ed){
-        let range = plots[0].layout.xaxis.range
-        let newRange = [range[0]+ 1, range[1] + 1]
+        let range = plots[0].layout.xaxis.range;
+        let newRange = [range[0]+ 1, range[1] + 1];
         for(let plot of plots){
-            Plotly.relayout(plot, {xaxis:{range: newRange}})
+            Plotly.relayout(plot, {xaxis:{range: newRange}});
         }
     })
 
@@ -193,7 +197,7 @@
                 const dimensions = {
                     "xaxis.range[0]" : ed["xaxis.range[0]"],
                     "xaxis.range[1]" : ed["xaxis.range[1]"]
-                } 
+                };
                 for(let p of plots){
                     if(ed["dragmode"] !== undefined){
                         await Plotly.relayout(p, ed);
@@ -205,7 +209,7 @@
                 }
                 updating = false;
             } else {
-                return
+                return;
             }
             
         });
@@ -221,22 +225,23 @@
     socket.on("corestatuschannel", function(data){
         const corestatus = JSON.parse(data);
 
-        cpuTempsLineChart.push(corestatus)
-        coreTempsLineChart.push(corestatus)
-        cpuTempsGaugeChart.push(corestatus)
-        cpuUsageLineChart.push(corestatus)
+        cpuTempsLineChart.push(corestatus);
+        coreTempsLineChart.push(corestatus);
+        cpuTempsGaugeChart.push(corestatus);
+        cpuUsageLineChart.push(corestatus);
 
         // TODO: LineChart GPU Usage
     })
 
     socket.on("monitorchannel", async function(data){
         const monitor = JSON.parse(data);
-        ramUsageLineChart.push(monitor)
-        electricalConsumptionLineChart.push(monitor)
-        guideLineChart.push()
+        ramUsageLineChart.push(monitor);
+        electricalConsumptionLineChart.push(monitor);
+        guideLineChart.push();
 
-        document.querySelector("#nbProcesses").innerHTML = monitor.nbProcesses
-        document.querySelector("#nbThreads").innerHTML = monitor.nbThreads
+        document.querySelector("#nbProcesses").innerHTML = monitor.nbProcesses;
+        document.querySelector("#nbThreads").innerHTML = monitor.nbThreads;
+        document.querySelector("#cpuFreq").innerHTML = (monitor.CPUfreq / 1000).toFixed(2);
 
         // TODO: LineChart electrical consumption
     })
