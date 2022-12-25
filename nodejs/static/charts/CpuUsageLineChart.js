@@ -12,7 +12,6 @@ class CpuUsageLineChart extends LineChart{
         this.layout = {
             title: "CPU Usage in % over time",
             editable: true,
-            dragmode: 'swap',
             width: 600,
             xaxis: {
                 title: "Time",

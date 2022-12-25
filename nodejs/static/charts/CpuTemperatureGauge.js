@@ -30,7 +30,6 @@ class CpuTemperatureGaugeChart{
         this.layout = {
             margin: {t: 0, b: 0}, 
             editable: true,
-            dragmode: 'swap',
         }
 
         Plotly.newPlot(this.graphId, this.data, this.layout)

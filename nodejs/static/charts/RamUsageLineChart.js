@@ -11,7 +11,6 @@ class RamUsageLineChart extends LineChart{
         this.layout = {
             title: "Amount of RAM used",
             editable: true,
-            dragmode: 'swap',
             xaxis: {
                 title: "Time",
                 rangemode: 'tozero',

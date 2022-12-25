@@ -17,7 +17,6 @@ class CoreTemperatureLineChart extends LineChart{
         this.layout = {
             title: "CPU Temperature in Celsius",
             editable: true,
-            dragmode: 'swap',
             width: 600,
             xaxis: {
                 title: "Time",
