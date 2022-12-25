@@ -1,4 +1,4 @@
-class GuideLineChart extends Display {
+class GuideLineChart extends LineChart {
     constructor(containerId){
         super(containerId)
         this.dataGraph = [{

@@ -1,4 +1,4 @@
-class CpuUsageLineChart extends Display{
+class CpuUsageLineChart extends LineChart{
     constructor(containerId, computerCores){
         super(containerId)
         this.computerCores = computerCores

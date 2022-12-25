@@ -1,4 +1,4 @@
-class Display{
+class LineChart{
     constructor(containerId){
         this.containerId = containerId;
         this.container = document.querySelector(`#${containerId}`); 

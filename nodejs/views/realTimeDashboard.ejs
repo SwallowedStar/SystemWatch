@@ -85,7 +85,7 @@
 
 <!-- On importe tous les éléments à afficher -->
 <script src="/static/dashboardUtils.js"></script>
-<script src="/static/charts/Display.js"></script>
+<script src="/static/charts/LineChart.js"></script>
 <script src="/static/charts/CpuTemperatureLineChart.js"></script>
 <script src="/static/charts/CoreTemperatureLineChart.js"></script>
 <script src="/static/charts/CpuTemperatureGauge.js"></script>
@@ -196,7 +196,7 @@
         cpuTempsGaugeChart.push(corestatus)
         cpuUsageLineChart.push(corestatus)
 
-        // TODO: Display GPU Usage
+        // TODO: LineChart GPU Usage
     })
 
     socket.on("monitorchannel", async function(data){
@@ -204,7 +204,7 @@
         ramUsageLineChart.push(monitor)
         guideLineChart.push()
 
-        // TODO: Display electrical consumption
+        // TODO: LineChart electrical consumption
     })
 </script>
 </html>

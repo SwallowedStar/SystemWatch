@@ -1,4 +1,4 @@
-class CoreTemperatureLineChart extends Display{
+class CoreTemperatureLineChart extends LineChart{
     constructor(containerId, computerCores){
         super(containerId);
         this.receivedCoreStatus = 0;

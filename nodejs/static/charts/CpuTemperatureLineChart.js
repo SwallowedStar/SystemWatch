@@ -1,4 +1,4 @@
-class CpuTemperatureLineChart extends Display{
+class CpuTemperatureLineChart extends LineChart{
     constructor(containerId, computerCores){
         super(containerId);
         this.receivedCoreStatus = [];

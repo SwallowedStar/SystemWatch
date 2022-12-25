@@ -1,4 +1,4 @@
-class RamUsageLineChart extends Display{
+class RamUsageLineChart extends LineChart{
     constructor(containerId, maxRamAmount){
         super(containerId)
         this.maxRamAmount = Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))
