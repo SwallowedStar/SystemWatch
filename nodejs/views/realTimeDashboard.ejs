@@ -9,6 +9,12 @@
     <link href="/static/dashboard_style.css" rel="stylesheet" >
 </head>
 <body>
+    <div id="loadingScreen">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden"> Loading... </span>
+        </div>    
+    </div>
+    
     <div class="container-fluid" id="container">
         <div class="row">
             <div class="col-3 d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
@@ -130,120 +136,127 @@
     const computer = JSON.parse('<%- JSON.stringify(computer) %>');
     const socket = io(`${socketHost}?computerID=${computer.computerID}`);
 
-    // CPU Temperature line chart
-    const cpuTempsLineChart = new CpuTemperatureLineChart("cpuTempLineChartContainer", computer.cores);
+    window.onload = async () => {
+        // CPU Temperature line chart
+        const cpuTempsLineChart = new CpuTemperatureLineChart("cpuTempLineChartContainer", computer.cores);
 
-    // CPU Temperature gauge chart 
-    const cpuTempsGaugeChart = new CpuTemperatureGaugeChart("cpuTempGaugeContainer", computer.cores);
+        // CPU Temperature gauge chart 
+        const cpuTempsGaugeChart = new CpuTemperatureGaugeChart("cpuTempGaugeContainer", computer.cores);
 
-    // Core Temperatures line chart
-    const coreTempsLineChart = new CoreTemperatureLineChart("coreTempContainer", computer.cores);
+        // Core Temperatures line chart
+        const coreTempsLineChart = new CoreTemperatureLineChart("coreTempContainer", computer.cores);
 
-    // CPU Usage line chart
-    const cpuUsageLineChart = new CpuUsageLineChart("cpuUsageContainer", computer.cores);
+        // CPU Usage line chart
+        const cpuUsageLineChart = new CpuUsageLineChart("cpuUsageContainer", computer.cores);
 
-    // RAM Usage Line chart : 
-    const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM);
+        // RAM Usage Line chart : 
+        const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM);
 
-    // Electrical Consumption Line chart:
-    const electricalConsumptionLineChart = new ElectricalConsumptionLineChart("electricalConsumptionContainer");
+        // Electrical Consumption Line chart:
+        const electricalConsumptionLineChart = new ElectricalConsumptionLineChart("electricalConsumptionContainer");
 
-    // Guide Line chart : 
-    const guideLineChart = new GuideLineChart("guideChartContainer");
+        // Guide Line chart : 
+        const guideLineChart = new GuideLineChart("guideChartContainer");
 
-    let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, electricalConsumptionLineChart];
-    const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart, electricalConsumptionLineChart];
+        let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, electricalConsumptionLineChart];
+        const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart, electricalConsumptionLineChart];
 
-    // Getting existing Data : 
-    getDataFromDatabase("corestatus").then((receivedCoreStatusData) => {
+        // Getting existing Data : 
+        const allPromises = []
+        const receivedCoreStatusData = await getDataFromDatabase("corestatus")
         for(let corestatus of receivedCoreStatusData){
+                allPromises.push(cpuTempsLineChart.push(corestatus));
+                allPromises.push(coreTempsLineChart.push(corestatus));
+                allPromises.push(cpuTempsGaugeChart.push(corestatus));
+                allPromises.push(cpuUsageLineChart.push(corestatus));
+        }
+
+        const receivedMonitorData = await getDataFromDatabase("monitor")
+        for(let monitor of receivedMonitorData){
+            allPromises.push(ramUsageLineChart.push(monitor));
+            allPromises.push(electricalConsumptionLineChart.push(monitor));
+            allPromises.push(guideLineChart.push());
+        }
+        
+        Promise.all(allPromises).then(() => {
+            document.querySelector("#container").style.display = "block";
+            document.querySelector("#loadingScreen").style.display = "none";
+        })
+
+        // Synchronizing linecharts : 
+        let plots = [];
+
+        lineCharts.forEach((d)=>{
+            plots.push(document.querySelector("#"+d.graphId));
+        })
+
+        let updating = false;
+        plots[0].on("plotly_redraw", function(ed){
+            let range = plots[0].layout.xaxis.range;
+            let newRange = [range[0]+ 1, range[1] + 1];
+            for(let plot of plots){
+                Plotly.relayout(plot, {xaxis:{range: newRange}});
+            }
+        })
+
+        plots.forEach(div => {
+            div.on("plotly_relayout", async function(ed) {
+                if (updating) {
+                    return;
+                }
+                if(ed["xaxis.range[0]"] !== undefined){
+                    updating = true;
+                    const dimensions = {
+                        "xaxis.range[0]" : ed["xaxis.range[0]"],
+                        "xaxis.range[1]" : ed["xaxis.range[1]"]
+                    };
+                    for(let p of plots){
+                        if(ed["dragmode"] !== undefined){
+                            await Plotly.relayout(p, ed);
+                        } else if(ed["xaxis.range[0]"] !== undefined) {
+                            await Plotly.relayout(p, dimensions);
+                        } else {
+                            return;
+                        }
+                    }
+                    updating = false;
+                } else {
+                    return;
+                }
+                
+            });
+        });
+
+        createResizeObservers("resizable");
+
+        // Socket Connection (will be disabled if the dashboard is static)
+        socket.on("welcome", function(data) {
+            console.log("Connection made");
+        })
+
+        socket.on("corestatuschannel", function(data){
+            const corestatus = JSON.parse(data);
+
             cpuTempsLineChart.push(corestatus);
             coreTempsLineChart.push(corestatus);
             cpuTempsGaugeChart.push(corestatus);
             cpuUsageLineChart.push(corestatus);
-        }
-    })
-    getDataFromDatabase("monitor").then((receivedMonitorData) => {
-        for(let monitor of receivedMonitorData){
+
+            // TODO: LineChart GPU Usage
+        })
+
+        socket.on("monitorchannel", async function(data){
+            const monitor = JSON.parse(data);
             ramUsageLineChart.push(monitor);
             electricalConsumptionLineChart.push(monitor);
             guideLineChart.push();
-        }
-    });
 
-    // Synchronizing linecharts : 
-    let plots = [];
+            document.querySelector("#nbProcesses").innerHTML = monitor.nbProcesses;
+            document.querySelector("#nbThreads").innerHTML = monitor.nbThreads;
+            document.querySelector("#cpuFreq").innerHTML = (monitor.CPUfreq / 1000).toFixed(2);
 
-    lineCharts.forEach((d)=>{
-        plots.push(document.querySelector("#"+d.graphId));
-    })
-
-    let updating = false;
-    plots[0].on("plotly_redraw", function(ed){
-        let range = plots[0].layout.xaxis.range;
-        let newRange = [range[0]+ 1, range[1] + 1];
-        for(let plot of plots){
-            Plotly.relayout(plot, {xaxis:{range: newRange}});
-        }
-    })
-
-    plots.forEach(div => {
-        div.on("plotly_relayout", async function(ed) {
-            if (updating) {
-                return;
-            }
-            if(ed["xaxis.range[0]"] !== undefined){
-                updating = true;
-                const dimensions = {
-                    "xaxis.range[0]" : ed["xaxis.range[0]"],
-                    "xaxis.range[1]" : ed["xaxis.range[1]"]
-                };
-                for(let p of plots){
-                    if(ed["dragmode"] !== undefined){
-                        await Plotly.relayout(p, ed);
-                    } else if(ed["xaxis.range[0]"] !== undefined) {
-                        await Plotly.relayout(p, dimensions);
-                    } else {
-                        return;
-                    }
-                }
-                updating = false;
-            } else {
-                return;
-            }
-            
-        });
-    });
-
-    createResizeObservers("resizable");
-
-    // Socket Connection (will be disabled if the dashboard is static)
-    socket.on("welcome", function(data) {
-        console.log("Connection made");
-    })
-
-    socket.on("corestatuschannel", function(data){
-        const corestatus = JSON.parse(data);
-
-        cpuTempsLineChart.push(corestatus);
-        coreTempsLineChart.push(corestatus);
-        cpuTempsGaugeChart.push(corestatus);
-        cpuUsageLineChart.push(corestatus);
-
-        // TODO: LineChart GPU Usage
-    })
-
-    socket.on("monitorchannel", async function(data){
-        const monitor = JSON.parse(data);
-        ramUsageLineChart.push(monitor);
-        electricalConsumptionLineChart.push(monitor);
-        guideLineChart.push();
-
-        document.querySelector("#nbProcesses").innerHTML = monitor.nbProcesses;
-        document.querySelector("#nbThreads").innerHTML = monitor.nbThreads;
-        document.querySelector("#cpuFreq").innerHTML = (monitor.CPUfreq / 1000).toFixed(2);
-
-        // TODO: LineChart electrical consumption
-    })
+            // TODO: LineChart electrical consumption
+        })
+    }
 </script>
 </html>
