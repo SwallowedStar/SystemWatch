@@ -31,8 +31,6 @@ class CpuTemperatureGaugeChart{
             margin: {t: 0, b: 0}, 
             editable: true,
         }
-
-        Plotly.newPlot(this.graphId, this.data, this.layout)
     }
 
     async push(corestatus){
@@ -57,5 +55,14 @@ class CpuTemperatureGaugeChart{
             this.container = document.querySelector(`#${this.containerId}`);
             Plotly.newPlot(this.graphId, this.data, this.layout)
         }
+    }
+    
+    async initialyze(cpuData){
+        let average = 0;
+        cpuData[0].temperature.forEach(element => {
+            average += element / cpuData[0].temperature.length ;
+        });
+        this.data[0].value = average;
+        this.update();
     }
 }

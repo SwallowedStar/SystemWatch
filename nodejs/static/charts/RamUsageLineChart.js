@@ -1,6 +1,6 @@
 class RamUsageLineChart extends LineChart{
-    constructor(containerId, maxRamAmount){
-        super(containerId)
+    constructor(containerId, maxRamAmount, isLiveStreaming){
+        super(containerId, isLiveStreaming)
         this.maxRamAmount = Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))
 
         this.layout.title = "Amount of RAM used";
@@ -9,12 +9,11 @@ class RamUsageLineChart extends LineChart{
             range: [0,Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))]
         }
 
-        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout)
+        //Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout)
     }
 
     async push(monitor){
-        let time = new Date(monitor.time);
-        let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
+        let timeString = monitor.time;
 
         let ramUsed = Number((monitor.RAMusage / Math.pow(1024,3)).toFixed(2));
         this.dataToUpdate.y[0].push(ramUsed);
@@ -27,5 +26,19 @@ class RamUsageLineChart extends LineChart{
         this.container.querySelector("#availableRAM").innerHTML = `${ Number((this.maxRamAmount - ramUsed).toFixed(2)) } Gb`;
         
         this.update();
+    }
+
+    async initialyze(monitors){
+        let r = [
+            {
+                RAMusage: [], 
+                time: []
+            }
+        ]
+        monitors.forEach(element => {
+            r[0].RAMusage.push(Number((element.RAMusage / Math.pow(1024,3)).toFixed(2)))
+            r[0].time.push(element.time)
+        });
+        super.initialyze(r, "RAMusage")
     }
 }

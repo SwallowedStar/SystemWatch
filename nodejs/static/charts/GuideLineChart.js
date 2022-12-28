@@ -1,6 +1,6 @@
 class GuideLineChart extends LineChart {
-    constructor(containerId){
-        super(containerId)
+    constructor(containerId, isLiveStreaming){
+        super(containerId, isLiveStreaming)
         this.dataGraph = [{
             x: [],
             y: [],
@@ -11,15 +11,21 @@ class GuideLineChart extends LineChart {
                 range : this.range
             },
         }
-        this.count = 0
         Plotly.newPlot(this.graphId, this.dataGraph, this.layout);
     }
-    async push(){
+    async push(monitor){
         this.count ++
         this.dataToUpdate = {
-            y: [[this.count]],
-            x: [[0]]
+            y: [[0]],
+            x: [[monitor.time]]
         }
         this.update();
+    }
+    async initialyze(cpuDatas, isLiveStreaming){
+        super.initialyze(cpuDatas, "usage");
+        if(isLiveStreaming){
+            let newRange = [this.dataGraph[0].x[0], this.dataGraph[0].x[this.dataGraph[0].x.length-1]]
+            Plotly.relayout(this.graphId, {xaxis:{range: newRange}});
+        }
     }
 }

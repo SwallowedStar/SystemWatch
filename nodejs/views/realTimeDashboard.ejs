@@ -25,7 +25,7 @@
             <div class="col-9 drag-list">
                 <h1 class="col-sm" style="min-height: 15vh; line-height: 7vh; text-align: center;"><%= computer.computerName %></h1>
                 <div class="row">
-                    <div id="cpuUsageCollapse" draggable="true" class="drag-item resizable collapse show">
+                    <div id="cpuUsageCollapse" draggable="<%= isLiveStreaming %>" class="drag-item resizable collapse show">
                         <div class="chart-container"  id="cpuUsageContainer">
                             <div id="cpuUsageCanvas" class="canvas"></div>
                             <div class="extra-infos">
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     
-                    <div id="temperatureCollapse" draggable="true" class="drag-item resizable collapse show temperature-option">
+                    <div id="temperatureCollapse" draggable="<%= isLiveStreaming %>" class="drag-item resizable collapse show temperature-option">
                         <div class="collapse coreTemperatureOption show" id="cpuTempContainer">
                             <div class="collapse chart-container" id="cpuTempLineChartContainer">
                                 <div id="cpuTempCanvas" class="canvas"></div>
@@ -76,7 +76,7 @@
                         </div>
                     </div>
 
-                    <div id="ramUsageCollapse" draggable="true" class="drag-item resizable collapse show">
+                    <div id="ramUsageCollapse" draggable="<%= isLiveStreaming %>" class="drag-item resizable collapse show">
                         <div class="chart-container" id="ramUsageContainer">
                             <div id="ramUsageCanvas" class="canvas"></div>
                             <div class="d-flex flex-row justify-content-evenly extra-infos">
@@ -91,7 +91,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="electricalConsumptionCollapse" draggable="true" class="drag-item resizable collapse">
+                    <div id="electricalConsumptionCollapse" draggable="<%= isLiveStreaming %>" class="drag-item resizable collapse">
                         <div class="chart-container" id="electricalConsumptionContainer">
                             <div id="electricalConsumptionCanvas" class="canvas"></div>
                         </div>
@@ -135,48 +135,46 @@
     const socketHost = "<%= socketHost %>:<%= listenPort %>";
     const computer = JSON.parse('<%- JSON.stringify(computer) %>');
     const socket = io(`${socketHost}?computerID=${computer.computerID}`);
+    const isLiveStreaming = <%= isLiveStreaming %>;
 
     window.onload = async () => {
         // CPU Temperature line chart
-        const cpuTempsLineChart = new CpuTemperatureLineChart("cpuTempLineChartContainer", computer.cores);
+        const cpuTempsLineChart = new CpuTemperatureLineChart("cpuTempLineChartContainer", computer.cores, isLiveStreaming);
 
         // CPU Temperature gauge chart 
-        const cpuTempsGaugeChart = new CpuTemperatureGaugeChart("cpuTempGaugeContainer", computer.cores);
+        const cpuTempsGaugeChart = new CpuTemperatureGaugeChart("cpuTempGaugeContainer", computer.cores, isLiveStreaming);
 
         // Core Temperatures line chart
-        const coreTempsLineChart = new CoreTemperatureLineChart("coreTempContainer", computer.cores);
+        const coreTempsLineChart = new CoreTemperatureLineChart("coreTempContainer", computer.cores, isLiveStreaming);
 
         // CPU Usage line chart
-        const cpuUsageLineChart = new CpuUsageLineChart("cpuUsageContainer", computer.cores);
+        const cpuUsageLineChart = new CpuUsageLineChart("cpuUsageContainer", computer.cores, isLiveStreaming);
 
         // RAM Usage Line chart : 
-        const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM);
+        const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM, isLiveStreaming);
 
         // Electrical Consumption Line chart:
-        const electricalConsumptionLineChart = new ElectricalConsumptionLineChart("electricalConsumptionContainer");
+        const electricalConsumptionLineChart = new ElectricalConsumptionLineChart("electricalConsumptionContainer", isLiveStreaming);
 
         // Guide Line chart : 
-        const guideLineChart = new GuideLineChart("guideChartContainer");
+        const guideLineChart = new GuideLineChart("guideChartContainer", isLiveStreaming);
 
         let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, electricalConsumptionLineChart];
         const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart, electricalConsumptionLineChart];
 
         // Getting existing Data : 
         const allPromises = []
-        const receivedCoreStatusData = await getDataFromDatabase("corestatus")
-        for(let corestatus of receivedCoreStatusData){
-                allPromises.push(cpuTempsLineChart.push(corestatus));
-                allPromises.push(coreTempsLineChart.push(corestatus));
-                allPromises.push(cpuTempsGaugeChart.push(corestatus));
-                allPromises.push(cpuUsageLineChart.push(corestatus));
-        }
+        const receivedCoreStatusData = await getDataFromDatabase("corestatus", isLiveStreaming)
+        const receivedMonitorData = await getDataFromDatabase("monitor", isLiveStreaming)
 
-        const receivedMonitorData = await getDataFromDatabase("monitor")
-        for(let monitor of receivedMonitorData){
-            allPromises.push(ramUsageLineChart.push(monitor));
-            allPromises.push(electricalConsumptionLineChart.push(monitor));
-            allPromises.push(guideLineChart.push());
-        }
+        let [cpuResult, coreResult] = treatCoreStatus(receivedCoreStatusData, computer.cores);
+        allPromises.push(coreTempsLineChart.initialyze(coreResult));
+        allPromises.push(cpuUsageLineChart.initialyze(cpuResult));
+        allPromises.push(cpuTempsLineChart.initialyze(cpuResult));
+        allPromises.push(ramUsageLineChart.initialyze(receivedMonitorData));
+        allPromises.push(cpuTempsGaugeChart.initialyze(cpuResult));
+        allPromises.push(electricalConsumptionLineChart.initialyze(receivedMonitorData));
+        allPromises.push(guideLineChart.initialyze(cpuResult, isLiveStreaming));
         
         Promise.all(allPromises).then(() => {
             document.querySelector("#container").style.display = "block";
@@ -190,15 +188,25 @@
             plots.push(document.querySelector("#"+d.graphId));
         })
 
-        let updating = false;
+        let dStart;
+        let dFinish;
         plots[0].on("plotly_redraw", function(ed){
-            let range = plots[0].layout.xaxis.range;
-            let newRange = [range[0]+ 1, range[1] + 1];
+            if(!dStart || !dFinish){
+                dStart = new Date(plots[0].data[0].x[0]);
+                dFinish = new Date(plots[0].data[0].x[plots[0].data[0].x.length-1]);
+            }
+            let secondToLastDate = new Date(plots[0].data[0].x[plots[0].data[0].x.length-2]);
+            let latestDate = new Date(plots[0].data[0].x[plots[0].data[0].x.length-1]);
+            let offset = latestDate - secondToLastDate;
+            dStart.setMilliseconds(dStart.getMilliseconds() + offset);
+            dFinish.setMilliseconds(dFinish.getMilliseconds() + offset);
+            let newRange = [dStart, dFinish]
             for(let plot of plots){
                 Plotly.relayout(plot, {xaxis:{range: newRange}});
             }
         })
 
+        let updating = false;
         plots.forEach(div => {
             div.on("plotly_relayout", async function(ed) {
                 if (updating) {
@@ -210,6 +218,8 @@
                         "xaxis.range[0]" : ed["xaxis.range[0]"],
                         "xaxis.range[1]" : ed["xaxis.range[1]"]
                     };
+                    dStart = new Date(ed["xaxis.range[0]"]);
+                    dFinish = new Date(ed["xaxis.range[1]"]);
                     for(let p of plots){
                         if(ed["dragmode"] !== undefined){
                             await Plotly.relayout(p, ed);
@@ -229,34 +239,33 @@
 
         createResizeObservers("resizable");
 
-        // Socket Connection (will be disabled if the dashboard is static)
-        socket.on("welcome", function(data) {
-            console.log("Connection made");
-        })
+        if(isLiveStreaming) {
+            // Socket Connection (will be disabled if the dashboard is static)
+            socket.on("welcome", function(data) {
+                console.log("Connection made");
+            })
 
-        socket.on("corestatuschannel", function(data){
-            const corestatus = JSON.parse(data);
+            socket.on("corestatuschannel", function(data){
+                const corestatus = JSON.parse(data);
 
-            cpuTempsLineChart.push(corestatus);
-            coreTempsLineChart.push(corestatus);
-            cpuTempsGaugeChart.push(corestatus);
-            cpuUsageLineChart.push(corestatus);
+                cpuTempsLineChart.push(corestatus);
+                coreTempsLineChart.push(corestatus);
+                cpuTempsGaugeChart.push(corestatus);
+                cpuUsageLineChart.push(corestatus);
+            })
 
-            // TODO: LineChart GPU Usage
-        })
+            socket.on("monitorchannel", async function(data){
+                const monitor = JSON.parse(data);
+                ramUsageLineChart.push(monitor);
+                electricalConsumptionLineChart.push(monitor);
+                guideLineChart.push(monitor);
 
-        socket.on("monitorchannel", async function(data){
-            const monitor = JSON.parse(data);
-            ramUsageLineChart.push(monitor);
-            electricalConsumptionLineChart.push(monitor);
-            guideLineChart.push();
+                document.querySelector("#nbProcesses").innerHTML = monitor.nbProcesses;
+                document.querySelector("#nbThreads").innerHTML = monitor.nbThreads;
+                document.querySelector("#cpuFreq").innerHTML = (monitor.CPUfreq / 1000).toFixed(2);
+            })
+        }
 
-            document.querySelector("#nbProcesses").innerHTML = monitor.nbProcesses;
-            document.querySelector("#nbThreads").innerHTML = monitor.nbThreads;
-            document.querySelector("#cpuFreq").innerHTML = (monitor.CPUfreq / 1000).toFixed(2);
-
-            // TODO: LineChart electrical consumption
-        })
     }
 </script>
 </html>

@@ -1,6 +1,6 @@
 class CpuUsageLineChart extends LineChart{
-    constructor(containerId, computerCores){
-        super(containerId)
+    constructor(containerId, computerCores, isLiveStreaming){
+        super(containerId, isLiveStreaming)
         this.computerCores = computerCores
         this.receivedCoreStatus = []
 
@@ -9,7 +9,6 @@ class CpuUsageLineChart extends LineChart{
             title: "CPU Usage in %",
             range: [0,100]
         }
-        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
     async push(corestatus){
         let justOnTime = true;
@@ -24,9 +23,8 @@ class CpuUsageLineChart extends LineChart{
             for(let cs of this.receivedCoreStatus){
                 averageUsage += cs.coreUsage / computer.CPU.coreNumber;
             }
-            let time = new Date(this.receivedCoreStatus[0].time);
-            let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
-            
+            let timeString = corestatus.time;
+
             this.dataToUpdate.x[0].push(timeString);
             this.dataToUpdate.y[0].push(averageUsage);
             
@@ -37,5 +35,9 @@ class CpuUsageLineChart extends LineChart{
 
             this.update();
         }
+    }
+
+    async initialyze(cpuDatas){
+        super.initialyze(cpuDatas, "usage")
     }
 }

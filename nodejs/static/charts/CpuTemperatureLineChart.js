@@ -10,7 +10,6 @@ class CpuTemperatureLineChart extends LineChart{
             range: [0,100]
         }
 
-        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
     async push(corestatus){
         this.receivedCoreStatus.push(corestatus);
@@ -22,9 +21,8 @@ class CpuTemperatureLineChart extends LineChart{
             for(let cs of this.receivedCoreStatus){
                 averageTemp += cs.coreTemp / computer.CPU.coreNumber;
             }
-            let time = new Date(this.receivedCoreStatus[0].time);
-            let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
-            
+            let timeString = corestatus.time;
+
             this.dataToUpdate.x[0].push(timeString);
             this.dataToUpdate.y[0].push(averageTemp);
 
@@ -35,5 +33,8 @@ class CpuTemperatureLineChart extends LineChart{
 
             this.update();
         }
+    }
+    async initialyze(cpuData){
+        super.initialyze(cpuData, "temperature")
     }
 }

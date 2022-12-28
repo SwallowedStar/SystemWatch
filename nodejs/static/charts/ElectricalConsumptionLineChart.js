@@ -1,15 +1,12 @@
 class ElectricalConsumptionLineChart extends LineChart{
-    constructor(containerId){
-        super(containerId);
+    constructor(containerId, isLiveStreaming){
+        super(containerId, isLiveStreaming);
 
         this.layout.title = "Electrical Consumption";
         this.layout.yaxis = { title: "Kilo Watts" };
-
-        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout)
     }
     async push(monitor){
-        let time = new Date(monitor.time);
-        let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
+        let timeString = monitor.time;
 
         let electricalConsumption = monitor.electricalConsumption;
         this.dataToUpdate.y[0].push(electricalConsumption);
@@ -19,5 +16,19 @@ class ElectricalConsumptionLineChart extends LineChart{
         this.dataGraph[0].y.push(electricalConsumption);
 
         this.update();
+    }
+    async initialyze(monitors){
+        
+        let r = [
+            {
+                electricalConsumption: [], 
+                time: []
+            }
+        ]
+        monitors.forEach(element => {
+            r[0].electricalConsumption.push(Number(element.electricalConsumption))
+            r[0].time.push(element.time)
+        });
+        super.initialyze(r, "electricalConsumption");
     }
 }

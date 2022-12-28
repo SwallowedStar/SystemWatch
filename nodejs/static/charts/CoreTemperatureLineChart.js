@@ -1,16 +1,18 @@
 class CoreTemperatureLineChart extends LineChart{
-    constructor(containerId, computerCores){
-        super(containerId);
+    constructor(containerId, computerCores, isLiveStreaming){
+        super(containerId, isLiveStreaming);
         this.receivedCoreStatus = 0;
         this.computerCores = computerCores;
         this.dataToUpdate.x = []
         this.dataToUpdate.y = []
         this.dataGraph =[]
 
+        const mode = isLiveStreaming ? 'lines+markers' : 'lines';
+
         for(let i = 1; i <= this.computerCores.length; i ++){
             this.dataToUpdate.x.push([])
             this.dataToUpdate.y.push([])
-            this.dataGraph.push({x:[], y:[], mode: 'lines+markers', name:`Core ${i}`})
+            this.dataGraph.push({x:[], y:[], mode: mode, name:`Core ${i}`})
         }
 
         this.layout.title = "CPU Temperature in Celsius";
@@ -18,17 +20,13 @@ class CoreTemperatureLineChart extends LineChart{
             title: "Core Temperature in Celsius",
             range: [0,100]
         };
-
-        Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout);
     }
 
     async push(corestatus){
 
         this.receivedCoreStatus += 1
         
-        let time = new Date(corestatus.time);
-        let timeString = `${('00'+(time.getHours())).slice(-2)}:${('00'+(time.getMinutes())).slice(-2)}:${('00'+(time.getSeconds())).slice(-2)}`;
-        
+        let timeString = corestatus.time;
         for(let k = 0; k < this.computerCores.length; k++ ){
             if(corestatus.idCore == this.computerCores[k].idCore){
 
@@ -54,5 +52,9 @@ class CoreTemperatureLineChart extends LineChart{
             this.dataToUpdate.x.push([])
             this.dataToUpdate.y.push([])
         }
+    }
+
+    async initialyze(coreDatas){
+        super.initialyze(coreDatas, "temperature")
     }
 }

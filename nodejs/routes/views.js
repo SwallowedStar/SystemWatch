@@ -15,7 +15,18 @@ viewRouter.get("/computer/dashboard/:computerID", async function(req, res) {
         res.redirect("/")
     }
     else{
-        res.render("realTimeDashboard", {socketHost : process.env.SOCKET_HOST, listenPort: process.env.LISTEN_PORT, computer: computer})
+        res.render("realTimeDashboard", {socketHost : process.env.SOCKET_HOST, listenPort: process.env.LISTEN_PORT, computer: computer, isLiveStreaming: true})
+    }
+})
+
+viewRouter.get("/computer/history/:computerID", async function(req, res) {
+    const computer = await ComputerController.getComplete(req.params.computerID)
+    // Here, we check if the computer exists
+    if(computer["error"] !== undefined){
+        res.redirect("/")
+    }
+    else{
+        res.render("realTimeDashboard", {socketHost : process.env.SOCKET_HOST, listenPort: process.env.LISTEN_PORT, computer: computer, isLiveStreaming: false})
     }
 })
 
