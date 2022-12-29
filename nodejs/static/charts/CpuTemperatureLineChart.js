@@ -1,6 +1,6 @@
 class CpuTemperatureLineChart extends LineChart{
-    constructor(containerId, computerCores){
-        super(containerId);
+    constructor(containerId, computerCores, isLiveStreaming){
+        super(containerId, isLiveStreaming);
         this.receivedCoreStatus = [];
         this.computerCores = computerCores;
 
