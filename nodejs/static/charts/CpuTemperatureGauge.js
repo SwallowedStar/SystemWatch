@@ -28,8 +28,9 @@ class CpuTemperatureGaugeChart{
         ]
 
         this.layout = {
-            margin: {t: 0, b: 0}, 
-            editable: true,
+            margin: {t: 50, b: 25},
+ 
+            editable: true
         }
     }
 

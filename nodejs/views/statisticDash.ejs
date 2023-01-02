@@ -16,33 +16,12 @@
                 </div>
                 <div>
                     <div>
-                        <label for="cpuload">Display CPU load</label>
-                        <input type="checkbox" id="cpuload" name="cpuload" checked onclick="toggle('cpuUsageContainer');">
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <label for="displaycputemp">Display the CPU temperature</label>
-                        <input type="checkbox" id="displaycputemp" name="displaycputemp" checked onclick="toggle('cpuTempContainer');toggle('coreTempContainer');">
-                    </div>
-                    <div>
-                        <label for="coretemp">Display temperature of each core</label>
-                        <input type="checkbox" name="coretemp" id="coretemp" onclick="toggle('cpuTempContainer');toggle('coreTempContainer');">
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <label for="ramusage">Display RAM usage</label>
-                        <input type="checkbox" name="ramusage" id="ramusage" checked onclick="toggle('ramUsageContainer');">
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <label for="otherPage">test</label>
-                        <a href="/computer/dashboard/stats/<%= computer.computerID %>" role="button" class="btn btn-outline-secondary" style="display: block;"></a> <br>
+                        <label for="otherPage"><a href="/computer/dashboard/<%= computer.computerID %>" role="button" class="btn btn-outline-secondary" style="display: block;">Go back</a></label>
+                        
 
                     </div>
                 </div>
+                
             </div>
             <div class="col-9">
                 <h1 class="col-sm" style="min-height: 30vh; text-align: center;">  General informations and statistic </h1>
@@ -60,44 +39,16 @@
 
                 <div class="row" id="moyenne_cpu_freq">
                     <div id="Moyenne_cpu" class="canvas"></div>
-                    <div id="Moyenne_ram" class="canvas"></div>
+                    <div id="Moyenne_ram" class="canvas"></div>                   
+                    <div id="Moyenne_vram" class="canvas"></div>
                 </div>
 
-                <div class="col-sm" id="moyenne_temp_core">
-                    <div id="Moyenne_core" class="canvas"></div>
+                <div class="row" id="moyenne_others">
+       
                 </div>
                 
-                <div class="col-sm" id="ramUsageContainer">
-                    <div id="ramUsageCanvas" class="canvas"></div>
-                    <div class="d-flex flex-row justify-content-center">
-                        <div class="p-2">
-                            <h5>
-                                In use
-                            </h5>
-                            <span id="usedRAM">
-                                
-                            </span>
-                        </div>
-                        <div class="p-2">
-                            <h5>
-                                Available
-                            </h5>
-                            <span id="availableRAM">
-                                
-                            </span>
-                        </div>
-                    </div>
-                    
-                </div>
-                <div class="col-sm" id="cpuGeneralContainer">
-    
-                </div>
-                <div class="col-sm" id="cpuGeneralContainer">
-    
-                </div>
-                <div class="col-sm" id="gpuTempContainer">
-    
-                </div>
+           
+             
         <%- include('../partials/footer'); %>
 
             </div>
@@ -113,14 +64,7 @@
 <script src="https://cdn.plot.ly/plotly-2.16.5.js" charset="utf-8"></script>
 
 
-<!-- On importe tous les éléments à afficher -->
-<script src="/static/dashboardUtils.js"></script>
-<script src="/static/Display.js"></script>
-<script src="/static/CpuTemperatureDisplay.js"></script>
-<script src="/static/CoreTemperatureDisplay.js"></script>
-<script src="/static/CpuUsageDisplay.js"></script>
-<script src="/static/RamUsage.js"></script>
-<script src="/static/ComputerStat.js"></script>
+
 
 <script>
 
@@ -141,12 +85,15 @@
        let min_freq_cpu=0
        let max_amount_ram=0
        let min_amount_ram=0
+       let max_amount_vram=0
+       let bool_gpu=false
         axios.get('/api/computer/complete/'+computer.computerID)
             .then(function (response) {
                 data=response["data"]
                 max_freq_cpu=data["CPU"]["maxFrequency"]
                 min_freq_cpu=data["CPU"]["minFrequency"]
                 max_amount_ram=data["amountRAM"]
+                max_amount_vram=data["amountVRAM"]
                 let affiche=""
                 affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'> PC Name : "+data["computerName"]+" </div></div></div>"
                 affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'>  OS Name : "+data["osName"]+" </div></div></div>"
@@ -161,6 +108,7 @@
                 div_computer_infos2.innerHTML=affiche
 
                 if(data["GPUname"]!="0"){
+                    bool_gpu=true
                     affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'> GPU :  "+data["GPUname"]+" </div></div></div>"
                     affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'>  Amount of Vram  : "+data["amountVRAM"]+" </div></div></div>"
                
@@ -183,6 +131,12 @@
             
             let div_moy_cpu=document.querySelector("#Moyenne_cpu")
             let div_moy_ram=document.querySelector("#Moyenne_ram")
+            let div_moy_vram=document.querySelector("#Moyenne_vram")
+
+            let div_moyenne_others=document.querySelector("#moyenne_others")
+
+
+
         
             axios.get('/api/monitor/interval/'+computer.computerID+'/'+date_debut+'/'+time_debut+'/'+date_end+'/'+time_end+'')
             .then(function (response) {
@@ -192,9 +146,11 @@
                 let lenght_l=0
                 let moy_cpu=0
                 let moy_ram=0
+                let moy_vram=0
                 for (let elem of data){
                     moy_cpu+=elem["CPUfreq"]
                     moy_ram+=elem["RAMusage"]
+                    moy_vram+=elem["VRAMusage"]
                     lenght_l+=1
                 }
 
@@ -256,32 +212,135 @@
                 Plotly.newPlot(div_moy_cpu,data_chart_cpu_average,layout);
                 Plotly.newPlot(div_moy_ram,data_chart_ram_average,layout);
 
-       
+                if(bool_gpu==true){
+                    let moy_amount_vram=(moy_vram/lenght_l)
+                    let pourcentage_vram=Math.round((moy_amount_vram/max_amount_vram)*100)
+                        var data_chart_vram_average = [
+                        {
+                            domain: { x: [0,100],y:[0,100]},
+                            value: pourcentage_vram,
+                            title: { text: "Average percentage of VRAM usage" },
+                            type: "indicator",
+                            mode: "gauge+number",
+                            number: { suffix: "%" },
+                            gauge: {
+                                axis: { range: [0, 100] },
+                                steps: [
+                                    { range: [0,50], color: "green" },
+                                    { range: [50, 90], color: "orange" },
+                                    { range: [90, 100], color: "red" }
+                                ],
+                                bar: { color: "black" },
+                                
+                                }
+                        }
+                    ];
+                    var layout = { width: 550, height: 400, margin: { t: 25, b: 50} };
+                    Plotly.newPlot(div_moy_vram,data_chart_vram_average,layout);
+                }
+
+
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+                let affiche=[]
+                let moy_thread=0
+                let moy_process=0
+                let moy_gpu_temp=0
+                let compte=0
+          
+                for(let elem of data){
+                 
+                    moy_thread+=elem["nbThreads"]
+                    moy_process+=elem["nbProcesses"]
+                    moy_gpu_temp+=elem["GPUtemp"]
+                    compte+=1
+                }
+  
+                moyenne_thread=Math.round((moy_thread/compte))
+                moyenne_processes=Math.round((moy_process/compte))
+                moyenne_gpu_temp=Math.round((moy_gpu_temp/compte))
+                let array_temp=[moyenne_thread,moyenne_processes,moyenne_gpu_temp]
+                let array_res=[]
+                let condition1=0
+                let condition2=0
+   
+                for (let index = 0; index < array_temp.length; index++) {
+                    
+                    class_div=""
+                    class_div_progress=""
+                    if(index==0){
+                        condition1=500
+                        condition2=700
+    
+                    }
+                    else if(index==1){
+                        condition1=4000
+                        condition2=5500
+                    }
+                    else{
+                        condition1=60
+                        condition2=90
+                    }
+                   
+
+                    if(array_temp[index]<=condition1){
+                        class_div="alert alert-dismissible alert-success"
+                        class_div_progress="progress-bar bg-success"
+
+                    }
+                    else if(array_temp[index]>condition1 && array_temp[index]<=condition2){
+                        class_div="alert alert-dismissible alert-warning"
+                        class_div_progress="progress-bar bg-warning"
+                    }
+                    else{
+                        class_div="alert alert-dismissible alert-danger"
+                        class_div_progress="progress-bar bg-danger"
+                    }
+
+                    if(index==0){
+                        width_bar=Math.round((array_temp[index]/(condition2+100))*100)                
+                        progresse_bar="<div class='progress' ><div class='"+class_div_progress+"' style='width: "+width_bar+"%' role='progressbar' aria-valuenow="+array_temp[index]+" aria-valuemin="+0+" aria-valuemax="+105+"></div></div>"
+                        affiche.push("<div class='col-lg-4' ><div class='bs-component' ><div class='"+class_div+"' data-bs-dismiss='alert'> Average Number of threads : "+array_temp[index]+" </div></div>"+progresse_bar+"</div>" )
+
+                    }
+                    else if( index==1){
+                        width_bar=Math.round((array_temp[index]/(condition2+1000))*100)                
+                        progresse_bar="<div class='progress' ><div class='"+class_div_progress+"' style='width: "+width_bar+"%' role='progressbar' aria-valuenow="+array_temp[index]+" aria-valuemin="+0+" aria-valuemax="+105+"></div></div>"
+                        affiche.push("<div class='col-lg-4' ><div class='bs-component' ><div class='"+class_div+"' data-bs-dismiss='alert'> Average Number of processes  : "+array_temp[index]+" </div></div>"+progresse_bar+"</div>" )
+
+                    }else{
+                        width_bar=Math.round((array_temp[index]/(condition2+15))*100)                
+                        progresse_bar="<div class='progress' ><div class='"+class_div_progress+"' style='width: "+width_bar+"%' role='progressbar' aria-valuenow="+array_temp[index]+" aria-valuemin="+0+" aria-valuemax="+105+"></div></div>"
+                        affiche.push("<div class='col-lg-4' ><div class='bs-component' ><div class='"+class_div+"' data-bs-dismiss='alert'> Average Temperature of the GPU : "+array_temp[index]+" °C </div></div>"+progresse_bar+"</div>" )
+
+                    }
+
+                  
+
+                }
+           
                 
 
-                //Plotly.newPlot(div_moy_cpu, data)
+                div_moyenne_others.innerHTML+=affiche[0]
+                div_moyenne_others.innerHTML+=affiche[1]
+                if(bool_gpu==true && affiche[2]!=0){
+                    div_moyenne_others.innerHTML+=affiche[2]
+                }
+
+
+
+
 
                 
 
-                /*let affiche=""
-                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'> PC Name : "+data["computerName"]+" </div></div></div>"
-                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'>  OS Name : "+data["osName"]+" </div></div></div>"
-                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'> Amount of RAM : "+Math.round( data["amountRAM"]/10000000)/100+" GO </div></div></div>"
-                div_computer_infos1.innerHTML=affiche
-                affiche=""
-                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'> CPU Name : "+data["CPU"]["CPUname"]+" </div></div></div>"
-                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'>  Number of core : "+data["CPU"]["coreNumber"]+" </div></div></div>"
-                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'> Maximum Frequency  "+data["CPU"]["maxFrequency"]+" GHz and Minmum Frequency "+data["CPU"]["minFrequency"]+" GHz</div></div></div>"
+                
+
                
-                
-                div_computer_infos2.innerHTML=affiche
-
-                if(data["GPUname"]!="0"){
-                    affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'> GPU :  "+data["GPUname"]+" </div></div></div>"
-                    affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='alert alert-dismissible alert-primary' data-bs-dismiss='alert'>  Amount of Vram  : "+data["amountVRAM"]+" </div></div></div>"
-               
-                }*/
-                
                 
             })
             .catch(function (error) {
@@ -290,7 +349,7 @@
             })
 
 
-            let div_moyenne_core=document.querySelector("#Moyenne_core")
+            let div_moyenne_core=document.querySelector("#moyenne_others")
 
             axios.get('/api/corestatus/interval/'+computer.computerID+'/'+date_debut+'/'+time_debut+'/'+date_end+'/'+time_end+'') 
             .then(function (response) {
@@ -310,7 +369,7 @@
                 moyenne_temp=Math.round((moy_temp/compte))
                 class_div=""
                 class_div_progress=""
-                moyenne_temp=95
+        
 
                 if(moyenne_temp<=60){
                     class_div="alert alert-dismissible alert-success"
@@ -335,8 +394,8 @@
 
 
                 console.log(moyenne_temp)
-                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='"+class_div+"' data-bs-dismiss='alert'> Average Temperature of all core  : "+moyenne_temp+" °C </div></div>"+progresse_bar+"</div>"
-                div_moyenne_core.innerHTML=affiche
+                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='"+class_div+"' data-bs-dismiss='alert'> Average Temperature of CPU  : "+moyenne_temp+" °C </div></div>"+progresse_bar+"</div>"
+                div_moyenne_core.innerHTML+=affiche
 
             })
         
