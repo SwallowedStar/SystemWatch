@@ -141,7 +141,7 @@ cd nodejs
 npm run dev
 ```
 
-Then launch the python scraper : 
+Then launch the python scraper in admin mode if you are on windows: 
 ```
 python3 scrap/scrap.py
 ```
