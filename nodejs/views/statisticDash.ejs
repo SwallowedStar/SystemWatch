@@ -42,7 +42,7 @@
                     <div id="Moyenne_ram" class="canvas"></div>                   
                     <div id="Moyenne_vram" class="canvas"></div>
                 </div>
-
+           
                 <div class="row" id="moyenne_others">
        
                 </div>
@@ -358,45 +358,77 @@
                 console.log(data)
                 let affiche=""
                 let moy_temp=0
+                let moy_usage=0
                 let compte=0
           
                 for(let elem of data){
                  
                     moy_temp+=elem["coreTemp"]
+                    moy_usage+=elem["coreUsage"]
                     compte+=1
                 }
   
                 moyenne_temp=Math.round((moy_temp/compte))
-                class_div=""
-                class_div_progress=""
+                moyenne_usage=Math.round((moy_usage/compte))
+                class_div_temp=""
+                class_div_progress_temp=""
         
 
-                if(moyenne_temp<=60){
-                    class_div="alert alert-dismissible alert-success"
-                    class_div_progress="progress-bar bg-success"
+                if(moyenne_temp<=60 ){
+                    class_div_temp="alert alert-dismissible alert-success"
+                    class_div_progress_temp="progress-bar bg-success"
 
                 }
                 else if(moyenne_temp>60 && moyenne_temp<=90){
-                    class_div="alert alert-dismissible alert-warning"
-                    class_div_progress="progress-bar bg-warning"
+                    class_div_temp="alert alert-dismissible alert-warning"
+                    class_div_progress_temp="progress-bar bg-warning"
                 }
                 else{
-                    class_div="alert alert-dismissible alert-danger"
-                    class_div_progress="progress-bar bg-danger"
+                    class_div_temp="alert alert-dismissible alert-danger"
+                    class_div_progress_temp="progress-bar bg-danger"
                 }
-
-                width_bar=Math.round((moyenne_temp/105)*100)
+                width_bar_temp=Math.round((moyenne_temp/105)*100)
 
                 
 
-                progresse_bar="<div class='progress' ><div class='"+class_div_progress+"' style='width: "+width_bar+"%' role='progressbar' aria-valuenow="+moyenne_temp+" aria-valuemin="+0+" aria-valuemax="+105+"></div></div>"
+                progresse_bar_temp="<div class='progress' ><div class='"+class_div_progress_temp+"' style='width: "+width_bar_temp+"%' role='progressbar' aria-valuenow="+moyenne_temp+" aria-valuemin="+0+" aria-valuemax="+105+"></div></div>"
 
 
 
-                console.log(moyenne_temp)
-                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='"+class_div+"' data-bs-dismiss='alert'> Average Temperature of CPU  : "+moyenne_temp+" °C </div></div>"+progresse_bar+"</div>"
+                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='"+class_div_temp+"' data-bs-dismiss='alert'> Average Temperature of CPU  : "+moyenne_temp+" °C </div></div>"+progresse_bar_temp+"</div>"
                 div_moyenne_core.innerHTML+=affiche
 
+
+                class_div_usage=""
+                class_div_progress_usage=""
+                if(moyenne_usage<=60 ){
+                    class_div_usage="alert alert-dismissible alert-success"
+                    class_div_progress_usage="progress-bar bg-success"
+
+                }
+                else if(moyenne_usage>60 && moyenne_temp<=usage){
+                    class_div_usage="alert alert-dismissible alert-warning"
+                    class_div_progress_usage="progress-bar bg-warning"
+                }
+                else{
+                    class_div_usage="alert alert-dismissible alert-danger"
+                    class_div_progress_usage="progress-bar bg-danger"
+                }
+                width_bar_usage=Math.round((moyenne_usage/100)*100)
+
+                
+
+                progresse_bar_usage="<div class='progress' ><div class='"+class_div_progress_usage+"' style='width: "+width_bar_usage+"%' role='progressbar' aria-valuenow="+moyenne_usage+" aria-valuemin="+0+" aria-valuemax="+100+"></div></div>"
+
+
+
+                affiche+="<div class='col-lg-4' ><div class='bs-component' ><div class='"+class_div_usage+"' data-bs-dismiss='alert'> Average Percentage of Usage of CPU  : "+moyenne_usage+" % </div></div>"+progresse_bar_usage+"</div>"
+                div_moyenne_core.innerHTML+=affiche
+
+
+
+
+               
             })
         
 
