@@ -38,6 +38,10 @@ class RamUsageLineChart extends LineChart{
             r[0].RAMusage.push(Number((element.RAMusage / Math.pow(1024,3)).toFixed(2)))
             r[0].time.push(element.time)
         });
-        super.initialyze(r, "RAMusage")
+        super.initialyze(r, "RAMusage");
+        const ramUsed = r[0].RAMusage[r[0].RAMusage.length-1]
+        this.container.querySelector("#usedRAM").innerHTML = `${ramUsed} Gb (${Number((ramUsed/(this.maxRamAmount)*100).toFixed(2))}%)`
+        this.container.querySelector("#availableRAM").innerHTML = `${ Number((this.maxRamAmount - ramUsed).toFixed(2)) } Gb`;
+
     }
 }

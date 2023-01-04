@@ -183,6 +183,10 @@
         allPromises.push(gpuTemperatureLineChart.initialyze(receivedMonitorData));
         allPromises.push(vramUsageLineChart.initialyze(receivedMonitorData, isLiveStreaming));
         allPromises.push(guideLineChart.initialyze(cpuResult, isLiveStreaming));
+
+        document.querySelector("#nbProcesses").innerHTML = receivedMonitorData[receivedMonitorData.length-1].nbProcesses;
+        document.querySelector("#nbThreads").innerHTML = receivedMonitorData[receivedMonitorData.length-1].nbThreads;
+        document.querySelector("#cpuFreq").innerHTML = (receivedMonitorData[receivedMonitorData.length-1].CPUfreq / 1000).toFixed(2);
         
         Promise.all(allPromises).then(() => {
             document.querySelector("#container").style.display = "block";
@@ -217,6 +221,7 @@
         let updating = false;
         plots.forEach(div => {
             div.on("plotly_relayout", async function(ed) {
+                console.log("Event plotly_relayout")
                 if (updating) {
                     return;
                 }
