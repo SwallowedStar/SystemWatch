@@ -8,8 +8,6 @@ class RamUsageLineChart extends LineChart{
             title: "Amount of RAM Used",
             range: [0,Number((maxRamAmount / Math.pow(1024,3)).toFixed(2))]
         }
-
-        //Plotly.newPlot(this.graphId, JSON.parse(JSON.stringify(this.dataGraph)), this.layout)
     }
 
     async push(monitor){
@@ -26,6 +24,7 @@ class RamUsageLineChart extends LineChart{
         this.container.querySelector("#availableRAM").innerHTML = `${ Number((this.maxRamAmount - ramUsed).toFixed(2)) } Gb`;
         
         this.update();
+
     }
 
     async initialyze(monitors){

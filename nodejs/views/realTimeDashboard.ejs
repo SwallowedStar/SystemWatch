@@ -95,6 +95,11 @@
                         <div class="chart-container" id="gpuTemperatureContainer">
                             <div id="gpuTemperatureCanvas" class="canvas"></div>
                         </div>
+                    </div>
+                    <div id="vramUsageCollapse" draggable="<%= isLiveStreaming %>" class="drag-item resizable collapse">
+                        <div class="chart-container" id="vramUsageContainer">
+                            <div id="vramUsageCanvas" class="canvas"></div>
+                        </div>
                     </div> 
                 </div>
 
@@ -125,6 +130,7 @@
 <script src="/static/charts/CpuUsageLineChart.js"></script>
 <script src="/static/charts/RamUsageLineChart.js"></script>
 <script src="/static/charts/GpuTemperatureLineChart.js"></script>
+<script src="/static/charts/VramUsageLineChart.js"></script>
 <script src="/static/charts/GuideLineChart.js"></script>
 <script src="/static/dragNdropUtils.js"></script>
 <script src="/static/resizeUtils.js"></script>
@@ -151,14 +157,17 @@
         // RAM Usage Line chart : 
         const ramUsageLineChart = new RamUsageLineChart("ramUsageContainer", computer.amountRAM, isLiveStreaming);
 
-        // Electrical Consumption Line chart:
+        // GPU Temperature Line chart:
         const gpuTemperatureLineChart = new GpuTemperatureLineChart("gpuTemperatureContainer", isLiveStreaming);
+
+        // VRAM Usage Line chart : 
+        const vramUsageLineChart = new VramUsageLineChart("vramUsageContainer", isLiveStreaming);
 
         // Guide Line chart : 
         const guideLineChart = new GuideLineChart("guideChartContainer", isLiveStreaming);
 
-        let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, gpuTemperatureLineChart];
-        const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart, gpuTemperatureLineChart];
+        let lineCharts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, gpuTemperatureLineChart, vramUsageLineChart, guideLineChart];
+        const charts = [guideLineChart, cpuUsageLineChart, coreTempsLineChart, ramUsageLineChart, cpuTempsLineChart, cpuTempsGaugeChart, gpuTemperatureLineChart, vramUsageLineChart, guideLineChart];
 
         // Getting existing Data : 
         const allPromises = []
@@ -172,6 +181,7 @@
         allPromises.push(ramUsageLineChart.initialyze(receivedMonitorData));
         allPromises.push(cpuTempsGaugeChart.initialyze(cpuResult));
         allPromises.push(gpuTemperatureLineChart.initialyze(receivedMonitorData));
+        allPromises.push(vramUsageLineChart.initialyze(receivedMonitorData, isLiveStreaming));
         allPromises.push(guideLineChart.initialyze(cpuResult, isLiveStreaming));
         
         Promise.all(allPromises).then(() => {
@@ -256,6 +266,7 @@
                 const monitor = JSON.parse(data);
                 ramUsageLineChart.push(monitor);
                 gpuTemperatureLineChart.push(monitor);
+                vramUsageLineChart.push(monitor);
                 guideLineChart.push(monitor);
 
                 document.querySelector("#nbProcesses").innerHTML = monitor.nbProcesses;
