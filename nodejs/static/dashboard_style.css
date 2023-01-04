@@ -34,6 +34,14 @@
     justify-content: center;
 }
 
+#gpuTemperatureCollapse{
+    width: 50%; 
+}
+
+#vramUsageCollapse{
+    width: 50%; 
+}
+
 #container{
     display: none;
 }
