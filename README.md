@@ -149,6 +149,68 @@ python3 scrap/scrap.py
 Then in the webbrowser of your choice and type in the adress of the backend server. \
 For example, it can be : http://localhost:3000/
 
+This app is composed of 4 different screens : \
+
+### Computer selection : 
+
+On the first screen, you can select wich PC you wish to monitor.
+
+![Computer selection screen](images/screen1.png)
+
+### Live stream dashboard
+
+On the live stream dashboard, you'll see 3 main graphs by default : 
+- CPU Usage in %
+- CPU Temperature in degree Celcius
+- RAM Usage
+
+![Live stream dashboard image](images/current_activity.png)
+
+If we look at the options on the left, we can see that we can enable / disable some graphs. It can help visualize the informations we want to see.
+
+![A close up image of the options](images/options.png)
+
+We can also change the way the CPU Temperature is displayed. Here is the result if we turn on the "Display temperature for each core":
+
+![A Linechart of the core temperatures](images/core_temperatures.png)
+
+You also have the possibility to change the size and placement of the charts by doing drag&drop on the chart titles.
+
+![Dashboard with the Core Temperatures in first and resized charts](images/resize_dashboard.png)
+
+The last fonctionnality of this dashboard is that, if you want to focus in 1 part of the dataset, you can do it on 1 chart and the chages will be done on all the charts. 
+
+![Dashboard with only the last ](images/charts_focused.png)
+
+### Computer statistics
+
+By clicking the "See general statistic about the computer" button. you can get to this screen. 
+The next screen contains the computer statistics
+
+![The screen with all the computer stats](images/stats_screen.png)
+
+### Activity History 
+
+You can also see the last 12 hours of activity of a PC by clicking the "See previous activity" in the dashboard. If there is not 12 hours of activity, we display less.
+
+![The screen with all the computer stats](images/activity_history.png)
+
+This dash board has pretty much the same properties of the livestream dashboard, but the charts cannot be moved around.
+
+---
+## Bugs remaining 
+
+Here are some bugs that we couldn't fiw in time for the deadline : 
+
+When a chart changes place, it cannot be used to focus on some data.
+Reason : the previous DOM element in the "plots" array goes stale and thus cannot receive the "plotly_relayout event". 
+
+In the history dashboard, moving the sliders dont move sliders of other charts (don't know if it's even possible). 
+
+---
+## What to do in the future
+
+
 --- 
 ## Special thanks
 
