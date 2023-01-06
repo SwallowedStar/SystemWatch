@@ -50,6 +50,16 @@
     </div>
     
     <div >
-        <label  for="otherPage"><a href="/computer/dashboard/stats/<%= computer.computerID %>" role="button" class="btn btn-outline-secondary" style="display: block;">See general statistic about the computer</a></label>
+        <a href="/computer/dashboard/stats/<%= computer.computerID %>" role="button" class="btn btn-outline-secondary" style="display: block;">See general statistic about the computer</a>
     </div>
+    <div >
+    <% if (isLiveStreaming) {%>
+    
+        <a href="/computer/history/<%= computer.computerID %>" role="button" class="btn btn-outline-secondary" style="display: block;">See previous activity</a>
+    <% } else { %>
+        <a href="/computer/dashboard/<%= computer.computerID %>" role="button" class="btn btn-outline-secondary" style="display: block;">See current activity</a>
+        
+    <% } %> 
+    </div>
+
 </form>
