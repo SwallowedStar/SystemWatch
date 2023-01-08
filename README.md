@@ -235,7 +235,11 @@ There is also the fact that Windows causes a lot of problems in retrieving infor
 ## What to do in the future
 
 There is a lot of information on a pc that could be recovered in addition.
+
+
 We can also try to change the language of the scraper script to a language that would facilitate the retrieval of information from the PC.
+
+
 --- 
 ## Special thanks
 A big thank you to our teacher, M. ROSA-MARTIN Antonin, for his help !
