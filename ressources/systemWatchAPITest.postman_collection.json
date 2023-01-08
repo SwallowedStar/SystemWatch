@@ -204,7 +204,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"time\" : \"2018-09-22 16:00:00.0\",\r\n    \"computerID\": 218,\r\n    \"RAMusage\": 50000000,\r\n    \"nbThreads\": 500,\r\n    \"nbProcesses\" : 300,\r\n    \"GPUtemp\" : 60.2,\r\n    \"CPUfreq\" : 60000,\r\n    \"VRAMusage\" : 500000,\r\n    \"electricalConsumption\" : 43.2\r\n}",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 16:00:00.0\",\r\n    \"computerID\": 220,\r\n    \"RAMusage\": 50000000,\r\n    \"nbThreads\": 500,\r\n    \"nbProcesses\" : 300,\r\n    \"GPUtemp\" : 60.2,\r\n    \"CPUfreq\" : 60000,\r\n    \"VRAMusage\" : 500000,\r\n    \"electricalConsumption\" : 43.2\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -258,7 +258,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"time\" : \"2018-09-22 16:00:00.0\",\r\n    \"computerID\": 218,\r\n    \"idCore\": 19360,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 16:00:00.0\",\r\n    \"computerID\": 220,\r\n    \"idCore\": 19369,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5, \r\n    \"coreUsage\": 20.5\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -380,7 +380,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.69.1:3000/api/corestatus/interval/218/2018-09-22/15:00:00/2018-09-22/16:00:00",
+					"raw": "http://192.168.69.1:3000/api/corestatus/interval/220/2018-09-22/15:00:00/2018-09-22/17:00:00",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -393,11 +393,11 @@
 						"api",
 						"corestatus",
 						"interval",
-						"218",
+						"220",
 						"2018-09-22",
 						"15:00:00",
 						"2018-09-22",
-						"16:00:00"
+						"17:00:00"
 					]
 				},
 				"description": "The request url is \"/api/corestatus/interval/_computerID_/startingDate/_startingHour/endingDate/endingHour_/\"\n\nIt gets all the \"corestatus\" between the starting date and end date."
@@ -443,7 +443,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.69.1:3000/api/monitor/interval/219/2018-09-22/15:00:00/2018-09-22/16:00:00",
+					"raw": "http://192.168.69.1:3000/api/monitor/interval/220/2018-09-22/15:00:00/2018-09-22/16:00:00",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -456,7 +456,7 @@
 						"api",
 						"monitor",
 						"interval",
-						"219",
+						"220",
 						"2018-09-22",
 						"15:00:00",
 						"2018-09-22",
@@ -563,7 +563,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.69.1:3000/api/computer/219",
+					"raw": "http://192.168.69.1:3000/api/computer/220",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -575,7 +575,7 @@
 					"path": [
 						"api",
 						"computer",
-						"219"
+						"220"
 					]
 				},
 				"description": "The request url is \"/api/computer/_computerID_\"\n\nIt get the computer with the said id.\n\nReplace the computerID with yours"
@@ -621,7 +621,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.69.1:3000/api/computer/complete/219",
+					"raw": "http://192.168.69.1:3000/api/computer/complete/220",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -634,7 +634,7 @@
 						"api",
 						"computer",
 						"complete",
-						"219"
+						"220"
 					]
 				},
 				"description": "The request url is \"/api/computer/complete/_computerID_\"\n\nIt gets the computer with its CPU and cores.\n\nReplace the computerID with yours"
@@ -792,7 +792,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.69.1:3000/api/corestatus/1/1/2018-09-22/16:00:00",
+					"raw": "http://192.168.69.1:3000/api/corestatus/220/19369/2018-09-22/16:00:00",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -804,8 +804,8 @@
 					"path": [
 						"api",
 						"corestatus",
-						"1",
-						"1",
+						"220",
+						"19369",
 						"2018-09-22",
 						"16:00:00"
 					]
@@ -850,7 +850,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.69.1:3000/api/monitor/218/2018-09-22/16:00:00",
+					"raw": "http://192.168.69.1:3000/api/monitor/220/2018-09-22/16:00:00",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -862,7 +862,7 @@
 					"path": [
 						"api",
 						"monitor",
-						"218",
+						"220",
 						"2018-09-22",
 						"16:00:00"
 					]
@@ -907,7 +907,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.69.1:3000/api/computer/219",
+					"raw": "http://192.168.69.1:3000/api/computer/220",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -919,7 +919,7 @@
 					"path": [
 						"api",
 						"computer",
-						"219"
+						"220"
 					]
 				},
 				"description": "The request url is : \"/api/computer/_computerID\"_"

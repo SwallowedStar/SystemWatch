@@ -48,6 +48,7 @@ Then create an instance and set the MYSQL_ROOT_PASSWORD:
 ```
 sudo docker run --name <INSTANCE NAME> -e MYSQL_ROOT_PASSWORD=<MYSQL ROOT USER PASSWORD> -p <PORT>:<PORT> -d mysql:latest
 ```
+The port here is usually 3306.
 
 Once you've done that, you can import the database into mysql.
 There is the SQL creation script in the `database/system_watch_database.sql` file.
@@ -71,8 +72,8 @@ To do so, create a `.env` file in the nodejs folder with the folowing infos :
 - **DB_PORT** : The database used to access the database
 - **DB_USER** : The user that will be able to access the database
 - **DB_PASSWORD** : The user password
-- **DB_NAME** : The name of the database you'll be using. by default, you should put "system_watch_db" 
-- **SOCKET_HOST** : This is where the API and socket and socket is installed. It will be used by the front end to ask data to the server
+- **DB_NAME** : The name of the database you'll be using. By default, the created database is "system_watch_db". 
+- **SOCKET_HOST** : This is where the API and socket server is installed. This shouldn't be "127.0.0.1" except if you're monitoring your own computer. It will be used by the front end to receive data to the server
 
 A default file would look like this : 
 ```

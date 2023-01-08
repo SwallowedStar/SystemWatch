@@ -101,7 +101,7 @@ async function testComputerController() {
     results["ComputerController.delete"] = deleted !== null && deleted[0].affectedRows == 1
     console.log(deleted)
 
-    const CPUname = "New CPU"
+    const CPUname = "Test CPU"
     const coreNumber = 2
     const minFrequency = 0
     const maxFrequency = 5400000000
