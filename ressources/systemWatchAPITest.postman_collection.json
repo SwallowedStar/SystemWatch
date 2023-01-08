@@ -1,0 +1,985 @@
+{
+	"info": {
+		"_postman_id": "209756fd-5e69-41ad-b880-36a0f27c7252",
+		"name": "systemWatchAPITest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23959367"
+	},
+	"item": [
+		{
+			"name": "ping",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/ping",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "computer create complete",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"computerName\" : \"Testputer\",\r\n    \"GPUname\": \"test\",\r\n    \"amountRAM\": 50000000,\r\n    \"amountVRAM\": 50000000,\r\n    \"osName\": \"Windows 10\",\r\n    \"CPU\" : {\r\n        \"CPUname\" : \"testCPU\",\r\n        \"coreNumber\" : 2,\r\n        \"minFrequency\" : 0,\r\n        \"maxFrequency\" : 900000000\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/computer/complete",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"computer",
+						"complete"
+					]
+				},
+				"description": "This request creates a full computer with CPU and cores.\n\nIf you're testing, you might want to keep computerID, CPUid and 1 idCore (choose any of them)."
+			},
+			"response": []
+		},
+		{
+			"name": "find pc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/computer/find/Testputer",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"computer",
+						"find",
+						"Testputer"
+					]
+				},
+				"description": "The request url is \"/api/computer/find/_computerName_\".\n\nReplace the computer name."
+			},
+			"response": []
+		},
+		{
+			"name": "create monitor",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 16:00:00.0\",\r\n    \"computerID\": 218,\r\n    \"RAMusage\": 50000000,\r\n    \"nbThreads\": 500,\r\n    \"nbProcesses\" : 300,\r\n    \"GPUtemp\" : 60.2,\r\n    \"CPUfreq\" : 60000,\r\n    \"VRAMusage\" : 500000,\r\n    \"electricalConsumption\" : 43.2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/monitor",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"monitor"
+					]
+				},
+				"description": "This request create a monitor for a computer.\n\nYou can test this just by changing \"computerID\" by the computerID you have."
+			},
+			"response": []
+		},
+		{
+			"name": "create corestatus",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 16:00:00.0\",\r\n    \"computerID\": 218,\r\n    \"idCore\": 19360,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/corestatus",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"corestatus"
+					]
+				},
+				"description": "StartFragment\n\nThis request create a monitor for a computer.\n\nYou can test this just by changing \"computerID\" and \"idCore\" by the computerID and idCore you have.\n\nEndFragment"
+			},
+			"response": []
+		},
+		{
+			"name": "get all monitors",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"RAMusage\": 50000000,\r\n    \"nbThreads\": 500,\r\n    \"nbProcesses\" : 300,\r\n    \"GPUtemp\" : 60.2,\r\n    \"CPUfreq\" : 60000,\r\n    \"VRAMusage\" : 500000,\r\n    \"fanSpeed\" : 43.2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/monitors",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"monitors"
+					]
+				},
+				"description": "gets all the monitors in the database"
+			},
+			"response": []
+		},
+		{
+			"name": "corestatus get interval",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/corestatus/interval/218/2018-09-22/15:00:00/2018-09-22/16:00:00",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"corestatus",
+						"interval",
+						"218",
+						"2018-09-22",
+						"15:00:00",
+						"2018-09-22",
+						"16:00:00"
+					]
+				},
+				"description": "The request url is \"/api/corestatus/interval/_computerID_/startingDate/_startingHour/endingDate/endingHour_/\"\n\nIt gets all the \"corestatus\" between the starting date and end date."
+			},
+			"response": []
+		},
+		{
+			"name": "monitor get interval",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/monitor/interval/219/2018-09-22/15:00:00/2018-09-22/16:00:00",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"monitor",
+						"interval",
+						"219",
+						"2018-09-22",
+						"15:00:00",
+						"2018-09-22",
+						"16:00:00"
+					]
+				},
+				"description": "The request url is \"/api/monitor/interval/_computerID_/startingDate/_startingHour/endingDate/endingHour_/\"\n\nIt gets all the \"monitor\" between the starting date and end date."
+			},
+			"response": []
+		},
+		{
+			"name": "get all computers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/computers",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"computers"
+					]
+				},
+				"description": "This request gets all the computer in the database"
+			},
+			"response": []
+		},
+		{
+			"name": "get simple computer",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/computer/219",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"computer",
+						"219"
+					]
+				},
+				"description": "The request url is \"/api/computer/_computerID_\"\n\nIt get the computer with the said id.\n\nReplace the computerID with yours"
+			},
+			"response": []
+		},
+		{
+			"name": "get complete computer",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/computer/complete/219",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"computer",
+						"complete",
+						"219"
+					]
+				},
+				"description": "The request url is \"/api/computer/complete/_computerID_\"\n\nIt gets the computer with its CPU and cores.\n\nReplace the computerID with yours"
+			},
+			"response": []
+		},
+		{
+			"name": "get all cpus",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/cpus",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"cpus"
+					]
+				},
+				"description": "Gets all the CPUs in database"
+			},
+			"response": []
+		},
+		{
+			"name": "get specific cpu",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/cpu/77",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"cpu",
+						"77"
+					]
+				},
+				"description": "The request url is : \"/api/cpu/_CPUid_\"\n\nIt gets the cpu infos."
+			},
+			"response": []
+		},
+		{
+			"name": "delete corestatus",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/corestatus/1/1/2018-09-22/16:00:00",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"corestatus",
+						"1",
+						"1",
+						"2018-09-22",
+						"16:00:00"
+					]
+				},
+				"description": "The request url is : \"/api/corestatus/_computerID/idCore/date/time\"_"
+			},
+			"response": []
+		},
+		{
+			"name": "delete monitor",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/monitor/218/2018-09-22/16:00:00",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"monitor",
+						"218",
+						"2018-09-22",
+						"16:00:00"
+					]
+				},
+				"description": "The request url is : \"/api/monitor/_computerID/date/time\"_"
+			},
+			"response": []
+		},
+		{
+			"name": "delete computer",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/computer/219",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"computer",
+						"219"
+					]
+				},
+				"description": "The request url is : \"/api/computer/_computerID\"_"
+			},
+			"response": []
+		},
+		{
+			"name": "delete specific cpu",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Ad YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"time\" : \"2018-09-22 15:00:00.0\",\r\n    \"computerID\": 1,\r\n    \"idCore\": 1,\r\n    \"coreFrequency\": 5000,\r\n    \"coreTemp\" : 30.5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.69.1:3000/api/cpu/78",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"69",
+						"1"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"cpu",
+						"78"
+					]
+				},
+				"description": "The request url is : \"/api/cpu/_CPUid\"_"
+			},
+			"response": []
+		}
+	]
+}

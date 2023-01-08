@@ -6,7 +6,9 @@
 - [Description](#description)
 - [Technologies & Dependencies](#technologies--dependencies)
 - [How to install](#installing)
+- [Testing fonctionnalities](#)
 - [How to use](#how-to-use)
+- [Remaining Bugs](#remaining-bugs)
 - [Special thanks](#special-thanks)
 
 ---
@@ -127,6 +129,26 @@ LISTEN_PORT = 3000
 IP_HOST = "127.0.0.1"
 ```
 
+---
+## How to test the code 
+
+You might want to test the code before launching it. \
+You have 2 tools at you disposale : 
+- Integrated testing in the npm app
+- Postman configurations to test the api.
+
+### Integrated testing in the npm app
+If you want to use the tool embaded in the app, you can do this :
+```
+npm run test
+```
+
+It passes only if all the tests at the end show `true`.
+
+### Postman configurations to test the api
+The file `systemWatchAPITest.postman_collection.json` contains all the configurations to launch API calls from postman. \
+Please execute them in the same order.
+Be sure to read the documentation in the postman requests. 
 
 --- 
 ## How to use
@@ -155,7 +177,7 @@ This app is composed of 4 different screens : \
 
 On the first screen, you can select wich PC you wish to monitor.
 
-![Computer selection screen](images/screen1.png)
+![Computer selection screen](ressources/screen1.png)
 
 ### Live stream dashboard
 
@@ -164,41 +186,41 @@ On the live stream dashboard, you'll see 3 main graphs by default :
 - CPU Temperature in degree Celcius
 - RAM Usage
 
-![Live stream dashboard image](images/current_activity.png)
+![Live stream dashboard image](ressources/current_activity.png)
 
 If we look at the options on the left, we can see that we can enable / disable some graphs. It can help visualize the informations we want to see.
 
-![A close up image of the options](images/options.png)
+![A close up image of the options](ressources/options.png)
 
 We can also change the way the CPU Temperature is displayed. Here is the result if we turn on the "Display temperature for each core":
 
-![A Linechart of the core temperatures](images/core_temperatures.png)
+![A Linechart of the core temperatures](ressources/core_temperatures.png)
 
 You also have the possibility to change the size and placement of the charts by doing drag&drop on the chart titles.
 
-![Dashboard with the Core Temperatures in first and resized charts](images/resize_dashboard.png)
+![Dashboard with the Core Temperatures in first and resized charts](ressources/resize_dashboard.png)
 
 The last fonctionnality of this dashboard is that, if you want to focus in 1 part of the dataset, you can do it on 1 chart and the chages will be done on all the charts. 
 
-![Dashboard with only the last ](images/charts_focused.png)
+![Dashboard with only the last ](ressources/charts_focused.png)
 
 ### Computer statistics
 
 By clicking the "See general statistic about the computer" button. you can get to this screen. 
 The next screen contains the computer statistics
 
-![The screen with all the computer stats](images/stats_screen.png)
+![The screen with all the computer stats](ressources/stats_screen.png)
 
 ### Activity History 
 
 You can also see the last 12 hours of activity of a PC by clicking the "See previous activity" in the dashboard. If there is not 12 hours of activity, we display less.
 
-![The screen with all the computer stats](images/activity_history.png)
+![The screen with all the computer stats](ressources/activity_history.png)
 
 This dash board has pretty much the same properties of the livestream dashboard, but the charts cannot be moved around.
 
 ---
-## Bugs remaining 
+## Remaining bugs  
 
 Here are some bugs that we couldn't fiw in time for the deadline : 
 

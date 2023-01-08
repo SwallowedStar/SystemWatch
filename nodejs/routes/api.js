@@ -30,7 +30,7 @@ apiRouter.post("/computer", async (req, res) => {
 })
 
 apiRouter.post("/computer/complete", async (req, res) => {
-    const neededComputerProperties = ["computerName", "GPUname", "amountRAM", "amountVRAM", "CPU"]
+    const neededComputerProperties = ["computerName", "GPUname", "amountRAM", "amountVRAM", "osName", "CPU"]
     const neededCPUProperties = ["CPUname", "coreNumber", "minFrequency", "maxFrequency"]
 
     let finish = false
@@ -57,7 +57,7 @@ apiRouter.post("/computer/complete", async (req, res) => {
         }
     }
     if(!finish){
-        res.json(await  ComputerController.createComplete(req.body))
+        res.json(await ComputerController.createComplete(req.body))
     }
 })
 
