@@ -25,10 +25,12 @@ apiRouter.get("/ping", function(req, res){
     })
 })
 
+// Creates a computer
 apiRouter.post("/computer", async (req, res) => {
     res.json(await createEntry(Computer, ComputerController, req))
 })
 
+// Create a computer, a CPU and all the computer cores.
 apiRouter.post("/computer/complete", async (req, res) => {
     const neededComputerProperties = ["computerName", "GPUname", "amountRAM", "amountVRAM", "osName", "CPU"]
     const neededCPUProperties = ["CPUname", "coreNumber", "minFrequency", "maxFrequency"]
@@ -61,6 +63,7 @@ apiRouter.post("/computer/complete", async (req, res) => {
     }
 })
 
+// Get the computer
 apiRouter.get("/computer/:computerID", async (req, res) => {
     const id = parseInt(req.params.computerID)
     if(isNaN(id)){
@@ -72,6 +75,7 @@ apiRouter.get("/computer/:computerID", async (req, res) => {
     }
 })
 
+// Find the computer with it's name
 apiRouter.get("/computer/find/:computerName", async (req, res) => {
     const foundComputer = await ComputerController.find(req.params.computerName)
     if(foundComputer["error"] !== undefined){
@@ -82,6 +86,7 @@ apiRouter.get("/computer/find/:computerName", async (req, res) => {
     }
 })
 
+// Get the computer, it's CPU and all it's cores
 apiRouter.get("/computer/complete/:computerID", async (req, res) => {
     const id = parseInt(req.params.computerID)
     if(isNaN(id)){
@@ -93,10 +98,12 @@ apiRouter.get("/computer/complete/:computerID", async (req, res) => {
     }
 })
 
+// Get all the computers 
 apiRouter.get("/computers", async (req, res) => {
     res.json(await ComputerController.all())
 })
 
+// Delete computer
 apiRouter.delete("/computer/:computerID", async (req, res) => {
     const id = parseInt(req.params.computerID)
     if(isNaN(id)){
@@ -108,15 +115,17 @@ apiRouter.delete("/computer/:computerID", async (req, res) => {
     }
 })
 
-
+// Create a CPU
 apiRouter.post("/cpu", async (req, res) => {
     res.json(await createEntry(CPU, CPUController, req))
 })
 
+// Get all the CPUs
 apiRouter.get("/cpus", async (req, res) => {
     res.json(await CPUController.all())
 })
 
+// Get a CPU
 apiRouter.get("/cpu/:CPUid", async (req, res) => {
     const id = parseInt(req.params.CPUid)
     if(isNaN(id)){
@@ -128,6 +137,7 @@ apiRouter.get("/cpu/:CPUid", async (req, res) => {
     }
 })
 
+// Delete a CPU
 apiRouter.delete("/cpu/:CPUid", async (req, res) => {
     const id = parseInt(req.params.CPUid)
     if(isNaN(id)){
@@ -139,6 +149,7 @@ apiRouter.delete("/cpu/:CPUid", async (req, res) => {
     }
 })
 
+// Create a monitor
 apiRouter.post("/monitor", async (req, res) => {
     const response = await createEntry(Monitor, MonitorController, req)
     if(response["error"] === undefined){
@@ -147,10 +158,12 @@ apiRouter.post("/monitor", async (req, res) => {
     res.json(response)
 })
 
+// Get all the monitors
 apiRouter.get("/monitors", async (req, res) => {
     res.json(await MonitorController.all())
 })
 
+// Deletes a monitor
 apiRouter.delete("/monitor/:computerID/:date/:time", async (req, res) => {
     
     const id = parseInt(req.params.computerID)
@@ -169,6 +182,7 @@ apiRouter.delete("/monitor/:computerID/:date/:time", async (req, res) => {
     }
 })
 
+// Get all the monitors between 2 dates
 apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
     const id = parseInt(req.params.computerID)
     
@@ -196,6 +210,7 @@ apiRouter.get("/monitor/interval/:computerID/:startDate/:startTime/:finishDate/:
     }
 })
 
+// Create core status
 apiRouter.post("/corestatus", async (req, res) => {
     const response = await createEntry(CoreStatus, CoreStatusController, req)
     if(response["error"] === undefined){
@@ -205,6 +220,7 @@ apiRouter.post("/corestatus", async (req, res) => {
     res.json(response)
 })
 
+// Get all corestatus between 2 time
 apiRouter.get("/corestatus/interval/:computerID/:startDate/:startTime/:finishDate/:finishTime", async (req, res) => {
     const id = parseInt(req.params.computerID)
     
@@ -232,6 +248,7 @@ apiRouter.get("/corestatus/interval/:computerID/:startDate/:startTime/:finishDat
     }
 })
 
+// Delete a corestatus
 apiRouter.delete("/corestatus/:computerID/:idCore/:date/:time", async (req, res) => {
     
     const id = parseInt(req.params.computerID)
@@ -255,6 +272,7 @@ apiRouter.delete("/corestatus/:computerID/:idCore/:date/:time", async (req, res)
     }
 })
 
+// All the rest returns 404 error
 apiRouter.get('*', (req, res) => {
     res.status(404).send('Non-existing route');
 });

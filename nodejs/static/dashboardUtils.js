@@ -1,15 +1,6 @@
 const MAX_AMOUNT_LINE_DATA_DISPLAYED = 30;
 
-const lineChartComposition = {
-    type: "line",
-    options: {
-        scales: {y: {beginAtZero: true}},
-        plugins : {
-            title: {display: true, text: "CPU Temperature in Celsius", font: {size: 24}}
-        }
-    }
-}
-
+// Gets raw data from database
 async function getDataFromDatabase(table, isLiveStreaming){
     let currentDate = new Date();
     let previousDate =  new Date();
@@ -36,6 +27,7 @@ function setVisibility(id, value){
     }
 }
 
+// Gets the raw data from data base and turns it into usage data
 function treatCoreStatus(rawData, computerCores){
     const time = []
     let coreDatas = []

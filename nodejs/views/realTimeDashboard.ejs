@@ -144,6 +144,7 @@
 <script src="/static/resizeUtils.js"></script>
 
 <script>
+    // socketHost is more socketServerIP
     const socketHost = "<%= socketHost %>:<%= listenPort %>";
     const computer = JSON.parse('<%- JSON.stringify(computer) %>');
     const socket = io(`${socketHost}?computerID=${computer.computerID}`);
@@ -182,6 +183,7 @@
         const receivedCoreStatusData = await getDataFromDatabase("corestatus", isLiveStreaming)
         const receivedMonitorData = await getDataFromDatabase("monitor", isLiveStreaming)
 
+        // Putting the data in charts
         let [cpuResult, coreResult] = treatCoreStatus(receivedCoreStatusData, computer.cores);
         allPromises.push(coreTempsLineChart.initialyze(coreResult));
         allPromises.push(cpuUsageLineChart.initialyze(cpuResult));
@@ -195,7 +197,8 @@
         document.querySelector("#nbProcesses").innerHTML = receivedMonitorData[receivedMonitorData.length-1].nbProcesses;
         document.querySelector("#nbThreads").innerHTML = receivedMonitorData[receivedMonitorData.length-1].nbThreads;
         document.querySelector("#cpuFreq").innerHTML = (receivedMonitorData[receivedMonitorData.length-1].CPUfreq / 1000).toFixed(2);
-        
+
+        // We display the loading sign while all isn't finished
         Promise.all(allPromises).then(() => {
             document.querySelector("#container").style.display = "block";
             document.querySelector("#loadingScreen").style.display = "none";
@@ -208,6 +211,7 @@
             plots.push(document.querySelector("#"+d.graphId));
         })
 
+        // Synchronizing the ranges in activity history
         let dStart;
         let dFinish;
         plots[0].on("plotly_redraw", function(ed){
@@ -226,6 +230,7 @@
             }
         })
 
+        // Synchronizing the ranges in live data streaming
         let updating = false;
         plots.forEach(div => {
             div.on("plotly_relayout", async function(ed) {
@@ -258,6 +263,7 @@
             });
         });
 
+        // Handling the resize
         createResizeObservers("resizable");
 
         if(isLiveStreaming) {
